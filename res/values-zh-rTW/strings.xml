@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Head textview -->
+    <string name="back">返回</string>
+    <string name="app_name">掌上魔燈</string>
+    <string name="LoginTitle">掌  上  魔  灯</string>
+    <string name="menu_settings">Settings</string>
+    <string name="go">確定</string>
+    <string name="label_register">注册</string>
+    <string name="register_address">注册邮箱</string>
+    <string name="register_name">真实姓名</string>
+    <string name="register_password">登陆密码</string>
+    <string name="hint_address">you@domian.com</string>
+    <string name="hint_name">请输入您的真实姓名</string>
+    <string name="hint_password">请输入您的登陆密码</string>
+    <string name="submit_photo">上傳头像</string>
+    <string name="hint_login_site">请输入魔灯平台地址</string>
+    <string name="hint_login_username">請輸入您的賬號</string>
+    <string name="hint_login_password">請輸入您的密碼</string>
+    <string name="login">登錄系統</string>
+    <string name="register">注册账号</string>
+    <string name="instruction">使用说明</string>
+    <string name="instruction_info">本系统仅提供给使用“单点掌上校园”或“单点数字化校园”系统的学校使用，如果您是一个普通老师，请先到<a href="www.dandian.net/laoshi">www.dandian.net/laoshi</a>页面下载应用。</string>
+    <string name="hint_verify_info">请登录邮箱获取验证码</string>
+    <string name="re_register_password">重复密码</string>
+    <string name="hint_re_password">请再次输入登录密码</string>
+    <string name="register_instruction">说明：</string>
+    <string name="register_instruction_info">此注册流程仅限于老师使用，注册完成以后老师可以使用些应用进行管理班级、学生、课表、测验、成绩，以及可以和学生及学生家长进行沟通等操作。</string>
+    <string name="register_instruction_info1">学生在“掌上校园”应用中使用。</string>
+    <string name="register_instruction_info2">家长在“掌上校园”应用中使用。</string>
+    <string name="register_verify">验证码</string>
+    <string name="stuinfo">学生详情</string>
+    <string name="grade_search">成绩查询</string>
+    <string name="data_init_loadings">数据初始化中…</string>
+    <string name="mycampusnotify">掌上魔燈通知</string>
+    
+    <!-- data loading -->
+    <string name="check_network">請檢查網絡後輕點屏幕重試</string>
+    <string name="data_request_failure">數據獲取失敗</string>
+    <string name="data_loading_progress">加載中…</string>
+    <string name="no_data">沒有數據記錄</string>
+    <string name="myfileisnull">私人文件櫃為空</string>
+	<string name="teacher">教師</string>
+    <string name="student">學生</string>
+    <string name="logging">登錄中&#8230;</string>
+    <string name="close">關閉</string>
+    <string name="uploadSuccess">上傳成功！</string>
+    <string name="downloadcomplete">下載完成！</string>
+    <string name="deleteRemoteFileSuc">刪除遠程文件成功！</string>
+    <string name="parentFold">上一级</string>
+    <string name="uploadfail">Upload failed</string>
+    <string name="NoSDCard">沒有SD卡！</string>
+    <string name="openFile">打開文件</string>
+    <string name="delFile">刪除文件</string>
+	<string name="delRemoteFile">刪除遠程文件</string>
+	<string name="pauseDownload">暫停下載</string>
+	<string name="cancelDownload">取消下載</string>
+    <string name="IncompleteAddress">不完整的下載地址！</string>
+    <string name="isnotWifi">您當前非WIFI網絡，繼續下載將消耗GPRS流量</string>
+    <string name="continue1">繼續</string>
+    <string name="networkinterrupted">您的網絡連接已中斷！</string>
+    <string name="maxfilesize">對不起，您上傳的文件太大了，請選擇小於%1$dM的文件！</string>
+    <string name="nameuploadfile">為上傳的文件起壹個名字</string>
+    <string name="filenamenotempty">文件名不能為空</string>
+    <string name="deleteSuc">刪除成功！</string>
+    <string name="filenotexist">文件不存在或大小為0！</string>
+    <string name="noappcanopenthis">沒有可以打開此文件的程序</string>
+    <string name="Startdownloading">開始下載</string>
+    <string name="selectFilenotexist">所選文件不存在</string>
+    <string name="ifclearunread">是否清除所有未讀狀態</string> 
+    <string name="details">詳情</string>
+    <string name="clicktoviewpic">點擊看圖集</string>
+    <string name="dataprocessing">數據處理中&#8230;</string>
+    <string name="savesuc">保存成功！</string>
+    <string name="failed">失敗</string>
+    <string name="save">保存</string>
+    <string name="pleasefinishform">請完成問卷再提交</string>
+    <string name="failedcopytosdcard">向SD卡復制文件出錯</string>
+    <string name="startdownloadbackground">已開始後臺下載..</string>
+    <string name="openfullscreen">開啟全屏</string>
+	<string name="exitfullscreen">退出全屏</string>
+	<string name="refreshpersonalinfo">正在刷新個人資料</string>
+	<string name="moodleuser">魔燈用戶</string>
+	<string name="thecountry">國家</string>
+	<string name="thecity">城市</string>
+	<string name="theschool">學校</string>
+	<string name="thedepartment">系别</string>
+	<string name="theclass">班級</string>
+	<string name="theemail">郵箱</string>
+	<string name="thestudy">選修課程</string>
+	<string name="theteach">管理課程</string>
+	<string name="logintime">登錄時間</string>
+	<string name="getcamerafailed">獲取拍照文件失敗</string>
+	<string name="changeavatar">更换头像</string>
+	<string name="usertype">用戶類型</string>
+	<string name="userinfo">用戶信息</string>
+	 <string name="nomessage">無聊天消息</string>
+	 <string name="groupsend">群發</string>
+	 <string name="image">圖片</string>
+	 <string name="send">發送</string>
+	<string name="clearmessagehistory">清除手機聊天記錄？</string>
+	<string name="messagehistoryclear">聊天記錄已清除</string>
+	<string name="tryresend">正在嘗試重發..</string>
+	<string name="selectlinkman">選擇聯系人</string>
+	<string name="etcpeople">等%d人</string>
+	<string name="people">人</string>
+	<string name="attachment">附件</string>
+	
+    <!-- System settings -->
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="logout">退出登錄</string>
+    <string name="confirmlogout">確定要退出登錄嗎？</string>
+    <string name="personal_account">个人账户</string>
+    <string name="settings_option">设置选项</string>
+    <string name="settings_alert">课前提醒</string>
+    <string name="settings_dayalert">每日课程提醒</string>
+    <string name="settings_alerttime">每日提醒时间</string>
+    <string name="settings_cur_xueqi">当前学期</string>
+    <string name="settings_initinfo">初始化数据</string>
+    <string name="settings_schedule">上课时间表</string>
+    <string name="settings_contract">软件授权协议</string>
+    <string name="settings_changePwd">修改密码</string>
+    <string name="settings_aboutus">关于我们</string>
+    <string name="settings_userId">用户名</string>
+    <string name="settings_newpwd">密码</string>
+    <string name="settings_confirmnewpwd">确认密码</string>
+    <string name="settings_newpwdtip">填写密码</string>
+    <string name="settings_confirmnewpwdtip">再次填写确认</string>
+    <!-- Common -->
+    <string name="Commons.Ok">確定</string>
+    <string name="Commons.SDCardErrorTitle">SD卡不能使用</string>
+    <string name="Commons.SDCardErrorNoSDMsg">找不到SD卡</string>
+    <string name="Commons.SDCardErrorSDUnavailable">SD卡不能使用</string>
+    <string name="curriculum">课表</string>
+     <string name="course">課程</string>
+    <string name="study">学习</string>
+    <string name="message">消息</string>
+    <string name="contacts">聯系人</string>
+    <string name="member">成员</string>
+    <string name="summary">总结</string>
+    <string name="school">課程</string>
+    <string name="roll_call">点名</string>
+	<string name="album">相册</string>
+    <!-- Home Page -->
+    <string name="date_section1">昨天</string>
+    <string name="date_section2">今天</string>
+    <string name="date_section3">明天</string>
+    <string name="en_yesterday">Yesterday</string>
+    <string name="en_today">Today</string>
+    <string name="en_tomorrow">Tomorrow</string>
+	<string name="filenum">文件數:</string>
+	
+    <!-- ClassRoom -->
+    <string name="classroom_call">点名</string>
+    <string name="classroom_course">课件</string>
+    <string name="classroom_test">测验</string>
+    <string name="classroom_summary">总结</string>
+    <string name="call_attend">此次出勤率为</string>
+    <string name="call_stu_attend">该生出勤率为</string>
+    <string name="attend">出勤</string>
+    <string name="late">迟到</string>
+    <string name="leave">请假</string>
+    <string name="absence">缺勤</string>
+    <string name="call_title">系统默认状态为已出勤，请根据实际情况做相应操作。</string>
+    <string name="call_save">保存数据</string>
+    <string name="uploading">上傳</string>
+	<string name="isuploading">正在上傳&#8230;</string>
+	<string name="waitreturn">上傳完畢，等待返回結果&#8230;</string>
+	
+    <!-- 登录 -->
+    <string name="login_title">掌上魔灯</string>
+    <string name="error_site_required">请输入魔灯平台地址</string>
+    <string name="error_username_required">請輸入魔燈賬號</string>
+    <string name="first_experience">進入演示</string>
+    <string name="summary_mark">本次授课综合评分为</string>
+    <string name="summary_text">分</string>
+    <string name="summary_discipline">授课纪律评价</string>
+    <string name="summary_health">教室卫生评价</string>
+    <string name="summary_content">授课内容</string>
+    <string name="content_hint">请输入授课内容总结</string>
+    <string name="album_hint">天气不错，心情也不错&#8230;</string>
+    <string name="summary_homework">作业布置</string>
+    <string name="homework_hint">请输入布置作业内容</string>
+    <string name="summary_perfect">优</string>
+    <string name="summary_good">良</string>
+    <string name="summary_well">中</string>
+    <string name="summary_bad">差</string>
+    <string name="login_bottom">CopyRightⓒ單點科技</string>
+    <string name="login_left_bottom">如何開通掌上魔燈？</string>
+    <string name="please_choose_user_type">請選擇用戶類型</string>
+
+    <!-- 沟通 -->
+    <string name="notice_send">发送通知</string>
+    <string name="notice_class_hint">请选择要发送通知的班级</string>
+    <string name="notice_content_hint">请输入通知内容…</string>
+    <string name="search_cancel">取消</string>
+    <string name="search_choose_cls">搜索班级</string>
+    <string name="search_choose_stu">搜索学生</string>
+    <string name="search_choose_hint">請輸入關鍵字</string>
+
+    <!-- 汇总 -->
+    <string name="summary_attend">出勤汇总</string>
+    <string name="summary_exam">测验汇总</string>
+    <string name="summary_grade">成绩汇总</string>
+    <!-- 课程 -->
+    <string name="rank">评级</string>
+    <string name="brought_course">所带课程</string>
+    <string name="brought_class">所带班级</string>
+    <string name="course_rating">课程评分</string>
+    <string name="homework">课后作业</string>
+    <string name="teacher_profile">教师简介</string>
+    <string name="course_profile">课程简介</string>
+    <!-- 课表 -->
+    <string name="last_week">上周</string>
+    <string name="this_week">本周</string>
+    <string name="next_week">下周</string>
+
+    <!-- 首页侧栏 -->
+    <string name="page_mycourse">我的课表</string>
+    <string name="page_myinfo">我的资料</string>
+    <string name="page_myalbum">我的相册</string>
+    <string name="page_questions">常见问题</string>
+    <string name="page_recommend">推荐给好友</string>
+    <string name="page_setting">系统设置</string>
+    <string name="page_notice">班级通知</string>
+    <string name="page_feedback">意见反馈</string>
+    <string name="clear_cache">清除缓存</string>
+    <string name="app_version">软件版本：</string>
+     <string name="version_detection">版本检测</string>
+    <!-- 学生详情 -->
+    <string name="bottom_info">该生详细信息共3页  请滑动查看</string>
+    <string name="stu_phone">学生电话：</string>
+    <string name="stu_email">学生邮箱：</string>
+    <string name="parent_name">家长姓名：</string>
+    <string name="parent_phone">家长电话：</string>
+    <string name="address">家庭住址：</string>
+    <string name="stu_remark">该生备注：</string>
+
+    <!-- 侧栏详情 -->
+    <string name="feedback_send">提交意见</string>
+    <string name="feedback_content_hint">请输入您的意见</string>
+    <string name="feedback_title">\u3000\u3000如果您在使用中有什么问题或建议，欢迎告知我们，我们的技术人员会努力帮您解决。</string>
+
+    <!-- 获取图片 -->
+    <string name="delete">刪除</string>
+    <string name="show">查看</string>
+    <string name="pize">拍照</string>
+    <string name="location_picture">本地圖片</string>
+    <string name="cancel">取消</string>
+    <string name="errcode_success">发送成功</string>
+    <string name="errcode_cancel">发送取消</string>
+    <string name="errcode_deny">发送被拒绝</string>
+    <string name="errcode_unknown">发送返回</string>
+
+    <string name="call_phone">拨打电话</string>
+    <string name="send_sms">发送短信</string>
+    <!-- XListView -->
+    <string name="xlistview_header_hint_normal">下拉刷新</string>
+    <string name="xlistview_header_hint_ready">松开刷新数据</string>
+    <string name="xlistview_header_hint_loading">正在加载…</string>
+    <string name="xlistview_header_last_time">上次更新时间：</string>
+    <string name="xlistview_footer_hint_normal">查看更多</string>
+    <string name="xlistview_footer_hint_ready">松开载入更多</string>
+    <string name="toast_text">服务器未响应，建议请重新登录系统！</string>
+
+    <!-- Widget -->
+    <string name="header_hint_refresh_normal">下拉可以刷新</string>
+    <string name="header_hint_refresh_ready">松开可以刷新</string>
+    <string name="header_hint_refresh_loading">正在刷新&#8230;</string>
+    <string name="header_hint_refresh_time">更新于：</string>
+    <string name="footer_hint_load_normal">查看更多</string>
+    <string name="footer_hint_load_ready">松开载入更多</string>
+
+    <!-- school -->
+    <string name="read_more">閱讀全文</string>
+    <string name="view_by_week">按周查询:</string>
+    <string name="start_week">起始周</string>
+    <string name="end_week">起始周</string>
+    <string name="total_0_data">共0条数据</string>
+    <string name="time_to">至</string>
+
+    <!-- alert -->
+    <string name="alert_dialog_ok">確定</string>
+    <string name="alert_dialog_cancel">取消</string>
+    <string name="alert_confirm_delete_all_cached_images">确认删除所有缓存图片,包括用户头像和聊天图片?</string>
+    <string name="cleared_all_cached_images">已清除所有缓存文件</string>
+
+    <string name="border_top">Border Top</string>
+    <string name="border_bottom">Border Bottom</string>
+    <string name="image_url">Image Url</string>
+   
+    <string name="ptr_pull_to_refresh">Pull to refresh</string>
+    <string name="ptr_release_to_refresh">Release to refresh</string>
+    <string name="ptr_loading">Loading</string>
+    <string name="ptr_last_updated">Updated: %1$s</string>   
+    <string name="sunday">周日</string>   
+    <string name="monday">周一</string>
+    <string name="tuesday">周二</string>
+    <string name="wednesday">周三</string>
+    <string name="thursday">周四</string>
+    <string name="friday">周五</string>
+    <string name="saturday">周六</string>
+    <string name="add">新增</string>
+    <string name="loadedalldata">已加載所有</string>
+    <string name="ifconfirm">是否確認</string>
+    <string name="sendmsg">發消息</string>
+    <string name="saving">保存中&#8230;</string>
+    <string name="justnow">剛剛</string>
+    <string name="minutesago">分鐘前</string>
+    <string name="hoursago">小時前</string>
+    <string name="today">今天</string>
+    <string name="yestoday">昨天</string>
+    <string name="beforeyestoday">前天</string>
+     <string name="reply">回復</string>
+     <string name="Moodle_reminder">掌上魔燈日程提醒</string> 
+     <string name="tomorrow">明天</string> 
+     <string name="noschedule">您沒有日程安排</string>
+     <string name="youhave">您有</string>
+     <string name="schedules">个日程安排</string>
+     <string name="choose_upload">選擇文件上傳</string>
+</resources>
