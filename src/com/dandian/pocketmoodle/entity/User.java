@@ -113,6 +113,17 @@ public class User implements Serializable {
 	private String company;
 	
 	private String latestAddress;
+	private JSONArray functions;
+	private boolean downloadfiles;
+	private boolean uploadfiles;
+	private String release;
+	private String version;
+	private JSONArray advancedfeatures;
+	private boolean usercanmanageownfiles;
+	private int userquota;
+	private int usermaxuploadfilesize;
+	private int userhomepage;
+	private String token;
 	public String getLatestAddress() {
 		return latestAddress;
 	}
@@ -146,9 +157,9 @@ public class User implements Serializable {
 	@SuppressWarnings("unchecked")
 	public User(JSONObject jo) {
 		//userType = jo.optString("用户类型");
-		id = jo.optString("编号");
-		username = jo.optString("学号");
-		name = jo.optString("姓名");
+		id = jo.optString("userid");
+		username = jo.optString("username");
+		name = jo.optString("firstname");
 		//password = jo.optString("密码");
 		//nickname = jo.optString("呢称");
 		department = jo.optString("院系");
@@ -163,10 +174,21 @@ public class User implements Serializable {
 		//isModify = jo.optInt("是否修改");
 		//allowModifyField = jo.optString("允许用户修改自身字段列表");
 		checkCode = jo.optString("用户较验码");
-		userImage = jo.optString("用户头像");
-		virtualClass = jo.optString("虚拟班级");
+		userImage = jo.optString("userpictureurl");
+		virtualClass = jo.optString("lastname");
 		userNumber = jo.optString("用户唯一码");
-		domain = jo.optString("域名");
+		domain = jo.optString("siteurl");
+		functions=jo.optJSONArray("functions");
+		downloadfiles=jo.optBoolean("downloadfiles");
+		uploadfiles=jo.optBoolean("uploadfiles");
+		release = jo.optString("release");
+		version = jo.optString("version");
+		advancedfeatures=jo.optJSONArray("advancedfeatures");
+		usercanmanageownfiles=jo.optBoolean("usercanmanageownfiles");
+		userquota=jo.optInt("userquota");
+		usermaxuploadfilesize=jo.optInt("usermaxuploadfilesize");
+		userhomepage=jo.optInt("userhomepage");
+		token=jo.optString("token");
 		//banLogin = jo.optString("禁止登录");
 		//sortNumber = jo.optString("排序号");
 		//sDormitory = jo.optJSONArray("选修课程").toString();
@@ -242,6 +264,94 @@ public class User implements Serializable {
 		//remark = jo.optString("备注");
 		//rootDomain = jo.optString("更域名");
 		//latestAddress="";
+	}
+
+	public JSONArray getFunctions() {
+		return functions;
+	}
+
+	public void setFunctions(JSONArray functions) {
+		this.functions = functions;
+	}
+
+	public boolean isDownloadfiles() {
+		return downloadfiles;
+	}
+
+	public void setDownloadfiles(boolean downloadfiles) {
+		this.downloadfiles = downloadfiles;
+	}
+
+	public boolean isUploadfiles() {
+		return uploadfiles;
+	}
+
+	public void setUploadfiles(boolean uploadfiles) {
+		this.uploadfiles = uploadfiles;
+	}
+
+	public String getRelease() {
+		return release;
+	}
+
+	public void setRelease(String release) {
+		this.release = release;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public JSONArray getAdvancedfeatures() {
+		return advancedfeatures;
+	}
+
+	public void setAdvancedfeatures(JSONArray advancedfeatures) {
+		this.advancedfeatures = advancedfeatures;
+	}
+
+	public boolean isUsercanmanageownfiles() {
+		return usercanmanageownfiles;
+	}
+
+	public void setUsercanmanageownfiles(boolean usercanmanageownfiles) {
+		this.usercanmanageownfiles = usercanmanageownfiles;
+	}
+
+	public int getUserquota() {
+		return userquota;
+	}
+
+	public void setUserquota(int userquota) {
+		this.userquota = userquota;
+	}
+
+	public int getUsermaxuploadfilesize() {
+		return usermaxuploadfilesize;
+	}
+
+	public void setUsermaxuploadfilesize(int usermaxuploadfilesize) {
+		this.usermaxuploadfilesize = usermaxuploadfilesize;
+	}
+
+	public int getUserhomepage() {
+		return userhomepage;
+	}
+
+	public void setUserhomepage(int userhomepage) {
+		this.userhomepage = userhomepage;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 	public User(net.minidev.json.JSONObject jo) {

@@ -1,7 +1,20 @@
 package com.dandian.pocketmoodle.api;
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.dandian.pocketmoodle.base.Constants;
+import com.dandian.pocketmoodle.util.Base64;
 import com.dandian.pocketmoodle.util.PrefUtility;
+
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+
 
 public class CampusAPI {
 	
@@ -9,12 +22,14 @@ public class CampusAPI {
 	public static final String HTTP_METHOD = "POST";
 	public static final String HTTP_METHOD2 = "GET";
 
-	public static String commonQuestionUrl = "http://www.dandian.net/company/ICampus-faq.php"; // 甯歌闂�?�?
-	public static String contractUrl = "http://www.dandian.net/company/ICampus-contract.php"; // 甯歌闂�?�?
-	public static String aboutusUrl = "http://www.dandian.net/company/ICampus-aboutus.php"; // 甯歌闂�?�?
+	public static String commonQuestionUrl = "http://www.dandian.net/company/ICampus-faq.php"; // 常见问题
+	public static String contractUrl = "http://www.dandian.net/company/ICampus-contract.php"; // 常见问题
+	public static String aboutusUrl = "http://www.dandian.net/company/ICampus-aboutus.php"; // 常见问题
+
+	public static String DOWNLOAD_DONE = "http://laoshi.dandian.net/KeJianCounter.php";// 提交下载完成数据
+	public static String DOWNLOAD_DELETE = "http://laoshi.dandian.net/KeJianDelete.php";// 提交删除已下载文件数据
 	public static String howtouse = "http://www.moodle360.cn/howtouse.php";
-
-
+	
 	public static void request(final String url, final CampusParameters params,
 			final String HTTP_METHOD, RequestListener listener) {
 		String domain=PrefUtility.get(Constants.PREF_SCHOOL_DOMAIN,"");
@@ -23,7 +38,12 @@ public class CampusAPI {
 				params, HTTP_METHOD, listener);
 	}
 
-
+	/**
+	 * 用户登录验证
+	 * 
+	 * @param params
+	 * @param listener
+	 */
 	public static void loginCheck(CampusParameters params,
 			RequestListener listener) {
 		// request("?action=logincheck", params, HTTP_METHOD, listener);
@@ -32,7 +52,7 @@ public class CampusAPI {
 				HTTP_METHOD, listener);
 	}
 	/**
-	 * 鐢ㄦ埛鎻愪氦璁惧淇℃伅鍙婄櫨搴D
+	 * 用户提交设备信息及百度ID
 	 * 
 	 * @param params
 	 * @param listener
@@ -45,7 +65,7 @@ public class CampusAPI {
 				HTTP_METHOD, listener);
 	}
 	/**
-	 * 杩斿洖鐢ㄦ埛鎵�鏈変俊鎭�?,鏍规嵁鍛ㄦ鑾峰彇鐢ㄦ埛涓婅璁板綍
+	 * 返回用户所有信息,根据周次获取用户上课记录
 	 * 
 	 * @param params
 	 * @param listener
@@ -62,9 +82,9 @@ public class CampusAPI {
 	}
 
 	/***
-	 * 鍔熻兘鎻忚堪:淇敼鎰忚鍙嶉淇℃伅
+	 * 功能描述:修改意见反馈信息
 	 * 
-	 * @author linrr 2013-12-16 涓嬪�?2:11:20
+	 * @author linrr 2013-12-16 下午2:11:20
 	 * 
 	 * @param params
 	 * @param listener
@@ -77,9 +97,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:鐝骇閫氱煡淇℃�?
+	 * 功能描述:班级通知信息
 	 * 
-	 * @author linrr 2013-12-17 涓婂�?10:22:03
+	 * @author linrr 2013-12-17 上午10:22:03
 	 * 
 	 * @param params
 	 * @param listener
@@ -92,9 +112,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:涓婁紶鏂囦欢
+	 * 功能描述:上传文件
 	 * 
-	 * @author linrr 2013-12-17 涓婂�?10:23:00
+	 * @author linrr 2013-12-17 上午10:23:00
 	 * 
 	 * @param params
 	 * @param listener
@@ -113,9 +133,9 @@ public class CampusAPI {
 				HTTP_METHOD, listener);
 	}
 	/**
-	 * 鍔熻兘鎻忚堪:淇敼�?�︾敓鑰冨嫟淇℃�?
+	 * 功能描述:修改学生考勤信息
 	 * 
-	 * @author yanzy 2013-12-4 涓婂�?9:47:08
+	 * @author yanzy 2013-12-4 上午9:47:08
 	 * 
 	 * @param params
 	 * @param listener
@@ -127,9 +147,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:鍔犺浇�?�︾敓澶村儚
+	 * 功能描述:加载学生头像
 	 * 
-	 * @author yanzy 2013-12-9 涓婂�?10:09:57
+	 * @author yanzy 2013-12-9 上午10:09:57
 	 * 
 	 * @param params
 	 * @param listener
@@ -150,7 +170,7 @@ public class CampusAPI {
 				"http://laoshi.dandian.net/GetTeacherInfo_Moodle.php?IsZip=1", params,
 				HTTP_METHOD, listener);
 	}
-	//鏈�杩戜竴娆¤亰澶╄褰�
+	//最近一次聊天记录
 	public static void getLast_ATOALL(CampusParameters params,
 			RequestListener listener) {
 		// String user_code = PrefUtility.get(Constants.PREF_CHECK_CODE, "");
@@ -161,9 +181,9 @@ public class CampusAPI {
 				HTTP_METHOD, listener);
 	}
 	/**
-	 * 鍔熻兘鎻忚堪: 鑱婂ぉ鍙戦�佹秷鎭�
+	 * 功能描述: 聊天发送消息
 	 * 
-	 * @author yanzy 2013-12-16 涓婂�?10:02:20
+	 * @author yanzy 2013-12-16 上午10:02:20
 	 * 
 	 * @param params
 	 * @param listener
@@ -173,9 +193,9 @@ public class CampusAPI {
 		AsyncFoodSafeRunner.request(url, params, HTTP_METHOD, listener);
 	}
 	/**
-	 * 鍔熻兘鎻忚堪: 鑱婂ぉ鏇存柊宸茶鐘舵��?
+	 * 功能描述: 聊天更新已读状态
 	 * 
-	 * @author QiaoLin 2014-7-9 涓嬪�?22:36:20
+	 * @author QiaoLin 2014-7-9 下午22:36:20
 	 * 
 	 * @param params
 	 * @param listener
@@ -185,9 +205,9 @@ public class CampusAPI {
 		AsyncFoodSafeRunner.request(url, params, HTTP_METHOD, listener);
 	}
 	/**
-	 * 鍔熻兘鎻忚堪: 鑱婂ぉ鏇存柊宸茶鐘舵��?
+	 * 功能描述: 聊天更新已读状态
 	 * 
-	 * @author QiaoLin 2014-7-14 涓嬪�?14:21:20
+	 * @author QiaoLin 2014-7-14 下午14:21:20
 	 * 
 	 * @param params
 	 * @param listener
@@ -197,9 +217,9 @@ public class CampusAPI {
 		AsyncFoodSafeRunner.request(url, params, HTTP_METHOD, listener);
 	}
 	/**
-	 * 鍔熻兘鎻忚堪:涓嬭浇鑱婂ぉ璁板�?
+	 * 功能描述:下载聊天记录
 	 * 
-	 * @author yanzy 2013-12-23 涓嬪�?5:15:56
+	 * @author yanzy 2013-12-23 下午5:15:56
 	 * 
 	 * @param params
 	 * @param listener
@@ -210,12 +230,24 @@ public class CampusAPI {
 		AsyncFoodSafeRunner.request(url, params, HTTP_METHOD, listener);
 	}
 
-	
+	/**
+	 * 功能描述:提交已经下载课件的数据
+	 * 
+	 * @author zhuliang 2013-12-24 上午11:18:05
+	 * 
+	 * @param params
+	 * @param listener
+	 */
+	public static void sendDownloadDoneData(CampusParameters params,
+			RequestListener listener) {
+		AsyncFoodSafeRunner.request(DOWNLOAD_DONE, params, HTTP_METHOD,
+				listener);
+	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:鎻愪氦鍒犻櫎涓嬭浇鏂囦欢鐨勬暟鎹�?
+	 * 功能描述:提交删除下载文件的数据
 	 * 
-	 * @author zhuliang 2013-12-24 涓婂�?11:18:23
+	 * @author zhuliang 2013-12-24 上午11:18:23
 	 * 
 	 * @param params
 	 * @param listener
@@ -228,9 +260,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:鑾峰彇鏈�鍚庝竴鏉¤亰澶╄褰�?
+	 * 功能描述:获取最后一条聊天记录
 	 * 
-	 * @author yanzy 2013-12-23 涓嬪�?5:16:09
+	 * @author yanzy 2013-12-23 下午5:16:09
 	 * 
 	 * @param params
 	 * @param listener
@@ -242,9 +274,9 @@ public class CampusAPI {
 	}
 
 	// /**
-	// * 鍔熻兘鎻忚堪:鍙戦�佺兢娑堟伅
+	// * 功能描述:发送群消息
 	// *
-	// * @author zhuliang 2014-1-14 涓嬪�?3:59:57
+	// * @author zhuliang 2014-1-14 下午3:59:57
 	// *
 	// * @param params
 	// * @param listener
@@ -255,12 +287,12 @@ public class CampusAPI {
 	// AsyncFoodSafeRunner.request(url, params, HTTP_METHOD, listener);
 	// }
 	/**
-	 * 鍔熻兘鎻忚堪:鑾峰彇鏍″唴鍐呭椤�?
+	 * 功能描述:获取校内内容项
 	 * 
-	 * @author shengguo 2014-4-14 涓嬪�?5:25:18
+	 * @author shengguo 2014-4-14 下午5:25:18
 	 * 
 	 * @param params
-	 *            datetime //:1397112337 鐢ㄦ埛鏍￠獙鐮�
+	 *            datetime //:1397112337 用户校验码
 	 * @param listener
 	 */
 	public static void getSchool(CampusParameters params,
@@ -270,9 +302,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:鑾峰彇鏍″唴璇︽儏鍒楄�??
+	 * 功能描述:获取校内详情列表
 	 * 
-	 * @author shengguo 2014-4-26 涓婂�?10:07:12
+	 * @author shengguo 2014-4-26 上午10:07:12
 	 * 
 	 * @param params
 	 * @param Interface
@@ -284,20 +316,10 @@ public class CampusAPI {
 		AsyncFoodSafeRunner.request(url, params, HTTP_METHOD, listener);
 	}
 	
-	public static void getSchoolItemZip(CampusParameters params, String Interface,
-			RequestListener listener) {
-		String url = "http://laoshi.dandian.net/InterfaceStudent/" + Interface;
-		if(url.indexOf("?")>=0)
-			url=url+"&IsZip=1";
-		else
-			url=url+"?IsZip=1";
-		AsyncFoodSafeRunner.request(url, params, HTTP_METHOD, listener);
-	}
-	
 	/**
-	 * 鍔熻兘鎻忚堪:鑾峰彇鏍″唴璇︽儏鍒楄�?�鐨勮鎯�
+	 * 功能描述:获取校内详情列表的详情
 	 * 
-	 * @author shengguo 2014-4-26 涓婂�?10:07:55
+	 * @author shengguo 2014-4-26 上午10:07:55
 	 * 
 	 * @param params
 	 * @param Interface
@@ -310,9 +332,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:瀛︾敓韬唤锛氱偣鏌愪竴鑺傝鍚庣殑鎺ュ彛鏁版嵁鏉ユ�?
+	 * 功能描述:学生身份：点某一节课后的接口数据来源
 	 * 
-	 * @author shengguo 2014-4-26 涓婂�?10:07:55
+	 * @author shengguo 2014-4-26 上午10:07:55
 	 * 
 	 * @param params
 	 * @param listener
@@ -324,13 +346,13 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:鑾峰彇璇句欢鍒楄�?
+	 * 功能描述:获取课件列表
 	 * 
-	 * @author shengguo 2014-4-28 涓婂�?11:11:42
+	 * @author shengguo 2014-4-28 上午11:11:42
 	 * 
 	 * @param params
 	 * @param Interface
-	 *            鎺ュ彛鍚�?
+	 *            接口名
 	 * @param listener
 	 */
 	public static void getDownloadSubject(CampusParameters params,
@@ -340,9 +362,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:鑾峰彇娴嬮獙鐘舵��
+	 * 功能描述:获取测验状态
 	 * 
-	 * @author shengguo 2014-4-28 涓嬪�?5:39:06
+	 * @author shengguo 2014-4-28 下午5:39:06
 	 * 
 	 * @param params
 	 * @param Interface
@@ -355,9 +377,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:鑾峰彇娴嬮獙鏁版�?,淇濆瓨娴嬮獙缁撴�?
+	 * 功能描述:获取测验数据,保存测验结果
 	 * 
-	 * @author shengguo 2014-4-28 涓嬪�?5:39:06
+	 * @author shengguo 2014-4-28 下午5:39:06
 	 * 
 	 * @param params
 	 * @param Interface
@@ -370,9 +392,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:瀛︾敓鑾峰彇,淇濆瓨璇勪环淇℃�?
+	 * 功能描述:学生获取,保存评价信息
 	 * 
-	 * @author shengguo 2014-4-30 涓婂�?11:31:05
+	 * @author shengguo 2014-4-30 上午11:31:05
 	 * 
 	 * @param params
 	 * @param listener
@@ -384,9 +406,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:瀛︾敓鑾峰彇,淇濆瓨璇勪环淇℃�?
+	 * 功能描述:学生获取,保存评价信息
 	 * 
-	 * @author shengguo 2014-4-30 涓婂�?11:31:05
+	 * @author shengguo 2014-4-30 上午11:31:05
 	 * 
 	 * @param params
 	 * @param listener
@@ -397,9 +419,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:淇濆瓨�?�︾敓鎬荤粨
+	 * 功能描述:保存学生总结
 	 * 
-	 * @author shengguo 2014-5-15 涓嬪�?12:02:46
+	 * @author shengguo 2014-5-15 下午12:02:46
 	 * 
 	 * @param params
 	 * @param listener
@@ -411,9 +433,9 @@ public class CampusAPI {
 	}
 
 	/**
-	 * 鍔熻兘鎻忚堪:妫�娴嬫洿鏂�?
+	 * 功能描述:检测更新
 	 * 
-	 * @author shengguo 2014-6-3 涓嬪�?3:54:36
+	 * @author shengguo 2014-6-3 下午3:54:36
 	 * 
 	 */
 	public static void versionDetection(CampusParameters params,
@@ -438,5 +460,107 @@ public class CampusAPI {
 		AsyncFoodSafeRunner.request(
 				"http://laoshi.dandian.net/AlbumDownloadDetail.php?IsZip=1", params,
 				HTTP_METHOD, listener);
+	}
+	public static void httpPostToDandian(String functionFile,JSONObject jsonParam,final Handler mHandler,final int completeCode)
+	{
+			
+		CampusParameters params = new CampusParameters();
+		Iterator<String> iterator = jsonParam.keys();
+		while(iterator.hasNext()){
+            String key = (String) iterator.next();
+            String value="";
+            try {
+				value = jsonParam.getString(key);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+            params.add(key, value);
+		}
+		params.add("function", functionFile);
+		String url="http://laoshi.dandian.net/newMoodleMobile/service.php";
+		RequestListener listener=new RequestListener() {
+
+			@Override
+			public void onIOException(IOException e) {
+
+			}
+
+			@Override
+			public void onError(CampusException e) {
+				Message msg = new Message();
+				msg.what = -1;
+				msg.obj = e.getMessage();
+				mHandler.sendMessage(msg);
+			}
+
+			@Override
+			public void onComplete(String response) {
+				Message msg = new Message();
+				msg.what = completeCode;
+				msg.obj = response;
+				mHandler.sendMessage(msg);
+			}
+		};
+		AsyncFoodSafeRunner.request(
+				url, params,
+				HTTP_METHOD, listener);
+			
+	}
+	public static void httpPostToMoodle(String serviceName,JSONObject jsonParam,final Handler mHandler,final int completeCode)
+	{
+			
+		CampusParameters params = new CampusParameters();
+		Iterator<String> iterator = jsonParam.keys();
+		while(iterator.hasNext()){
+            String key = (String) iterator.next();
+            String value="";
+            try {
+				value = jsonParam.getString(key);
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+            params.add(key, value);
+		}
+		params.add("wsfunction", serviceName);
+		String moodleSite=PrefUtility.get(Constants.PREF_SCHOOL_DOMAIN,"");
+		String url=moodleSite+"/webservice/rest/server.php?moodlewsrestformat=json";
+		RequestListener listener=new RequestListener() {
+
+			@Override
+			public void onIOException(IOException e) {
+
+			}
+
+			@Override
+			public void onError(CampusException e) {
+				Message msg = new Message();
+				msg.what = -1;
+				msg.obj = e.getMessage();
+				mHandler.sendMessage(msg);
+			}
+
+			@Override
+			public void onComplete(String response) {
+				Message msg = new Message();
+				msg.what = completeCode;
+				msg.obj = response;
+				mHandler.sendMessage(msg);
+			}
+		};
+		AsyncFoodSafeRunner.request(
+				url, params,
+				HTTP_METHOD, listener);
+			
+	}
+	public static void getSchoolItemZip(CampusParameters params, String Interface,
+			RequestListener listener) {
+		String url = "http://laoshi.dandian.net/InterfaceStudent/" + Interface;
+		if(url.indexOf("?")>=0)
+			url=url+"&IsZip=1";
+		else
+			url=url+"?IsZip=1";
+		AsyncFoodSafeRunner.request(url, params, HTTP_METHOD, listener);
 	}
 }

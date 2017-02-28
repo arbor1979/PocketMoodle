@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_bar"
     android:layout_width="fill_parent"
     android:layout_height="@dimen/topbar_layout_height"
     android:background="@color/topbar_background"
@@ -45,7 +46,6 @@
             android:layout_height="30dip"
             android:layout_gravity="center"
             android:layout_marginRight="10dp"
-            android:background="#27ae62"
             android:clickable="false"
             android:textColor="@color/title_text_selector"
             android:textSize="@dimen/text_size_normal" />
@@ -59,7 +59,7 @@
         android:layout_centerInParent="true"
         android:layout_toLeftOf="@id/layout_goto"
         android:layout_toRightOf="@id/layout_back"
-        android:background="@color/topbar_background"
+        
         android:gravity="center"
         android:orientation="vertical" >
 
@@ -77,7 +77,6 @@
             android:layout_width="match_parent"
             android:layout_height="40dip"
             android:layout_centerInParent="true"
-            android:background="@android:color/transparent"
             android:gravity="center"
             android:orientation="horizontal"
             android:padding="5dip"
@@ -128,7 +127,6 @@
         android:layout_alignParentTop="true"
         android:gravity="center"
         android:orientation="horizontal"
-        android:background="@color/topbar_background"
         android:visibility="invisible" >
 
         <ProgressBar

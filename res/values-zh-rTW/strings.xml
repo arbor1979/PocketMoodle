@@ -140,7 +140,7 @@
     <string name="contacts">聯系人</string>
     <string name="member">成员</string>
     <string name="summary">总结</string>
-    <string name="school">課程</string>
+    <string name="school">首頁</string>
     <string name="roll_call">点名</string>
 	<string name="album">相册</string>
     <!-- Home Page -->
@@ -320,4 +320,9 @@
      <string name="youhave">您有</string>
      <string name="schedules">个日程安排</string>
      <string name="choose_upload">選擇文件上傳</string>
+     <string name="notoken">登錄失敗，請檢查魔燈站點手機服務是否開啟</string>
+      <string name="updatetip">更新提示</string>
+       <string name="input_course_name">輸入課程或老師名稱</string>
+       <string name="excellent_course">精品課程</string>
+       <string name="popular_course">熱門課程</string>
 </resources>

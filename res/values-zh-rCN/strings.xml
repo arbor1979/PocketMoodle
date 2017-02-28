@@ -133,7 +133,7 @@
     <string name="contacts">联系人</string>
     <string name="member">成员</string>
     <string name="summary">总结</string>
-    <string name="school">课程</string>
+    <string name="school">首页</string>
     <string name="roll_call">点名</string>
 	<string name="album">相册</string>
     <!-- Home Page -->
@@ -320,5 +320,9 @@
      <string name="youhave">您有</string>
      <string name="schedules">个日程安排</string>
     <string name="choose_upload">选择文件上传</string> 
-     
+     <string name="notoken">登录失败，请检查魔灯站点手机服务是否开启</string>
+      <string name="updatetip">更新提示</string>
+      <string name="input_course_name">输入课程或老师名称</string>
+      <string name="excellent_course">精品课程</string>
+      <string name="popular_course">热门课程</string>
 </resources>

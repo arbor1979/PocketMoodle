@@ -1,11 +1,10 @@
 package com.dandian.pocketmoodle.activity;
 
-import java.io.IOException;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import net.minidev.json.JSONValue;
 
@@ -16,6 +15,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
@@ -27,28 +27,25 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.baidu.android.pushservice.PushConstants;
-import com.baidu.android.pushservice.PushManager;
 import com.dandian.pocketmoodle.CampusApplication;
 import com.dandian.pocketmoodle.R;
 import com.dandian.pocketmoodle.api.CampusAPI;
-import com.dandian.pocketmoodle.api.CampusException;
-import com.dandian.pocketmoodle.api.CampusParameters;
-import com.dandian.pocketmoodle.api.RequestListener;
 import com.dandian.pocketmoodle.base.Constants;
 import com.dandian.pocketmoodle.db.DatabaseHelper;
 import com.dandian.pocketmoodle.db.InitData;
@@ -56,15 +53,17 @@ import com.dandian.pocketmoodle.entity.AccountInfo;
 import com.dandian.pocketmoodle.entity.ContactsInfo;
 import com.dandian.pocketmoodle.entity.User;
 import com.dandian.pocketmoodle.util.AppUtility;
-import com.dandian.pocketmoodle.util.BaiduPushUtility;
 import com.dandian.pocketmoodle.util.Base64;
 import com.dandian.pocketmoodle.util.DialogUtility;
+import com.dandian.pocketmoodle.util.ImageUtility;
 import com.dandian.pocketmoodle.util.PrefUtility;
 import com.dandian.pocketmoodle.util.ZLibUtils;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.PreparedDelete;
-import com.dandian.pocketmoodle.activity.WebSiteActivity;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
 
 
 public class LoginActivity extends Activity implements OnClickListener,
@@ -86,6 +85,9 @@ public class LoginActivity extends Activity implements OnClickListener,
 	private Dao<AccountInfo, Integer> accountInfoDao;
 	private String[] userTypes;
 	private String teacher,student;
+	private LinearLayout mainBackView;
+	private ImageView logoImageView;
+	private String logoPath;
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -96,13 +98,6 @@ public class LoginActivity extends Activity implements OnClickListener,
 		setContentView(R.layout.activity_login);
 
 		buildComponents();
-	
-		try {
-			accountInfoDao = getHelper().getAccountInfoDao();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 		
 		PrefUtility.put(Constants.PREF_BAIDU_USERID, "");
 		PrefUtility.put(Constants.PREF_CHECK_CODE,"");
@@ -121,6 +116,29 @@ public class LoginActivity extends Activity implements OnClickListener,
 	}
 
 	private void buildComponents() {
+		mainBackView=(LinearLayout) findViewById(R.id.mainBackView);
+		int backgroundColor=PrefUtility.getInt(Constants.PREF_THEME_BACKGROUNDCOLOR, 0);
+		if(backgroundColor!=0)
+			mainBackView.setBackgroundColor(backgroundColor);
+		logoImageView=(ImageView) findViewById(R.id.user_logo);
+		logoPath=LoginActivity.this.getFilesDir().getAbsolutePath()+"/logo.png";
+		File file = new File(logoPath);  
+		if(file.exists())
+		{
+			Bitmap bm=ImageUtility.getDiskBitmapByPath(logoPath);
+			if(bm!=null)
+				logoImageView.setImageBitmap(bm);
+		}
+		try {
+			accountInfoDao = getHelper().getAccountInfoDao();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		TextView logo_title=(TextView)findViewById(R.id.logo_title);
+		String logoTitle=PrefUtility.get(Constants.PREF_THEME_TITLE,"");
+		if(logoTitle!=null && logoTitle.length()>0)
+			logo_title.setText(logoTitle);
 		table_item = (TableRow) findViewById(R.id.table_item);
 		mUsernameView = (EditText) findViewById(R.id.login_username);
 		mPasswordView = (EditText) findViewById(R.id.login_password);
@@ -243,45 +261,15 @@ public class LoginActivity extends Activity implements OnClickListener,
 
 	private void doLogin() {
 		mLoadingDialog.show();
-		String dataResult = "";
-		Locale locale = getResources().getConfiguration().locale;
-	    String language = locale.getCountry();
+	    JSONObject jsonObj= new JSONObject();
 		try {
-			JSONObject jsonObj = new JSONObject();
 			jsonObj.put("用户名", mUsername);
 			jsonObj.put("密码", mPassword);
-			jsonObj.put("language", language);
-			dataResult = Base64.encode(jsonObj.toString().getBytes());
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
+		CampusAPI.httpPostToDandian("doLogin", jsonObj, mHandler, 0);
 
-		CampusParameters params = new CampusParameters();
-		params.add(Constants.PARAMS_DATA, dataResult);
-		CampusAPI.loginCheck(params, new RequestListener() {
-
-			@Override
-			public void onIOException(IOException e) {
-
-			}
-
-			@Override
-			public void onError(CampusException e) {
-				Message msg = new Message();
-				msg.what = -1;
-				msg.obj = e.getMessage();
-				mHandler.sendMessage(msg);
-			}
-
-			@Override
-			public void onComplete(String response) {
-				
-				Message msg = new Message();
-				msg.what = 0;
-				msg.obj = response;
-				mHandler.sendMessage(msg);
-			}
-		});
 	}
 	
 	@SuppressLint("HandlerLeak")
@@ -290,32 +278,32 @@ public class LoginActivity extends Activity implements OnClickListener,
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case -1:
-				mLoadingDialog.dismiss();
+				if(mLoadingDialog!=null)
+					mLoadingDialog.dismiss();
 				AppUtility.showErrorToast(LoginActivity.this,
 						msg.obj.toString());
 				break;
 			case 0:
-				
+				if(mLoadingDialog!=null)
+					mLoadingDialog.dismiss();
 				String result = msg.obj.toString();
-				try {
-					result = new String(Base64.decode(result.getBytes("GBK")));
-				} catch (UnsupportedEncodingException e1) {
-					e1.printStackTrace();
-				}
-				Log.d(TAG, "--->  " + result);
 				try 
 				{
 					JSONObject jo = new JSONObject(result);
 					String loginStatus = jo.optString("结果");
-					
-					if (!loginStatus.equals("成功")) {
-						AppUtility.showToastMsg(LoginActivity.this, loginStatus,1);
-						if(mLoadingDialog!=null)
-							mLoadingDialog.dismiss();
+					String token=jo.optString("token");
+					if (loginStatus.equals("失败")) {
+						if((token==null || token.length()==0) && jo.optString("errorPic")!=null)
+						{
+							DialogUtility.showImageDialog(LoginActivity.this,jo.optString("errorPic"),getString(R.string.notoken));
+							return;
+						}
+						else
+							AppUtility.showToastMsg(LoginActivity.this, jo.optString("error"),1);
+						
 					} else 
 					{
-						user = new User(jo.optJSONObject("用户信息"));
-						
+						user = new User(jo);
 						String checkCode = PrefUtility.get(Constants.PREF_CHECK_CODE, "");
 						PrefUtility.put(Constants.PREF_CHECK_CODE,user.getCheckCode());
 						PrefUtility.put(Constants.PREF_LOGIN_NAME, mUsername);
@@ -326,6 +314,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 						PrefUtility.put(Constants.PREF_CHECK_REALNAME,user.getName());
 						PrefUtility.put(Constants.PREF_CHECK_HOSTID,user.getUserNumber());
 						PrefUtility.put(Constants.PREF_CHECK_USERTYPE,user.getUserType());
+						PrefUtility.put(Constants.PREF_CHECK_TOKEN,token);
 						checkCode = PrefUtility.get(Constants.PREF_CHECK_CODE, "");
 						((CampusApplication)getApplicationContext()).setLoginUserObj(user);
 						
@@ -358,19 +347,77 @@ public class LoginActivity extends Activity implements OnClickListener,
 							}
 						}
 						
-						initContactInfo();
-						
 						String baiduUserId=PrefUtility.get(Constants.PREF_BAIDU_USERID, "");
 						if(baiduUserId.length()>0 && !TabHostActivity.ifpostuserid)
 						{
 							InitData initData = new InitData(LoginActivity.this, getHelper(), null,"postBaiDuUserId",checkCode);
 							initData.postBaiduUserId();
 						}
+						
+						JSONObject colorJson=jo.optJSONObject("theme");
+						if(colorJson!=null)
+						{
+							String backgroundColor=colorJson.optString("backgroundColor");
+							String tabbarColor=colorJson.optString("tabbarColor");
+							String navibarColor=colorJson.optString("navibarColor");
+							String menuColor=colorJson.optString("menuColor");
+							String listColor=colorJson.optString("listColor");
+							
+							if(saveColor(backgroundColor,Constants.PREF_THEME_BACKGROUNDCOLOR))
+								mainBackView.setBackgroundColor(Color.parseColor(backgroundColor));
+							saveColor(tabbarColor,Constants.PREF_THEME_TABBARCOLOR);
+							saveColor(navibarColor,Constants.PREF_THEME_NAVBARCOLOR);
+							saveColor(menuColor,Constants.PREF_THEME_MENUCOLOR);
+							saveColor(listColor,Constants.PREF_THEME_LISTCOLOR);
+							PrefUtility.put(Constants.PREF_THEME_TITLE, colorJson.optString("title"));
+							String logo=colorJson.optString("logo");
+							if(logo!=null)
+							{
+								if(!ImageLoader.getInstance().isInited())
+									AppUtility.iniImageLoader(getApplicationContext());
+								ImageLoader.getInstance().displayImage(logo,logoImageView, new ImageLoadingListener(){
+
+									@Override
+									public void onLoadingCancelled(String arg0,
+											View arg1) {
+			
+									}
+
+									@Override
+									public void onLoadingComplete(String arg0,
+											View arg1, Bitmap arg2) {
+										
+										if(arg2!=null)
+										{
+											ImageUtility.writeTofilesPNG(arg2, logoPath, 90);
+										}
+									}
+
+									@Override
+									public void onLoadingStarted(String arg0,
+											View arg1) {
+								
+									}
+
+									@Override
+									public void onLoadingFailed(String arg0,
+											View arg1, FailReason arg2) {
+										// TODO Auto-generated method stub
+										
+									}
+									
+								});
+								
+							}
+							jumpMain();
+							
+						}
+						
 					}
 				} catch (Exception e) {
-					if(mLoadingDialog!=null)
-						mLoadingDialog.dismiss();
-					e.printStackTrace();
+					
+					AppUtility.showErrorToast(LoginActivity.this,
+							e.getLocalizedMessage());
 				}
 				
 				break;
@@ -434,50 +481,26 @@ public class LoginActivity extends Activity implements OnClickListener,
 			}
 		};
 	};
-
-	public void initContactInfo() {
-		Log.d(TAG, "开始初始化联系人信息");
+	private boolean saveColor(String colorStr,String key)
+	{
+		if(colorStr!=null && colorStr.length()>0)
+		{
+			int color=0;
+			try
+			{
+				color=Color.parseColor(colorStr);
+				PrefUtility.put(key, color);
+				return true;
+			}
+			catch(Exception e)
+			{
+				AppUtility.showToastMsg(LoginActivity.this,"颜色格式不正确"+colorStr);
+			}
 			
-		CampusParameters params = new CampusParameters();
-
-		try {
-			JSONObject jo = new JSONObject();
-			String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE,"");
-			jo.put("用户较验码", checkCode);
-			String datetime = String.valueOf(new Date().getTime());
-			jo.put("DATETIME", datetime);
-			params.add(Constants.PARAMS_DATA,
-					Base64.encode(jo.toString().getBytes()));
-		} catch (JSONException e1) {
-			e1.printStackTrace();
 		}
-		final Date dt=new Date();
-		CampusAPI.getTeacherInfo(params, new RequestListener() {
-
-			@Override
-			public void onIOException(IOException e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onError(CampusException e) {
-				Message msg = new Message();
-				msg.what = -1;
-				msg.obj = e.getMessage();
-				mHandler.sendMessage(msg);
-			}
-
-			@Override
-			public void onComplete(String response) {
-				Log.d(TAG, "----------联系人耗时:" + (new Date().getTime()-dt.getTime()));
-				Message msg = new Message();
-				msg.what = 1;
-				msg.obj = response;
-				mHandler.sendMessage(msg);
-			}
-		});
+		return false;
 	}
+	
 
 	private void jumpMain() {
 		Intent intent = new Intent(this, TabHostActivity.class);

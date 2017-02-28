@@ -55,6 +55,7 @@ import com.dandian.pocketmoodle.widget.BottomTabLayout;
 import com.dandian.pocketmoodle.widget.BottomTabLayout.OnCheckedChangeListener;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 
 @SuppressWarnings("deprecation")
@@ -63,15 +64,14 @@ public class TabHostActivity extends TabActivity   {
 	private BottomTabLayout mainTab;
 	private TabHost tabHost;
 	
-	private Intent messageIntent;
 	private Intent communicationIntent;
-	private Intent schoolIntent;
+	private Intent schoolIntent,homeIntent;
 	
 
 	private Dao<ChatFriend,Integer> chatFriendDao;
 	private List<ChatFriend> chatFriendList;
 	
-	private final static String TAB_TAG_MESSAGE = "tab_tag_message";
+	private final static String TAB_TAG_HOME = "tab_tag_home";
 	private final static String TAB_TAG_COMMUNICATION = "tab_tag_communication";
 	// private final static String TAB_TAG_SUMMARY = "tab_tag_summary";
 	private final static String TAB_TAG_SCHOOL = "tab_tag_school";
@@ -154,24 +154,17 @@ public class TabHostActivity extends TabActivity   {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		
-		// Push: 如果想基于地理位置推送，可以打开支持地理位置的推送的开关
-		//PushManager.enableLbs(getApplicationContext());
-		
+		if(!ImageLoader.getInstance().isInited())
+			AppUtility.iniImageLoader(getApplicationContext());
 		isIntoBack=true;
 	
-		user=((CampusApplication)getApplicationContext()).getLoginUserObj();
-		List<ContactsFriends> linkgroup=((CampusApplication)getApplicationContext()).getLinkGroupList();
-		if(user==null || linkgroup==null)
+		user=((CampusApplication)getApplicationContext()).getLoginUserObjAllowNull();
+		if(user==null)
 		{
-			Intent intent = new Intent(this,
-					LoginActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
 			finish();
-			
 			return;
 		}
+		
 		PushManager.startWork(getApplicationContext(), PushConstants.LOGIN_TYPE_API_KEY,
                 BaiduPushUtility.getMetaValue(this, "api_key"));
 		/*
@@ -183,7 +176,9 @@ public class TabHostActivity extends TabActivity   {
 		setContentView(R.layout.activity_tabhost);
 		mainTab = (BottomTabLayout) findViewById(R.id.bottom_tab_layout);
 		mainTab.setOnCheckedChangeListener(changeListener);
-		
+		int color=PrefUtility.getInt(Constants.PREF_THEME_TABBARCOLOR, 0);
+		if(color!=0)
+			mainTab.setBackgroundColor(color);
 		try {
 			chatFriendDao = getHelper().getChatFriendDao();
 		} catch (SQLException e) {
@@ -197,7 +192,7 @@ public class TabHostActivity extends TabActivity   {
 		Intent intent = new Intent(TabHostActivity.this,SchoolService.class);
 		bindService(intent, connection, Context.BIND_AUTO_CREATE);
 		
-		showUnreadCnt();
+		//showUnreadCnt();
 		
 		//版本检测
 		versionDetection();
@@ -208,21 +203,6 @@ public class TabHostActivity extends TabActivity   {
 		String toTag = getIntent().getStringExtra("tab");
 		if(toTag==null)
 			findView();
-		else if(toTag.equals("1"))
-		{
-			tabHost.setCurrentTabByTag(TAB_TAG_SCHOOL);
-			View nearBtn = mainTab.findViewById(R.id.bottom_tab_school);
-			nearBtn.setSelected(true);
-			
-		}
-		else if(toTag.equals("2"))
-		{
-			tabHost.setCurrentTabByTag(TAB_TAG_MESSAGE);
-			View nearBtn = mainTab.findViewById(R.id.bottom_tab_message);
-			nearBtn.setSelected(true);
-			
-		}
-		
 		
 		Log.d(TAG,"生命周期:onCreate");
 	}
@@ -231,23 +211,13 @@ public class TabHostActivity extends TabActivity   {
 	protected void onStart() {
 		super.onStart();
 		
-		showUnreadCnt();
+		//showUnreadCnt();
 		if(isIntoBack)
 		{
 			isIntoBack=false;
 			//getNetLocation();
 		}
 		
-		//上次登录时间并非当前周则重新获取课表
-		int week1=DateHelper.getWeekIndexOfYear(DateHelper.getStringDate(user.getLoginTime(), ""));
-		int week2=DateHelper.getWeekIndexOfYear(new Date());
-		if(week2>week1)
-		{
-			PrefUtility.put(Constants.PREF_SELECTED_WEEK, 0);
-			String checkCode = PrefUtility.get(Constants.PREF_CHECK_CODE, "");
-			InitData initData = new InitData(TabHostActivity.this,getHelper(), null,"refreshSubject",checkCode);
-			initData.initAllInfo();
-		}
 		Log.d(TAG,"生命周期:onStart");
 	}
 
@@ -265,19 +235,22 @@ public class TabHostActivity extends TabActivity   {
 	 */
 	private void prepareIntent() {
 		
-		messageIntent = new Intent(this, ChatFriendActivity.class);
+		homeIntent = new Intent(this, HomeActivity.class);
+		schoolIntent = new Intent(this, TabSchoolActivity.class);
 		communicationIntent = new Intent(this, ContactsActivity.class);
 		// summaryIntent = new Intent(this, SummaryActivity.class);
-		schoolIntent = new Intent(this, TabSchoolActivity.class);
+		
 	}
 
 	private void setupIntent() {
 		this.tabHost = getTabHost();
 		TabHost localTabHost = this.tabHost;
-		localTabHost.addTab(buildTabSpec(TAB_TAG_SCHOOL, R.string.school,
+		localTabHost.addTab(buildTabSpec(TAB_TAG_HOME, R.string.school,
+				R.drawable.ic_launcher, homeIntent));
+		
+		localTabHost.addTab(buildTabSpec(TAB_TAG_SCHOOL, R.string.course,
 				R.drawable.ic_launcher, schoolIntent));
-		localTabHost.addTab(buildTabSpec(TAB_TAG_MESSAGE, R.string.message,
-				R.drawable.ic_launcher, messageIntent));
+		
 		localTabHost.addTab(buildTabSpec(TAB_TAG_COMMUNICATION,
 				R.string.curriculum, R.drawable.ic_launcher,
 				communicationIntent));
@@ -310,7 +283,7 @@ public class TabHostActivity extends TabActivity   {
 
 	// 设置默认选中项
 	private void findView() {
-		View nearBtn = mainTab.findViewById(R.id.bottom_tab_school);
+		View nearBtn = mainTab.findViewById(R.id.bottom_tab_home);
 		nearBtn.setSelected(true);
 	}
 
@@ -319,8 +292,8 @@ public class TabHostActivity extends TabActivity   {
 		public void OnCheckedChange(View checkview) {
 			switch (checkview.getId()) {
 			
-			case R.id.bottom_tab_message:
-				tabHost.setCurrentTabByTag(TAB_TAG_MESSAGE);
+			case R.id.bottom_tab_home:
+				tabHost.setCurrentTabByTag(TAB_TAG_HOME);
 			
 				break;
 			case R.id.bottom_tab_communication:
@@ -526,8 +499,8 @@ public class TabHostActivity extends TabActivity   {
 		tvTip.setText(tips);
 		AlertDialog dialog_UpdateTips = new AlertDialog.Builder(TabHostActivity.this)
 				.setView(view)
-				.setTitle(newVer+"版更新提示")
-				.setPositiveButton("下载更新", new DialogInterface.OnClickListener() {
+				.setTitle(newVer+getString(R.string.updatetip))
+				.setPositiveButton(getString(R.string.go), new DialogInterface.OnClickListener() {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -536,7 +509,7 @@ public class TabHostActivity extends TabActivity   {
 						dialog.dismiss();
 					}
 				})
-				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+				.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -556,7 +529,7 @@ public class TabHostActivity extends TabActivity   {
 				String contentText = intent.getStringExtra("contentText");
 				showDialog(contentText);
 			}else if(action.equals(ACTION_CHATINTERACT)){
-				showUnreadCnt();
+				//showUnreadCnt();
 			}
 			
 		}

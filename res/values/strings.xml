@@ -123,13 +123,13 @@
     <string name="Commons.SDCardErrorNoSDMsg">找不到SD卡</string>
     <string name="Commons.SDCardErrorSDUnavailable">SD卡不能使用</string>
     <string name="curriculum">课表</string>
-     <string name="course">课程</string>
+     <string name="course">Course</string>
     <string name="study">学习</string>
     <string name="message">Messaging</string>
     <string name="contacts">Contacts</string>
     <string name="member">成员</string>
     <string name="summary">总结</string>
-    <string name="school">Courses</string>
+    <string name="school">Home</string>
     <string name="roll_call">点名</string>
 	<string name="album">相册</string>
     <!-- Home Page -->
@@ -306,5 +306,9 @@
       <string name="youhave"> you have </string>
       <string name="schedules"> schedules</string>
       <string name="choose_upload">Select file to upload</string>
-      
+      <string name="notoken">Login failed, please check whether the Moodle Site mobile service is open</string>
+      <string name="updatetip">Update tip</string>
+        <string name="input_course_name">Enter course or teacher name</string>
+        <string name="excellent_course">Excellent course</string>
+        <string name="popular_course">Popular course</string>
 </resources>

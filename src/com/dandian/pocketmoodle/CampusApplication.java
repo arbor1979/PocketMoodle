@@ -132,6 +132,14 @@ public class CampusApplication extends Application {
 		}
 		return loginUserObj;
 	}
+	public User getLoginUserObjAllowNull() {
+		
+		if(loginUserObj==null)
+		{
+			reLogin();
+		}
+		return loginUserObj;
+	}
 	private void getLinkManFromPref()
 	{
 		String str=PrefUtility.get(Constants.PREF_INIT_CONTACT_STR,"");

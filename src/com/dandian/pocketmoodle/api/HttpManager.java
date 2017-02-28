@@ -1,9 +1,11 @@
 package com.dandian.pocketmoodle.api;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -15,6 +17,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.SSLContext;
@@ -51,9 +54,14 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
+import com.dandian.pocketmoodle.util.AppUtility;
 
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 public class HttpManager {
@@ -67,8 +75,8 @@ public class HttpManager {
 	private static final String HTTPMETHOD_POST = "POST";
 	public static final String HTTPMETHOD_GET = "GET";
 
-	private static final int SET_CONNECTION_TIMEOUT = 60 * 1000;
-	private static final int SET_SOCKET_TIMEOUT = 60 * 1000;
+	private static final int SET_CONNECTION_TIMEOUT = 10 * 1000;
+	private static final int SET_SOCKET_TIMEOUT = 30 * 1000;
 
 	public static String openUrl(String url, String method,
 			CampusParameters params, String file) throws CampusException {
@@ -83,6 +91,19 @@ public class HttpManager {
 			localContext.setAttribute(ClientContext.COOKIE_STORE, localCookies);
 			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
 					NetStateManager.getAPN());
+			HttpParams httpparams = client.getParams(); 
+			StringBuilder user_agent = new StringBuilder();  
+			JSONObject json=new JSONObject();
+			json.put("deviceName", android.os.Build.BRAND+" "+android.os.Build.PRODUCT);
+			json.put("deviceType", "Android");
+			json.put("localMode", android.os.Build.VERSION.SDK);
+			json.put("systemName", android.os.Build.USER);
+			json.put("systemVersion",android.os.Build.VERSION.RELEASE);
+			Locale locale = AppUtility.getContext().getResources().getConfiguration().locale;
+			String language = locale.getCountry();
+			json.put("language",language);
+			httpparams.setParameter("http.useragent", json.toString());  
+			
 			if (method.equals(HTTPMETHOD_GET)) {
 				url = url + "?" + Utility.encodeUrl(params);
 				HttpGet get = new HttpGet(url);
@@ -90,6 +111,7 @@ public class HttpManager {
 			} else if (method.equals(HTTPMETHOD_POST)) {
 				HttpPost post = new HttpPost(url);
 				request = post;
+				
 				byte[] data = null;
 				String _contentType = params.getValue("content-type");
 
@@ -120,7 +142,8 @@ public class HttpManager {
 			} else if (method.equals("DELETE")) {
 				request = new HttpDelete(url);
 			}
-			Log.d(TAG, "request:" + request.getURI());
+			//Log.d(TAG, "request:" + request.getURI());
+			request.addHeader("Accept-Encoding", "gzip"); 
 			HttpResponse response = client.execute(request, localContext);
 			List<Cookie> respCookieList = localCookies.getCookies();
 			for (Cookie ck : respCookieList) {
@@ -286,28 +309,66 @@ public class HttpManager {
 		HttpEntity entity = response.getEntity();
 		InputStream inputStream;
 		try {
+			
+			/*
 			inputStream = entity.getContent();
 			ByteArrayOutputStream content = new ByteArrayOutputStream();
-
 			Header header = response.getFirstHeader("Content-Encoding");
 			if (header != null
 					&& header.getValue().toLowerCase().indexOf("gzip") > -1) {
 				inputStream = new GZIPInputStream(inputStream);
 			}
-
+			*/
+			boolean isGzip = false;  
+            Header[] headers = response.getHeaders("Content-Encoding");  
+            for (Header header : headers) {  
+                if ("gzip".equals(header.getValue())) {  
+                    isGzip = true;  
+                    break;  
+                }  
+            }  
+            
+            if (isGzip) {  
+                // 解压缩  
+            	try {
+					result = parseGzip(entity);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}  
+            } else {  
+                // 正常读取  
+            	result = EntityUtils.toString(entity, HTTP.UTF_8);  
+            }  
+            
+            /*
 			int readBytes = 0;
 			byte[] sBuffer = new byte[512];
 			while ((readBytes = inputStream.read(sBuffer)) != -1) {
 				content.write(sBuffer, 0, readBytes);
 			}
 			result = new String(content.toByteArray());
+			*/
 			return result;
 		} catch (IllegalStateException e) {
 		} catch (IOException e) {
 		}
 		return result;
 	}
-
+	
+	private static String parseGzip(HttpEntity entity) throws Exception {  
+        InputStream in = entity.getContent();  
+        GZIPInputStream gzipInputStream = new GZIPInputStream(in);  
+        BufferedReader reader = new BufferedReader(new InputStreamReader(  
+                gzipInputStream, HTTP.UTF_8));  
+        String line = null;  
+        StringBuffer sb = new StringBuffer();  
+        while ((line = reader.readLine()) != null) {  
+            sb.append(line).append("\n");  
+        }  
+        return sb.toString();  
+    }  
+	
 	public static String getBoundry() {
 		StringBuffer _sb = new StringBuffer();
 		for (int t = 1; t < 12; t++) {

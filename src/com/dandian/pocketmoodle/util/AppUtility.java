@@ -18,6 +18,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.conn.util.InetAddressUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -31,6 +33,8 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.ConnectivityManager;
@@ -49,13 +53,21 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.dandian.pocketmoodle.R;
+import com.dandian.pocketmoodle.activity.HomeActivity;
+import com.dandian.pocketmoodle.activity.LoginActivity;
 import com.dandian.pocketmoodle.base.Constants;
 import com.dandian.pocketmoodle.service.Alarmreceiver;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+
 
 public class AppUtility {
 	private static final String TAG = "AppUtility";
 	private static Toast mToast;
-	
+	public static DisplayImageOptions headOptions;
 	
 	public static void setViewHeightBasedOnChildren(ExpandableListView listView) {
 		// 获取ListView对应的Adapter
@@ -670,7 +682,19 @@ public class AppUtility {
 		if (exception.equals("UnknownHostException")) {
 			string = "服务器无法访问，请检查网络连接";
 		}
+		if (exception.indexOf("重新登录")>-1 || exception.indexOf("relogin")>-1) {
+			string = exception;
+			reLogin();
+		}
 		AppUtility.showToastMsg(context, string,1);
+	}
+	private static void reLogin()
+	{
+		Intent intent = new Intent(context,
+				LoginActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+				| Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(intent);
 	}
 	//程序是否进入后台
 	public static boolean isApplicationBroughtToBackground(final Context context) { 
@@ -815,4 +839,89 @@ public class AppUtility {
         } 
         return resultList; 
     } 
+	
+	public static void iniImageLoader(Context ctx)
+	{
+        headOptions =
+                new DisplayImageOptions.Builder()
+                        .cacheOnDisc(true)//图片存本地
+                        .cacheInMemory(false)
+                        .showImageOnFail(R.drawable.ic_launcher)
+                                //.displayer(new FadeInBitmapDisplayer(50))
+                        .displayer(new RoundedBitmapDisplayer(45))
+                        .bitmapConfig(Bitmap.Config.RGB_565)
+                        .imageScaleType(ImageScaleType.EXACTLY)
+                        .build();
+		//初始化图片加载库
+				DisplayImageOptions defaultOptions =
+					        new DisplayImageOptions.Builder()
+					            .cacheOnDisc(true)//图片存本地
+					            .cacheInMemory(false)
+					            .showImageOnFail(R.drawable.empty_photo)
+					            //.displayer(new FadeInBitmapDisplayer(50))
+					           // .decodingOptions(decodingOptions)
+					            .bitmapConfig(Bitmap.Config.RGB_565)
+					            .imageScaleType(ImageScaleType.EXACTLY ) // default
+					            .build();
+				
+				//DisplayImageOptions defaultOptions = DisplayImageOptions.createSimple();
+					    ImageLoaderConfiguration config =
+					        new ImageLoaderConfiguration.Builder(ctx)
+					    
+					    //.memoryCacheExtraOptions(480, 800) // max width, max height，即保存的每个缓存文件的最大长宽  
+					    //.discCacheExtraOptions(480, 800, CompressFormat.JPEG, 75, null) 
+					    //.threadPriority(Thread.NORM_PRIORITY - 2)  
+		                //.denyCacheImageMultipleSizesInMemory()  
+		                //.memoryCache(new FIFOLimitedMemoryCache(2 * 1024 * 1024))
+		                //.memoryCacheSize(2 * 1024 * 1024)    
+		                //.discCacheSize(50 * 1024 * 1024) 
+		                .defaultDisplayImageOptions(defaultOptions).build();
+					    /*
+					            .memoryCache(new UsingFreqLimitedMemoryCache(2 * 1024 * 1024))
+					            .memoryCacheSize(2 * 1024 * 1024)  
+					            .memoryCacheSizePercentage(13) // default  
+					            .denyCacheImageMultipleSizesInMemory()
+					     
+					            .defaultDisplayImageOptions(defaultOptions).build();
+					      */ 
+					    ImageLoader.getInstance().init(config);
+	}
+	public static JSONObject parseQueryStrToJson(String queryStr)
+	{
+		JSONObject obj=new JSONObject();
+		String temp[]=queryStr.split("\\?");
+		if(temp.length>1)
+			queryStr=temp[1];
+		temp=queryStr.split("&");
+		for(int i=0;i<temp.length;i++)
+		{
+			String item[]=temp[i].split("=");
+			if(item[1]!=null)
+			{
+				try {
+					obj.put(item[0], item[1]);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return obj;
+	}
+	public static boolean responseHasError(JSONObject jo)
+	{
+		String loginStatus = jo.optString("结果");
+		if (loginStatus.equals("失败")) 
+		{
+			AppUtility.showToastMsg(context, jo.optString("errorMsg"),1);
+			return true;
+		}
+		else if(jo.optString("exception")!=null || jo.optString("exception").length()>0)
+		{
+			AppUtility.showErrorToast(context,jo.optString("errorcode"));
+			return true;
+		}
+		return false;
+	}
 }

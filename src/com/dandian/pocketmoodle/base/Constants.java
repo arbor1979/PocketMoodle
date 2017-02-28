@@ -45,11 +45,22 @@ public class Constants {
 	 * 用户类型
 	 */
 	public static final String PREF_CHECK_USERTYPE = "pref.check_usertype";
+	public static final String PREF_CHECK_TOKEN = "pref.check_token";
 	/**
 	 * 初始化基�?数据标记
 	 */
 	public static final String PREF_INIT_BASEDATE_FLAG = "pref.init_basedate_flag";
 
+	
+	/**
+	 * ����ɫ
+	 */
+	public static final String PREF_THEME_BACKGROUNDCOLOR = "pref.theme_backgroundcolor";
+	public static final String PREF_THEME_TABBARCOLOR = "pref.theme_tabbarcolor";
+	public static final String PREF_THEME_NAVBARCOLOR = "pref.theme_navibarcolor";
+	public static final String PREF_THEME_MENUCOLOR = "pref.theme_menucolor";
+	public static final String PREF_THEME_LISTCOLOR = "pref.theme_listcolor";
+	public static final String PREF_THEME_TITLE = "pref.theme_title";
 	/**
 	 * 初始化联系人标记
 	 */

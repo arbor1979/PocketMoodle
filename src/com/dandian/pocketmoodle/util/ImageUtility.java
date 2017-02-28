@@ -36,7 +36,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.ImageView;
 
 public class ImageUtility {
 	private static final String TAG = "ImageUtility";
@@ -280,6 +279,24 @@ public class ImageUtility {
 
 			outputStream = new FileOutputStream(filename);
 			bitmap.compress(Bitmap.CompressFormat.JPEG, pressRate, outputStream);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	public static void writeTofilesPNG(Bitmap bitmap,
+			String filename,int pressRate) {
+		Log.d(TAG, "writeTofiles-->filename" + filename);
+		FileOutputStream outputStream = null;
+		try {
+			String filePath = filename.substring(0, filename.lastIndexOf("/"));
+			Log.d(TAG, "-->filePath" + filePath);
+			File filesPath = new File(filePath);
+			// 如果目标文件已经存在，则删除，产生覆盖旧文件的效果（此处以后可以扩展为已经存在图片不再重新下载功能）
+			Log.d(TAG, "-->!filesPath.exists()" + !filesPath.exists());
+			FileUtility.createFilePath(filePath);
+
+			outputStream = new FileOutputStream(filename);
+			bitmap.compress(Bitmap.CompressFormat.PNG, pressRate, outputStream);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}

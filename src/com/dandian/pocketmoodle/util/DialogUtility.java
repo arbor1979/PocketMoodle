@@ -19,6 +19,7 @@ import com.dandian.pocketmoodle.R;
 
 public class DialogUtility {
 
+	static private AQuery aq=null;
 	/**
 	 * 得到自定义的progressDialog
 	 * 
@@ -67,7 +68,7 @@ public class DialogUtility {
 	}
 	public static void showImageDialog(Activity ct,String imagePath) {
 		View view = ct.getLayoutInflater().inflate(R.layout.view_image, null);
-		AQuery aq = new AQuery(view);
+		aq = new AQuery(view);
 		final Dialog dialog=createLoadingDialog(ct, "show_image_dialog");
 		dialog.setContentView(view);
 	//	final AlertDialog dialog=new AlertDialog.Builder(getActivity()).setView(view).create();
@@ -86,5 +87,22 @@ public class DialogUtility {
 				dialog.dismiss();
 			}
 		});
+		
+	}
+	public static void showImageDialog(Activity ct,String imagePath,String msg) {
+		
+		showImageDialog(ct,imagePath);
+		
+		if(aq!=null)
+		{
+			if(msg!=null && msg.length()>0)
+			{
+				aq.id(R.id.tv_description).visibility(View.VISIBLE);
+				aq.id(R.id.tv_description).text(msg);
+			}
+			else
+				aq.id(R.id.tv_description).visibility(View.GONE);
+		}
+		
 	}
 }

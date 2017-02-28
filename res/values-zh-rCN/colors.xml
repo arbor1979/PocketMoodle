@@ -36,7 +36,7 @@
 	<color name="blue_color_3">#003399</color>
     <!-- title -->
     <color name="title_sel">#66ffffff</color>
-    <color name="title_nor">#27ae62</color>
+    <color name="title_nor">#0027ae62</color>
     <color name="title_color">#333333</color>
 
     <!-- login -->
