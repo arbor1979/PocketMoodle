@@ -135,13 +135,15 @@ public class WebSiteActivity extends Activity {
 		String title = getIntent().getStringExtra("title");
 		
 		TextView tv_title = (TextView) findViewById(R.id.setting_tv_title);
-		if(title.length()>10)
+		if(title!=null && title.length()>10)
 		{
 			tv_title.setTextSize(18);
 			/*
 			if(title.length()>12)
 			title=title.substring(0, 12)+"..";*/
 		}
+		else 
+			title="";
 		tv_title.setText(title);
 		mWebView.setWebViewClient(new MyWebClient());
 		//mWebView.setWebChromeClient(new WebChromeClient());

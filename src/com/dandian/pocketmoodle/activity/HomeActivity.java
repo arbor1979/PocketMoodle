@@ -34,6 +34,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -91,6 +92,10 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 	private User user;
 	private Button btnLeft;
 	private RelativeLayout nav_bar;
+	private final int MSG_UPDATE_IMAGE=1,MSG_KEEP_SILENT=2,MSG_BREAK_SILENT=3,MSG_PAGE_CHANGED=4;
+	private long MSG_DELAY=5000;
+	private int currentItem;//当前viewpage选中页
+	private boolean isAutoPlay = false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG, "----------------onCreate-----------------------");
@@ -109,11 +114,14 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 		color=PrefUtility.getInt(Constants.PREF_THEME_NAVBARCOLOR, 0);
 		if(color!=0)
 			nav_bar.setBackgroundColor(color);
+		TextView tv_title=(TextView)findViewById(R.id.tv_title);
+		tv_title.setText(R.string.school);
 		failedLayout = (LinearLayout) findViewById(R.id.empty_error);
 		mViewPager = ((ViewPager) findViewById(R.id.zoom_imags));
 		mList = (ListView) findViewById(R.id.lv_category);
 		gv_excellent = (GridView) findViewById(R.id.gv_excellent);
 		gv_popular = (GridView) findViewById(R.id.gv_popular);
+		aq = new AQuery(this);
 		failedLayout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -198,9 +206,24 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 							e.getLocalizedMessage());
 				}
 				break;
+			case MSG_UPDATE_IMAGE:
+				if(isAutoPlay)
+				{
+					currentItem++;
+					if(currentItem==imagePageDapter.getCount())
+	                	currentItem=0;
+	                mViewPager.setCurrentItem(currentItem);
+	                //准备下次播放
+	                mHandler.sendEmptyMessageDelayed(MSG_UPDATE_IMAGE, MSG_DELAY);
+				}
+                break;
+			case MSG_PAGE_CHANGED:
+                //记录当前的页号，避免播放的时候页面显示不正确。
+                currentItem = msg.arg1;
 			}
 		}
 	};
+	@SuppressWarnings("deprecation")
 	private void initContent() {
 		imagePageDapter = new SamplePagerAdapter(this);
 		mViewPager.setAdapter(imagePageDapter);
@@ -210,6 +233,39 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 		gv_popular.setAdapter(popularAdapter);
 		mAdapter=new ListAdapter(this,categoryArray);
 		mList.setAdapter(mAdapter);
+		isAutoPlay=true;
+		mHandler.sendEmptyMessageDelayed(MSG_UPDATE_IMAGE, MSG_DELAY);
+		mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			  
+            //配合Adapter的currentItem字段进行设置。
+            @Override
+            public void onPageSelected(int arg0) {
+            	mHandler.sendMessage(Message.obtain(mHandler, MSG_PAGE_CHANGED, arg0, 0));
+            }
+              
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+            }
+              
+            //覆写该方法实现轮播效果的暂停和恢复
+            @Override
+            public void onPageScrollStateChanged(int arg0) {
+                switch (arg0) {
+                case ViewPager.SCROLL_STATE_DRAGGING:
+                	isAutoPlay = false;  
+                    break;
+                case ViewPager.SCROLL_STATE_IDLE:
+                	if(!isAutoPlay)
+                	{
+                		mHandler.sendEmptyMessageDelayed(MSG_UPDATE_IMAGE, MSG_DELAY);
+                		isAutoPlay=true;
+                	}
+                    break;
+                default:
+                    break;
+                }
+            }
+        });
 	}
 	
 	@SuppressLint("ResourceAsColor")
@@ -230,7 +286,8 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 
 		public View instantiateItem(ViewGroup container, final int position) {
 			ImageView iv_image=new ImageView(context);
-			
+			//iv_image.setAdjustViewBounds(true);
+			iv_image.setScaleType(ScaleType.CENTER_CROP);
 			JSONObject imageObj = null;
 			try {
 				imageObj = (JSONObject) imageArray.get(position);
@@ -238,19 +295,25 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			final String imageUrl = imageObj.optString("图片地址");
+			final String imageUrl = imageObj.optString("image");
+			final String link=imageObj.optString("link");
 			aq.id(iv_image).image(imageUrl, true, true, 0, R.drawable.default_photo);
 			
 			iv_image.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					// TODO Auto-generated method stub
-					
+					if(link!=null && link.length()>0)
+					{
+						Intent aboutusIntent = new Intent(HomeActivity.this,WebSiteActivity.class);
+						aboutusIntent.putExtra("url", link);
+						startActivity(aboutusIntent);
+					}
 				}
 			});
 
 			container.addView(iv_image, LayoutParams.MATCH_PARENT,
-					LayoutParams.MATCH_PARENT);
+					LayoutParams.WRAP_CONTENT);
 
 			return iv_image;
 		}
