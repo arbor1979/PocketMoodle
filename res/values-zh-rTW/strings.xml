@@ -85,7 +85,7 @@
 	<string name="thecountry">國家</string>
 	<string name="thecity">城市</string>
 	<string name="theschool">學校</string>
-	<string name="thedepartment">系别</string>
+	<string name="thedepartment">部門</string>
 	<string name="theclass">班級</string>
 	<string name="theemail">郵箱</string>
 	<string name="thestudy">選修課程</string>
@@ -325,4 +325,7 @@
        <string name="input_course_name">輸入課程或老師名稱</string>
        <string name="excellent_course">精品課程</string>
        <string name="popular_course">熱門課程</string>
+       <string name="lastest_login">最近登錄</string>
+      <string name="first_login">首次登錄</string>
+      <string name="description">描述</string>
 </resources>

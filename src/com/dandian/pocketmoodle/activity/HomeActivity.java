@@ -92,10 +92,11 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 	private User user;
 	private Button btnLeft;
 	private RelativeLayout nav_bar;
-	private final int MSG_UPDATE_IMAGE=1,MSG_KEEP_SILENT=2,MSG_BREAK_SILENT=3,MSG_PAGE_CHANGED=4;
+	private final int MSG_UPDATE_IMAGE=1;
 	private long MSG_DELAY=5000;
 	private int currentItem;//当前viewpage选中页
 	private boolean isAutoPlay = false;
+	private ImageView tips[];//图片轮播下面的小点
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG, "----------------onCreate-----------------------");
@@ -134,7 +135,7 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 			public void onClick(View v) {
 				Intent intent = new Intent(HomeActivity.this,
 						ShowPersonInfo.class);
-				intent.putExtra("studentId", user.getUserNumber());
+				intent.putExtra("studentId", user.getId());
 				intent.putExtra("userImage", user.getUserImage());
 				startActivity(intent);
 			}
@@ -217,9 +218,7 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 	                mHandler.sendEmptyMessageDelayed(MSG_UPDATE_IMAGE, MSG_DELAY);
 				}
                 break;
-			case MSG_PAGE_CHANGED:
-                //记录当前的页号，避免播放的时候页面显示不正确。
-                currentItem = msg.arg1;
+			  
 			}
 		}
 	};
@@ -233,14 +232,14 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 		gv_popular.setAdapter(popularAdapter);
 		mAdapter=new ListAdapter(this,categoryArray);
 		mList.setAdapter(mAdapter);
-		isAutoPlay=true;
-		mHandler.sendEmptyMessageDelayed(MSG_UPDATE_IMAGE, MSG_DELAY);
+		
 		mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			  
             //配合Adapter的currentItem字段进行设置。
             @Override
             public void onPageSelected(int arg0) {
-            	mHandler.sendMessage(Message.obtain(mHandler, MSG_PAGE_CHANGED, arg0, 0));
+            	currentItem = arg0;
+                setImageBackground(currentItem);
             }
               
             @Override
@@ -266,8 +265,33 @@ public class HomeActivity extends Activity implements OnItemClickListener {
                 }
             }
         });
+		LinearLayout linearLayout = (LinearLayout) findViewById(R.id.viewGroup);
+		tips = new ImageView[imageArray.length()];
+		for(int i=0; i<imageArray.length(); i++){
+			ImageView mImageView = new ImageView(this);
+			tips[i] = mImageView;
+			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT,    
+                    LayoutParams.WRAP_CONTENT));  
+			layoutParams.rightMargin = 3;
+			layoutParams.leftMargin = 3;
+			layoutParams.bottomMargin=15;
+			mImageView.setBackgroundResource(R.drawable.page_indicator_unfocused);
+			linearLayout.addView(mImageView, layoutParams);
+		}
+		setImageBackground(0);
+		isAutoPlay=true;
+		mHandler.sendEmptyMessageDelayed(MSG_UPDATE_IMAGE, MSG_DELAY);
+		
 	}
-	
+	private void setImageBackground(int selectItems){  
+        for(int i=0; i<tips.length; i++){  
+            if(i == selectItems){  
+            	tips[i].setBackgroundResource(R.drawable.page_indicator_focused);  
+            }else{  
+            	tips[i].setBackgroundResource(R.drawable.page_indicator_unfocused);  
+            }  
+        }  
+    } 
 	@SuppressLint("ResourceAsColor")
 	class SamplePagerAdapter extends PagerAdapter {
 		

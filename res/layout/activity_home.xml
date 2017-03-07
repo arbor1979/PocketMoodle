@@ -15,11 +15,26 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <android.support.v4.view.ViewPager
-                android:id="@+id/zoom_imags"
-                android:layout_width="fill_parent"
-                android:layout_height="120dp" >
-            </android.support.v4.view.ViewPager>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/zoom_imags"
+                    android:layout_width="fill_parent"
+                    android:layout_height="120dp" >
+                </android.support.v4.view.ViewPager>
+
+				 <LinearLayout
+				     android:id="@+id/viewGroup"
+				     android:layout_width="fill_parent"
+				     android:layout_height="wrap_content"
+				     android:layout_alignParentBottom="true"
+				     android:gravity="center_horizontal"
+				     android:orientation="horizontal" >
+      
+        </LinearLayout>      
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/tv_excellent"

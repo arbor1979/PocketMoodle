@@ -115,7 +115,7 @@ public class ShowPersonInfo extends Activity {
 		user=((CampusApplication)getApplicationContext()).getLoginUserObj();
 		userDomain=PrefUtility.get(Constants.PREF_SCHOOL_DOMAIN,"");
 		btnSendMsg=(Button) findViewById(R.id.btnSendMsg);
-		if(studentId.equals(user.getUserNumber()))
+		if(studentId.equals(user.getId()))
 		{
 			changeheader= (Button) findViewById(R.id.bt_changeHeader);
 			changeheader.setVisibility(View.VISIBLE);
@@ -194,29 +194,11 @@ public class ShowPersonInfo extends Activity {
 		aq.id(R.id.tv_name).text(memberInfo.getName());
 		if(memberInfo.getUserType().length()>0)
 		{
-			Locale locale = getResources().getConfiguration().locale;
-		    String language = locale.getCountry();
 		    String usertype=memberInfo.getUserType();
-		    if(language.equals("CN"))
-		    {
-		    }
-		    else if(language.equals("TW"))
-		    {
-		    	usertype=usertype.replace("学生", "學生");
-		    	usertype=usertype.replace("课程创建者", "課程創建者");
-		    	usertype=usertype.replace("管理员", "管理員");
-		    }
-		    else
-		    {
-		    	usertype=usertype.replace("教师", "Teacher");
-		    	usertype=usertype.replace("学生", "Student");
-		    	usertype=usertype.replace("课程创建者", "Course creator");
-		    	usertype=usertype.replace("管理员", "Administrator");
-		    }
 			aq.id(R.id.user_type).text("("+usertype+")");
 		}
-		else
-			aq.id(R.id.user_type).text(R.string.moodleuser);
+		//else
+		//	aq.id(R.id.user_type).text(R.string.moodleuser);
 		aq.id(R.id.setting_tv_title).text(R.string.userinfo);
 		aq.id(R.id.back).clicked(new OnClickListener(){
 
@@ -311,13 +293,18 @@ public class ShowPersonInfo extends Activity {
 		list.add(map);
 		
 		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.theclass));
-		map.put("info", memberInfo.getClassName());
+		map.put("title", this.getString(R.string.theemail));
+		map.put("info", memberInfo.getStuEmail());
 		list.add(map);
 		
 		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.theemail));
-		map.put("info", memberInfo.getStuEmail());
+		map.put("title", this.getString(R.string.first_login));
+		map.put("info", memberInfo.getFirstloginTime());
+		list.add(map);
+		
+		map = new HashMap<String, Object>();
+		map.put("title", this.getString(R.string.lastest_login));
+		map.put("info", memberInfo.getLoginTime());
 		list.add(map);
 		
 		map = new HashMap<String, Object>();
@@ -326,13 +313,8 @@ public class ShowPersonInfo extends Activity {
 		list.add(map);
 		
 		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.theteach));
-		map.put("info", memberInfo.getChargeKeCheng());
-		list.add(map);
-		
-		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.logintime));
-		map.put("info", memberInfo.getLoginTime());
+		map.put("title", this.getString(R.string.description));
+		map.put("info", memberInfo.getDescription());
 		list.add(map);
 		
 		/*
@@ -348,10 +330,8 @@ public class ShowPersonInfo extends Activity {
 	public class MyAdapter extends BaseAdapter{
 		 
         private LayoutInflater mInflater;
-        private Context context;
         public MyAdapter(Context context){
             this.mInflater = LayoutInflater.from(context);
-           this.context=context;
         }
         @Override
         public int getCount() {
@@ -400,27 +380,36 @@ public class ShowPersonInfo extends Activity {
             
             holder.title.setText((String)list.get(position).get("title"));
             holder.info.setText("");
-            if(holder.title.getText().equals(getString(R.string.thestudy)) || holder.title.getText().equals(getString(R.string.theteach)))
+            if(holder.title.getText().equals(getString(R.string.thestudy)))
             {
             	String content=(String)list.get(position).get("info");
             	if(content!=null && content.length()>0)
         		{
-            		String[] strArr=content.split(";");
+            		JSONArray courseArray=null;
+            		try {
+						 courseArray=new JSONArray(content);
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
         			//contentView.append(getString(R.string.attachment)+"：\r\n");
-        			for(int i=0;i<strArr.length;i++)
+        			for(int i=0;i<courseArray.length();i++)
         			{
+        			
         				
         				try {
         					
-        					
-        					SpannableString ss = new SpannableString(strArr[i]);
+        					JSONObject itemObj=courseArray.getJSONObject(i);
+        					String courseName=itemObj.optString("fullname");
+        					String courseId=itemObj.optString("id");
+        					SpannableString ss = new SpannableString(courseName);
         			        ss.setSpan(new StyleSpan(Typeface.NORMAL), 0, ss.length(),
         			                   Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        			        ss.setSpan(new MyURLSpan(strArr[i]), 0, ss.length(),
+        			        ss.setSpan(new MyURLSpan(courseId), 0, ss.length(),
         			                   Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         			        
         			        holder.info.append(ss);
-        			        if(i<strArr.length-1)
+        			        if(i<courseArray.length()-1)
         			        	holder.info.append("\r\n\r\n");
         				} catch (Exception e) {
         					// TODO Auto-generated catch block
@@ -481,47 +470,15 @@ public class ShowPersonInfo extends Activity {
 	}
 	private void getUserInfo() {
 		
-
-		long datatime = System.currentTimeMillis();
-		String checkCode = PrefUtility.get(Constants.PREF_CHECK_CODE, "");
+		String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
 		JSONObject jo = new JSONObject();
 		try {
-			jo.put("action", "个人相册简介");
-			jo.put("hostId", studentId);
 			jo.put("用户较验码", checkCode);
-			jo.put("DATETIME", datatime);
+			jo.put("userid", studentId);
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		String base64Str = Base64.encode(jo.toString().getBytes());
-		CampusParameters params = new CampusParameters();
-		params.add(Constants.PARAMS_DATA, base64Str);
-		CampusAPI.getDownloadSubject(params, "AlbumPraise.php", new RequestListener() {
-
-			@Override
-			public void onIOException(IOException e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onError(CampusException e) {
-				Message msg = new Message();
-				msg.what = -1;
-				msg.obj = e.getMessage();
-				mHandler.sendMessage(msg);
-				
-			}
-
-			@Override
-			public void onComplete(String response) {
-				Message msg = new Message();
-				msg.what = 1;
-				msg.obj = response;
-				mHandler.sendMessage(msg);
-				
-			}
-		});
+		CampusAPI.httpPostToDandian("getUserInfo", jo, mHandler, 1);
 	}
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -542,17 +499,8 @@ public class ShowPersonInfo extends Activity {
 				case 1:
 					
 					result = msg.obj.toString();
-					resultStr = "";
-					if (AppUtility.isNotEmpty(result)) {
-						try {
-							resultStr = new String(Base64.decode(result
-									.getBytes("GBK")));
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-						}
-					}
 					try {
-						JSONObject jo = new JSONObject(resultStr);
+						JSONObject jo = new JSONObject(result);
 						
 						//if(memberInfo.getUserType().length()==0)
 						//{

@@ -38,7 +38,7 @@
     <string name="thecountry">国家</string>
     <string name="thecity">城市</string>
     <string name="theschool">学校</string>
-    <string name="thedepartment">系别</string>
+    <string name="thedepartment">部门</string>
     <string name="theclass">班级</string>
     <string name="theemail">邮箱</string>
     <string name="thestudy">选修课程</string>
@@ -325,4 +325,7 @@
       <string name="input_course_name">输入课程或老师名称</string>
       <string name="excellent_course">精品课程</string>
       <string name="popular_course">热门课程</string>
+      <string name="lastest_login">最近登录</string>
+      <string name="first_login">首次登录</string>
+      <string name="description">描述</string>
 </resources>

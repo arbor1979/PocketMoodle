@@ -128,22 +128,7 @@ public class ContactsInfo {
 		
 		contactsMemberList = new ArrayList<ContactsMember>();
         linkManDic = new HashMap<String, ContactsMember>();  
-         
-        net.minidev.json.JSONArray jaData = (net.minidev.json.JSONArray) jo.get("数据源_用户信息列表");
-		if (jaData != null && jaData.size() > 0) {
-			for (int i = 0; i < jaData.size(); i++) {
-				net.minidev.json.JSONObject joData = (net.minidev.json.JSONObject) jaData.get(i);
-				String userNumber = (String)joData.get("用户唯一码");
-				
-				ContactsMember contactsMember = new ContactsMember(joData);
-				contactsMemberList.add(contactsMember);
-				linkManDic.put(userNumber, contactsMember);
-				
-				
-			}
-		}
-		
-		
+
 	}
 	public List<ContactsFriends> getContactsFriendsList() {
 		return contactsFriendsList;

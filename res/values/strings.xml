@@ -311,4 +311,7 @@
         <string name="input_course_name">Enter course or teacher name</string>
         <string name="excellent_course">Excellent course</string>
         <string name="popular_course">Popular course</string>
+        <string name="lastest_login">Lastest login</string>
+      <string name="first_login">First login</string>
+      <string name="description">Description</string>
 </resources>

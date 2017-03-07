@@ -72,6 +72,9 @@ public class ContactsMember implements Serializable,Cloneable {
 	private String schoolName;
 	private ArrayList<String> kechengArray=new ArrayList<String>();
 	private ArrayList<String> roleArray=new ArrayList<String>();
+	private String firstloginTime;
+	private String description;
+	private JSONArray courseTeacher,courseStudent;
 	public String getSchoolName() {
 		return schoolName;
 	}
@@ -89,12 +92,11 @@ public class ContactsMember implements Serializable,Cloneable {
 		studentID = jo.optString("学号");
 		password = jo.optString("密码");
 		name = jo.optString("姓名");
-		className = jo.optString("班级名称");
 		seatNumber = jo.optString("座号");
 		gender = jo.optString("性别");
 		stuPhone = jo.optString("学生电话");
 		stuEmail = jo.optString("电子邮件");
-		dormitory = jo.optString("院系");
+		dormitory = jo.optString("部门");
 		relativeName = jo.optString("家长姓名");
 		relativePhone = jo.optString("家长电话");
 		address = jo.optString("城市");
@@ -104,68 +106,33 @@ public class ContactsMember implements Serializable,Cloneable {
 		stuStatus = jo.optString("学生状态");
 		userNumber = jo.optString("用户唯一码");
 		userImage = jo.optString("用户头像");
-		//userType=jo.optString("用户类型");
 		XingMing=jo.optString("XingMing");
 		userGrade=jo.optString("用户评级");
-		loginTime=jo.optString("登录时间");
-		/*
-		if (userNumber.indexOf("老师") > -1) {
-			studentID = jo.optString("用户名");
-			virtualClass = jo.optString("虚拟班级");
-			seatNumber = jo.optString("排序号");
-			className = jo.optString("部门");
-			stuPhone = jo.optString("手机");
-			chargeClass = jo.optString("所带班级");
-			chargeKeCheng= jo.optString("所带课程");
-		}
-		if (userNumber.indexOf("家长") > -1) {
-			stuPhone = jo.optString("手机");
-		}
-		*/
-		chargeClass="";
-		chargeKeCheng="";
-		userType="";
-		JSONArray kecheng=jo.optJSONArray("选修课程");
-		JSONArray jiaose=jo.optJSONArray("选修角色");
-		if(kecheng!=null)
-		{
-			for(int i=0;i<kecheng.length();i++)
-			{
-
-				try {
-					String role=jiaose.getString(i);
-					kechengArray.add(kecheng.getString(i));
-					roleArray.add(role);
-					if(role.equals("学生"))
-					{
-						if(chargeClass.length()>0)
-							chargeClass+=";";
-						chargeClass+=kecheng.getString(i);
-					}
-					else if(role.equals("无编辑权教师") || role.equals("有编辑权限教师") || role.equals("教师") || role.equals("课程创建者") || role.equals("管理员"))
-					{
-						if(chargeKeCheng.length()>0)
-							chargeKeCheng+=";";
-						chargeKeCheng+=kecheng.getString(i);
-					}
-					if(role.equals("无编辑权教师") || role.equals("有编辑权限教师"))
-						role="教师";
-					if(userType.indexOf(role)==-1)
-					{
-						if(userType.length()>0)
-							userType+=",";
-						userType+=role;
-					}
-						
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		schoolName=jo.optString("单位名称");
+		firstloginTime=jo.optString("首次登录");
+		loginTime=jo.optString("最近登录");
+		chargeKeCheng=jo.optString("管理课程");
+		chargeClass=jo.optString("选修课程");
+		userType=jo.optString("角色");
+		schoolName=jo.optString("学校");
+		description=jo.optString("描述");
 		
 	}
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getFirstloginTime() {
+		return firstloginTime;
+	}
+
+	public void setFirstloginTime(String firstloginTime) {
+		this.firstloginTime = firstloginTime;
+	}
+
 	public ArrayList<String> getKechengArray() {
 		return kechengArray;
 	}
@@ -182,67 +149,7 @@ public class ContactsMember implements Serializable,Cloneable {
 		this.roleArray = roleArray;
 	}
 
-	public ContactsMember(net.minidev.json.JSONObject jo){
-		number = String.valueOf(jo.get("编号"));
-		studentID = String.valueOf(jo.get("学号"));
-		password = String.valueOf(jo.get("密码"));
-		name = String.valueOf(jo.get("姓名"));
-		className = String.valueOf(jo.get("班级"));
-		seatNumber = String.valueOf(jo.get("座号"));
-		gender = String.valueOf(jo.get("性别"));
-		stuPhone = String.valueOf(jo.get("学生电话"));
-		stuEmail = String.valueOf(jo.get("学生邮箱")==null?"":jo.get("学生邮箱"));
-		
-		dormitory = String.valueOf(jo.get("学生宿舍"));
-		relativeName = String.valueOf(jo.get("家长姓名")==null?"":jo.get("家长姓名"));
-		relativePhone = String.valueOf(jo.get("家长电话")==null?"":jo.get("家长电话"));
-		address = String.valueOf(jo.get("家庭住址")==null?"":jo.get("家长电话"));
-		remark = String.valueOf(jo.get("备注")==null?"":jo.get("备注"));
-		stuStatus = String.valueOf(jo.get("学生状态"));
-		userNumber = String.valueOf(jo.get("用户唯一码"));
-		userImage = String.valueOf(jo.get("用户头像"));
-		userType=String.valueOf(jo.get("用户类型"));
-		XingMing=String.valueOf(jo.get("XingMing"));
-		userGrade=String.valueOf(jo.get("用户评级"));
-		loginTime=String.valueOf(jo.get("登录时间")==null?"":jo.get("登录时间"));
-		if (userNumber.indexOf("老师") > -1) {
-			studentID = String.valueOf(jo.get("用户名"));
-			virtualClass = String.valueOf(jo.get("虚拟班级"));
-			seatNumber = String.valueOf(jo.get("排序号"));
-			className = String.valueOf(jo.get("部门"));
-			stuPhone = String.valueOf(jo.get("手机"));
-			chargeClass = String.valueOf(jo.get("所带班级"));
-			chargeKeCheng= String.valueOf(jo.get("所带课程"));
-		}
-		if (userNumber.indexOf("家长") > -1) {
-			stuPhone = String.valueOf(jo.get("手机"));
-		}
-		
-		schoolName=String.valueOf(jo.get("单位名称"));
-		
-		userType="";
-		net.minidev.json.JSONArray kecheng=(net.minidev.json.JSONArray)jo.get("选修课程");
-		net.minidev.json.JSONArray jiaose=(net.minidev.json.JSONArray)jo.get("选修角色");
-		if(kecheng!=null)
-		{
-			for(int i=0;i<kecheng.size();i++)
-			{
-				String role=String.valueOf(jiaose.get(i));
-				kechengArray.add(String.valueOf(kecheng.get(i)));
-				roleArray.add(role);
-				
-				if(role.equals("无编辑权教师") || role.equals("有编辑权限教师"))
-					role="教师";
-				if(userType.indexOf(role)==-1)
-				{
-					if(userType.length()>0)
-						userType+=",";
-					userType+=role;
-				}
-			}
-		}
-					
-	}
+	
 	public String getUserType() {
 		return userType;
 	}
