@@ -13,6 +13,7 @@ import java.util.Random;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
@@ -27,30 +28,34 @@ import android.util.Log;
 public class FileUtility {
 	
 	private static final String TAG = "FileUtility";
-
-	public static String SDPATH="FileCache";  
-	  
-//    public static String getSDPATH() {  
-//        return SDPATH;  
-//    }  
-//    public FileUtility() {  
-//        //得到当前外部存储设备的目�?  
-//        // /SDCARD  
-//        SDPATH = Environment.getExternalStorageDirectory() + "/";  
-//    }  
-    /** 
-     * 在SD卡上创建文件 
-     *  
-     * @throws IOException 
-     */  
-    public FileUtility()
-    {
-    	
+	private static Context context;
+	
+	public static void setContext(Application app) {
+		context = app.getApplicationContext();
+	}
+    public static String getDiskCacheDir() {  
+        String cachePath = null;  
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())  
+                || !Environment.isExternalStorageRemovable()) {  
+            cachePath = context.getExternalCacheDir().getPath();  
+        } else {  
+            cachePath = context.getCacheDir().getPath();  
+        }  
+        return cachePath;  
+    } 
+    public static String getDiskFileDir() {  
+        String cachePath = null;  
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())  
+                || !Environment.isExternalStorageRemovable()) {  
+            cachePath = context.getExternalFilesDir(null).getPath();  
+        } else {  
+            cachePath = context.getFilesDir().getPath();  
+        }  
+        return cachePath;  
     }
 	public static File creatSDFile(String fileName) throws IOException {  
 		
-		
-    	String path = getCacheDir() + fileName;
+    	String path = getDiskCacheDir() + fileName;
     	System.out.println("creatSDFilePath:"+path);
         File file = new File(path);  
         file.createNewFile();  
@@ -62,33 +67,30 @@ public class FileUtility {
      *  
      * @param dirName 
      */  
-    public static String creatSDDir(String dirName) {
+    public static String creatFileDir(String dirName) {
     	String newDir;
-    	String state = Environment.getExternalStorageState();
-    	if (Environment.MEDIA_MOUNTED.equals(state)) {
-    		newDir=Environment.getExternalStorageDirectory().getPath()+"/PocketMoodle/"+dirName+"/";
-    	}
-    	else
-    		newDir=Environment.getDataDirectory().getAbsolutePath()+"/"+dirName+"/";
+    	newDir=getDiskFileDir()+dirName+"/";
     	File dir = new File(newDir);  
         if(!dir.exists())
         	dir.mkdirs();
-        //if(dirName.equals(SDPATH))
-        //{
-	        File nomedia = new File(newDir+".nomedia/");
-	        if(!nomedia.exists())
-	        {
-	        	nomedia.mkdirs();
-	        }
-        //}
+       
         return newDir;
     }  
+    public static String creatCacheDir(String dirName) {
+    	String newDir;
+    	newDir=getDiskCacheDir()+dirName+"/";
+    	File dir = new File(newDir);  
+        if(!dir.exists())
+        	dir.mkdirs();
+       
+        return newDir;
+    }
   
     /** 
      * 判断SD卡上的文件夹是否存在 
      */  
     public static boolean isFileExist(String fileName){  
-        File file = new File(getCacheDir() + fileName);  
+        File file = new File(getDiskCacheDir() + fileName);  
         return file.exists();  
     }  
       
@@ -187,7 +189,7 @@ public class FileUtility {
     public static File getCacheFile(String imageUri){  
         File cacheFile = null;        
 		String fileName = getFileRealName(imageUri);    
-		cacheFile = new File(getCacheDir(), fileName);   
+		cacheFile = new File(getDiskCacheDir(), fileName);   
         return cacheFile;  
     }  
       
@@ -256,11 +258,11 @@ public class FileUtility {
 		return dateFormat.format(date) +"_"+ num;
 	}
 	public static String getRandomSDFileName(String fileExt) {
-		return getCacheDir()+getFileName()+"."+fileExt;
+		return getDiskCacheDir()+getFileName()+"."+fileExt;
 	}
 	
 	public static String getRandomSDFileName(String dir,String fileExt) {
-		return creatSDDir(dir)+getFileName()+"."+fileExt;
+		return creatCacheDir(dir)+getFileName()+"."+fileExt;
 	}
 	
 	@SuppressWarnings("resource")
@@ -314,10 +316,10 @@ public class FileUtility {
 	}
 	public static void fileRename(String oldName,String newName)
 	{
-		File file=new File(getCacheDir()+oldName);  
+		File file=new File(getDiskCacheDir()+oldName);  
 		if(file.exists())
 		{
-			file.renameTo(new File(getCacheDir()+newName));
+			file.renameTo(new File(getDiskCacheDir()+newName));
 		}
 	}
 	public static void fileUrlRename(String oldName,String newName)
@@ -328,9 +330,7 @@ public class FileUtility {
 			file.renameTo(new File(newName));
 		}
 	}
-	public static String getCacheDir() {
-    	return creatSDDir(SDPATH);
-    }
+
 	public static String getFilePathInSD(Activity context,Uri uri)
 	{
 		String filepath=uri.getPath();

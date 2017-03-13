@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             
-            android:visibility="gone">
+            >
 
             <Button
                 android:id="@+id/setting_btn_goto"
@@ -65,7 +65,7 @@
 
             <Button
                 android:id="@+id/setting_btn_goto1"
-                android:layout_width="23dp"
+                android:layout_width="wrap_content"
                 android:layout_height="23dp"
                 android:layout_gravity="center"
                 android:layout_marginLeft="15dp"
@@ -101,7 +101,6 @@
             android:drawableRight="@drawable/course_uploading"
             android:paddingLeft="10dip"
             android:paddingRight="10dip"
-            android:text="@string/uploading"
             android:textColor="#ffffff"
             android:textSize="@dimen/text_size_small"
             android:visibility="gone" />

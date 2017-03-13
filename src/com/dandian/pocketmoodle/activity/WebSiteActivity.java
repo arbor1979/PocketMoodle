@@ -487,7 +487,7 @@ public class WebSiteActivity extends Activity {
     	String[] tempArray=url.split("\\?");
     	if(tempArray.length>2)
     		url=tempArray[0]+"?"+tempArray[1];
-    	String path=FileUtility.creatSDDir("download");
+    	String path=FileUtility.creatCacheDir("download");
 		String fileName=url.substring(url.lastIndexOf("/")+1, url.length());
 		if(fileName.toLowerCase().contains(".php"))
 		{

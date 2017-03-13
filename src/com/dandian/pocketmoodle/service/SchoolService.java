@@ -70,7 +70,7 @@ public class SchoolService extends Service {
 
 	public void downLoadUpdate(String mUrl,int mNotifyId){
 		String fileName=mUrl.substring(mUrl.lastIndexOf("/")+1, mUrl.length());
-		String downloadPath = FileUtility.creatSDDir("download")+fileName;
+		String downloadPath = FileUtility.creatCacheDir("download")+fileName;
 		
 		fileName=URLDecoder.decode(fileName);
 		Notification mNotification = new NotificationBean(this,R.drawable.ic_launcher, "¿ªÊ¼ÏÂÔØ",fileName, System.currentTimeMillis(),downloadPath);
@@ -123,7 +123,7 @@ public class SchoolService extends Service {
 		@Override
 		public void run() {
 			mTimer.schedule(mTimerTask, 0, TIMER_PERIOD);
-			String downloadPath = FileUtility.creatSDDir("download");
+			String downloadPath = FileUtility.creatCacheDir("download");
 			mDownUtil.downloadFile(mDownTask.getUrl(),downloadPath);
 		}
 

@@ -62,7 +62,7 @@ public class MyImageGetter implements ImageGetter {
 		String ext = ss[ss.length - 1];
 
 		// �?终图片保持的地址
-		String savePath = FileUtility.getCacheDir()
+		String savePath = FileUtility.getDiskCacheDir()
 				+ imageName + "." + ext;
 
 		File file = new File(savePath);
@@ -175,11 +175,7 @@ public class MyImageGetter implements ImageGetter {
 					drawable.getIntrinsicHeight());
 		}
 
-		@Override
-		public void draw(Canvas canvas) {
-			// TODO Auto-generated method stub
-			drawable.draw(canvas);
-		}
+		
 
 	}
 }

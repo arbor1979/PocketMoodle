@@ -327,7 +327,7 @@ public class SchoolNoticeDetailFragment extends Fragment {
 			
 			String mUrl=getURL();
 			
-			String path=FileUtility.creatSDDir("download");
+			String path=FileUtility.creatCacheDir("download");
 			String fileName=mUrl.substring(mUrl.lastIndexOf("/")+1, mUrl.length());
 			String filePath=path+fileName;
 			//FileUtility.deleteFile(filePath);

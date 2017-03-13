@@ -293,7 +293,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 					String loginStatus = jo.optString("½á¹û");
 					String token=jo.optString("token");
 					if (loginStatus.equals("Ê§°Ü")) {
-						if((token==null || token.length()==0) && jo.optString("errorPic")!=null)
+						if(token.length()==0 && jo.optString("errorPic").length()>0)
 						{
 							DialogUtility.showImageDialog(LoginActivity.this,jo.optString("errorPic"),getString(R.string.notoken));
 							return;

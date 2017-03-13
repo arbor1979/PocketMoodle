@@ -18,6 +18,8 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
@@ -32,6 +34,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.Browser;
 import android.provider.MediaStore;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -48,6 +51,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -71,6 +75,8 @@ import com.dandian.pocketmoodle.util.FileUtility;
 import com.dandian.pocketmoodle.util.HttpMultipartPostToMoodle;
 import com.dandian.pocketmoodle.util.ImageUtility;
 import com.dandian.pocketmoodle.util.IntentUtility;
+import com.dandian.pocketmoodle.util.MyImageGetter;
+import com.dandian.pocketmoodle.util.MyTagHandler;
 import com.dandian.pocketmoodle.util.PrefUtility;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
@@ -83,9 +89,7 @@ public class ShowPersonInfo extends Activity {
 	private String studentId;
 	private String userImage;
 	AQuery aq;
-	ContactsMember memberInfo;
 	DatabaseHelper database;
-	List<Map<String, Object>> list;
 	MyAdapter adapter;
 	Button changeheader;
 	private String picturePath;
@@ -93,6 +97,11 @@ public class ShowPersonInfo extends Activity {
 	private Dao<User, Integer> userDao;
 	private User user;
 	private Button btnSendMsg;
+	private ProgressDialog loadingDlg;
+	JSONObject userObj;
+	JSONArray keyList;
+	
+	
 	private DatabaseHelper getHelper() {
 		if (database == null) {
 			database = OpenHelperManager.getHelper(this, com.dandian.pocketmoodle.db.DatabaseHelper.class);
@@ -111,7 +120,10 @@ public class ShowPersonInfo extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		RelativeLayout nav_bar=(RelativeLayout) findViewById(R.id.headerlayout);
+		int color=PrefUtility.getInt(Constants.PREF_THEME_NAVBARCOLOR, 0);
+		if(color!=0)
+			nav_bar.setBackgroundColor(color);
 		user=((CampusApplication)getApplicationContext()).getLoginUserObj();
 		userDomain=PrefUtility.get(Constants.PREF_SCHOOL_DOMAIN,"");
 		btnSendMsg=(Button) findViewById(R.id.btnSendMsg);
@@ -134,68 +146,28 @@ public class ShowPersonInfo extends Activity {
 		}
 		
 		aq = new AQuery(this);
-		query();
+		userObj=new JSONObject();
+		keyList=new JSONArray();
 		initContent();
+		getUserInfo();
 	}
 	
-	private void query() 
-	{
 	
-		
-			memberInfo=new ContactsMember();
-			if(studentId.equals(user.getUserNumber()))
-			{
-				aq.id(R.id.page_exit).visibility(View.VISIBLE);
-				userImage=user.getUserImage();
-				memberInfo.setName(user.getName());
-				memberInfo.setAddress(user.getHomeAddress());
-				memberInfo.setStudentID(studentId.split("_")[2]);
-				memberInfo.setClassName(user.getsClass());
-				memberInfo.setLoginTime(user.getLoginTime());
-				memberInfo.setUserType(user.getUserType());
-				memberInfo.setSchoolName(user.getCompanyName());
-				memberInfo.setDormitory(user.getDepartment());
-				memberInfo.setStuEmail(user.getEmail());
-				memberInfo.setStuPhone(user.getPhone());
-				memberInfo.setRemark(user.getCompany());
-				memberInfo.setChargeClass(user.getsDormitory());
-				memberInfo.setChargeKeCheng(user.getMainRole());
-			}
-			else
-			{
-				aq.id(R.id.page_exit).visibility(View.GONE);
-				
-				AppUtility.showToastMsg(this,getString(R.string.refreshpersonalinfo));
-				memberInfo.setUserType("");
-				
-			}
-			getUserInfo();
-		
-	}
 	
 	private void initContent() {
 		ImageOptions options = new ImageOptions();
-		options.round=115;
-		options.memCache=false;
-		options.fileCache=false;
-		
-		if(userImage==null || userImage.equals("null") || userImage.equals("group"))
-			userImage=memberInfo.getUserImage();
-		Bitmap bm=aq.getCachedImage(userImage);
-		if(bm!=null)
-		{
-			//bm=ImageUtility.getRoundedCornerBitmap(bm, bm.getHeight()/2) ;
-			options.preset=bm;
-			options.round=bm.getHeight()/2;
-			
-		}
-		
+        options.memCache=false;
+        options.fileCache=false;
+        options.fallback=R.drawable.ic_launcher;
+		options.targetWidth=200;
+		options.round = 100;
 		aq.id(R.id.iv_pic).image(userImage,options);
-		aq.id(R.id.tv_name).text(memberInfo.getName());
-		if(memberInfo.getUserType().length()>0)
+		
+		
+		aq.id(R.id.tv_name).text(userObj.optString("姓名"));
+		if(userObj.optString("角色名称")!=null && userObj.optString("角色名称").length()>0)
 		{
-		    String usertype=memberInfo.getUserType();
-			aq.id(R.id.user_type).text("("+usertype+")");
+			aq.id(R.id.user_type).text("("+userObj.optString("角色名称")+")");
 		}
 		//else
 		//	aq.id(R.id.user_type).text(R.string.moodleuser);
@@ -223,8 +195,8 @@ public class ShowPersonInfo extends Activity {
 				Intent intent = new Intent(ShowPersonInfo.this,ChatMsgActivity.class);
 				intent.putExtra("toid", studentId);
 				intent.putExtra("type", "消息");
-				intent.putExtra("toname", memberInfo.getName());
-				intent.putExtra("userImage", memberInfo.getUserImage());
+				intent.putExtra("toname", userObj.optString("姓名"));
+				intent.putExtra("userImage", userObj.optString("用户头像"));
 				startActivity(intent);
 			}
 			
@@ -268,60 +240,6 @@ public class ShowPersonInfo extends Activity {
 			}
 		});
 		
-		list = new ArrayList<Map<String, Object>>();		
-			
-		Map<String, Object> map =null;
-		
-		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.thecountry));
-		map.put("info", memberInfo.getRemark());
-		list.add(map);
-		
-		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.thecity));
-		map.put("info", memberInfo.getAddress());
-		list.add(map);
-		
-		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.theschool));
-		map.put("info", memberInfo.getSchoolName());
-		list.add(map);
-		
-		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.thedepartment));
-		map.put("info", memberInfo.getDormitory());
-		list.add(map);
-		
-		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.theemail));
-		map.put("info", memberInfo.getStuEmail());
-		list.add(map);
-		
-		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.first_login));
-		map.put("info", memberInfo.getFirstloginTime());
-		list.add(map);
-		
-		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.lastest_login));
-		map.put("info", memberInfo.getLoginTime());
-		list.add(map);
-		
-		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.thestudy));
-		map.put("info", memberInfo.getChargeClass());
-		list.add(map);
-		
-		map = new HashMap<String, Object>();
-		map.put("title", this.getString(R.string.description));
-		map.put("info", memberInfo.getDescription());
-		list.add(map);
-		
-		/*
-		SimpleAdapter adapter = new SimpleAdapter(this,list,R.layout.list_left_right,
-				new String[]{"title","info"},
-				new int[]{R.id.left_title,R.id.right_detail});
-		*/
 		adapter=new MyAdapter(this);
 		aq.id(R.id.listView1).adapter(adapter);
 		
@@ -336,7 +254,7 @@ public class ShowPersonInfo extends Activity {
         @Override
         public int getCount() {
             // TODO Auto-generated method stub
-            return list.size();
+            return keyList.length();
         }
  
         @Override
@@ -377,12 +295,24 @@ public class ShowPersonInfo extends Activity {
                  
                 holder = (ViewHolder)convertView.getTag();
             }
-            
-            holder.title.setText((String)list.get(position).get("title"));
+            JSONObject keyItem=null;
+			try {
+				keyItem = keyList.getJSONObject(position);
+		            
+			} catch (JSONException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			if(keyItem==null)
+				keyItem=new JSONObject();
+			String key=keyItem.optString("name");
+			holder.title.setText(key);
+            String keytype=keyItem.optString("type");
+            String content=userObj.optString(key);
             holder.info.setText("");
-            if(holder.title.getText().equals(getString(R.string.thestudy)))
+            if(keytype.equals("course"))
             {
-            	String content=(String)list.get(position).get("info");
+            	
             	if(content!=null && content.length()>0)
         		{
             		JSONArray courseArray=null;
@@ -395,8 +325,6 @@ public class ShowPersonInfo extends Activity {
         			//contentView.append(getString(R.string.attachment)+"：\r\n");
         			for(int i=0;i<courseArray.length();i++)
         			{
-        			
-        				
         				try {
         					
         					JSONObject itemObj=courseArray.getJSONObject(i);
@@ -416,21 +344,21 @@ public class ShowPersonInfo extends Activity {
         					e.printStackTrace();
         				}
         			
-        				
         			}
         			holder.info.setMovementMethod(LinkMovementMethod.getInstance());
 
         		}
             }
+            else if(keytype.equals("description"))
+            {
+            	Spanned spanned = Html.fromHtml(content, new MyImageGetter(ShowPersonInfo.this,holder.info), null);
+            	holder.info.setText(spanned);
+            	holder.info.setMovementMethod(LinkMovementMethod.getInstance());
+            }
             else
-            	holder.info.setText((String)list.get(position).get("info"));
-            
-            
+            	holder.info.setText(content);
             holder.bt_changeNumber.setVisibility(View.GONE);
             holder.private_album.setVisibility(View.GONE);
-            
-             
-             
             return convertView;
         }
         public final class ViewHolder{
@@ -469,7 +397,8 @@ public class ShowPersonInfo extends Activity {
 		
 	}
 	private void getUserInfo() {
-		
+		loadingDlg=ProgressDialog.show(this, null, getString(R.string.data_loading_progress),true);
+		loadingDlg.show();
 		String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
 		JSONObject jo = new JSONObject();
 		try {
@@ -488,24 +417,25 @@ public class ShowPersonInfo extends Activity {
 		public void handleMessage(Message msg) {
 			
 			String result = "";
-			String resultStr = "";
 			switch (msg.what) 
 			{
 				case -1:// 请求失败
-					
+					if(loadingDlg!=null)
+						loadingDlg.dismiss();
 					AppUtility.showErrorToast(ShowPersonInfo.this,
 							msg.obj.toString());
 					break;
 				case 1:
-					
+					if(loadingDlg!=null)
+						loadingDlg.dismiss();
 					result = msg.obj.toString();
 					try {
 						JSONObject jo = new JSONObject(result);
 						
 						//if(memberInfo.getUserType().length()==0)
 						//{
-							memberInfo=new ContactsMember(jo.getJSONObject("个人资料"));
-							userImage=memberInfo.getUserImage();
+							userObj=jo.getJSONObject("个人资料");
+							keyList=jo.getJSONArray("显示字段");
 							initContent();
 							
 						//}
@@ -518,20 +448,14 @@ public class ShowPersonInfo extends Activity {
 				case 2:
 					
 					result = msg.obj.toString();
-					resultStr = "";
-					if (AppUtility.isNotEmpty(result)) {
-						try {
-							resultStr = new String(Base64.decode(result
-									.getBytes("GBK")));
-						} catch (UnsupportedEncodingException e) {
-							e.printStackTrace();
-						}
-					}
+					
 					try {
-						JSONObject jo = new JSONObject(resultStr);
-						if(jo.opt("结果").equals("成功"))
+						JSONObject jo = new JSONObject(result);
+						if (jo.optString("结果").equals("失败"))
+							AppUtility.showToastMsg(ShowPersonInfo.this, jo.optString("error"));
+						else
 						{
-							DialogUtility.showMsg(ShowPersonInfo.this, getString(R.string.uploadSuccess));
+							AppUtility.showToastMsg(ShowPersonInfo.this, getString(R.string.uploadSuccess));
 							userImage=jo.getString("newpicurl");
 							user.setUserImage(userImage);
 							try {
@@ -554,19 +478,11 @@ public class ShowPersonInfo extends Activity {
 					result = upLoadbundle.getString("result");
 					
 					try {
-						resultStr = new String(Base64.decode(result.getBytes("GBK")));
-					} catch (UnsupportedEncodingException e1) {
-						e1.printStackTrace();
-					}
-					
-					try {
 						JSONArray ja = new JSONArray(result);
 						JSONObject jo=ja.getJSONObject(0);
-						if(jo!=null && "user".equals(jo.optString("component")))
+						if(jo!=null && jo.optString("itemid").length()>0)
 						{
-							
-							userImage=userDomain+"/pluginfile.php/"+jo.optString("contextid")+"/user/icon/clean/"+URLEncoder.encode(jo.optString("filename"),"UTF-8");
-							
+							//userImage=userDomain+"/pluginfile.php/"+jo.optString("contextid")+"/user/icon/clean/"+URLEncoder.encode(jo.optString("filename"),"UTF-8");
 							updateServerUserInfo(jo);
 						}else{
 							DialogUtility.showMsg(ShowPersonInfo.this, getString(R.string.failed)+jo.optString("error"));
@@ -712,40 +628,16 @@ public class ShowPersonInfo extends Activity {
 	
 	public void SubmitUploadFile(String picPath){
 		CampusParameters params = new CampusParameters();
-		//String checkCode = PrefUtility.get(Constants.PREF_CHECK_CODE, "");// 获取用户校验码
-		/*
-		params.add("用户较验码", checkCode);
-		params.add("课程名称", downloadSubject.getCourseName());
-		params.add("老师姓名", downloadSubject.getUserName());
-		params.add("文件名", downloadSubject.getFileName());
-		*/
+		
 		final String localfile = picPath;
-		/*
-		params.add("用户较验码", checkCode);
-		params.add("课程名称", downloadSubject.getCourseName());
-		params.add("老师姓名", downloadSubject.getUserName());
-		params.add("文件名", downloadSubject.getFileName());
-		*/
 		
-		
-		String sclass=PrefUtility.get(Constants.PREF_CHECK_SCLASS,"");
-		String realname=PrefUtility.get(Constants.PREF_CHECK_REALNAME,"");
-		String userId=PrefUtility.get(Constants.PREF_CHECK_USERID,"0");
-		
-		params.add("action","upload");
-		params.add("filepath","/");
-		params.add("userId",userId);
-		params.add("author",sclass+realname);
-		params.add("filearea","icon");
-		
-		/*
-		params.add("JiaoYanMa", checkCode);
-		*/
-		params.add("newFileName", "f1.png");
+		String token=PrefUtility.get(Constants.PREF_CHECK_TOKEN,"");
+	
+		params.add("token",token);
+		params.add("filearea","draft");
 		params.add("pic", picPath);
-
 		
-		String url=userDomain+"/dandian/uploadDelete.php";
+		String url=userDomain+"/webservice/upload.php";
 		
 		HttpMultipartPostToMoodle post = new HttpMultipartPostToMoodle(this, url, params){
 			@Override  
@@ -762,49 +654,19 @@ public class ShowPersonInfo extends Activity {
 		};  
         post.execute();
 	}
-	public void updateServerUserInfo(JSONObject jo)
+	private void updateServerUserInfo(JSONObject jo)
 	{
-		long datatime = System.currentTimeMillis();
-		String checkCode = PrefUtility.get(Constants.PREF_CHECK_CODE, "");
+		String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
 		try {
-			jo.put("action", "更新头像");
 			jo.put("用户较验码", checkCode);
-			jo.put("DATETIME", datatime);
-			jo.put("newpicurl", userImage);
-			
+			jo.put("action", "changeAvatar");
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		String base64Str = Base64.encode(jo.toString().getBytes());
-		CampusParameters params = new CampusParameters();
-		params.add(Constants.PARAMS_DATA, base64Str);
-		CampusAPI.getDownloadSubject(params, "changeMoodlePicture.php", new RequestListener() {
+		CampusAPI.httpPostToDandian("getUserInfo", jo, mHandler, 2);
 
-			@Override
-			public void onIOException(IOException e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onError(CampusException e) {
-				Message msg = new Message();
-				msg.what = -1;
-				msg.obj = e.getMessage();
-				mHandler.sendMessage(msg);
-				
-			}
-
-			@Override
-			public void onComplete(String response) {
-				Message msg = new Message();
-				msg.what = 2;
-				msg.obj = response;
-				mHandler.sendMessage(msg);
-				
-			}
-		});
 	}
+	
 	@Override
     public void onSaveInstanceState(Bundle savedInstanceState){
         super.onSaveInstanceState(savedInstanceState);

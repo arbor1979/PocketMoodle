@@ -331,7 +331,7 @@ public class CourseClassActivity extends Activity {
 						ds.setDownAddress(userDomain+"/pluginfile_dandian.php?/"+jo.optString("contextid")+"/user/private/0/"+URLEncoder.encode(ds.getFileName(),"UTF-8"));
 						ds.setFilepath(jo.optString("filepath"));
 						ds.setContextid(jo.optInt("contextid"));
-						String newFileName=FileUtility.creatSDDir(SD_PATH)+jo.optString("filename");
+						String newFileName=FileUtility.creatFileDir(SD_PATH)+jo.optString("filename");
 						FileUtility.copyFile(localfile,newFileName);
 						FileUtility.deleteFile(localfile);
 						ds.setLocalfile(newFileName);
@@ -549,7 +549,7 @@ public class CourseClassActivity extends Activity {
 			return;
 		}
 
-		mCurrentPhotoFile = new File(FileUtility.getRandomSDFileName(FileUtility.SDPATH,"jpg"));
+		mCurrentPhotoFile = new File(FileUtility.getRandomSDFileName(FileUtility.getDiskCacheDir(),"jpg"));
 		Uri uri = Uri.fromFile(mCurrentPhotoFile);
 		intent.putExtra("return-data", false);
 		intent.putExtra("android.intent.extra.screenOrientation", false);
@@ -569,7 +569,7 @@ public class CourseClassActivity extends Activity {
 			Log.v("TestFile", "SD card is not avaiable/writeable right now.");
 			return;
 		}
-		mCurrentVideoFile = new File(FileUtility.getRandomSDFileName(FileUtility.SDPATH,"3gp"));
+		mCurrentVideoFile = new File(FileUtility.getRandomSDFileName(FileUtility.getDiskCacheDir(),"3gp"));
 		
 		Uri uri = Uri.fromFile(mCurrentVideoFile);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
@@ -817,7 +817,7 @@ public class CourseClassActivity extends Activity {
 				holder.downloadInfo.setVisibility(View.VISIBLE);
 				holder.downloadProgress.setVisibility(View.INVISIBLE);
 				
-				String localfile = FileUtility.creatSDDir(SD_PATH) + downloadSubject.getFileName();
+				String localfile = FileUtility.creatFileDir(SD_PATH) + downloadSubject.getFileName();
 				File file = new File(localfile);
 				long filesize = downloadSubject.getFilesize();
 				
@@ -898,7 +898,7 @@ public class CourseClassActivity extends Activity {
 			return;
 		}
 		String urlstr = ds.getDownAddress();
-		String localfile = FileUtility.creatSDDir(SD_PATH) + ds.getFileName();
+		String localfile = FileUtility.creatFileDir(SD_PATH) + ds.getFileName();
 		long filesize = ds.getFilesize(); // 服务器传过来的文件大小
 		long localsize = 0; // 本地文件已经下载大小
 		String localFilePath = ds.getLocalfile();
@@ -1459,7 +1459,7 @@ public class CourseClassActivity extends Activity {
 	public void downloadFile(View v, String urlstr, String localfile,
 			long filesize) {
 
-		File file = new File(FileUtility.creatSDDir(SD_PATH));
+		File file = new File(FileUtility.creatFileDir(SD_PATH));
 		if (!file.exists()) {
 			file.mkdirs();
 		}
@@ -1620,7 +1620,7 @@ public class CourseClassActivity extends Activity {
 					String img_path=FileUtility.getFilePathInSD(this,uri);
 					//String extName=FileUtility.getFileExtName(img_path);
 					//String tempPath =FileUtility.getRandomSDFileName(FileUtility.SDPATH,extName);
-					String tempPath =FileUtility.getCacheDir()+FileUtility.getFileRealName(img_path);
+					String tempPath =FileUtility.getDiskCacheDir()+FileUtility.getFileRealName(img_path);
 					FileUtility.copyFile(img_path,tempPath);
 					ImageUtility.rotatingImageIfNeed(tempPath);
 					File file1 = new File(tempPath);
@@ -1647,7 +1647,7 @@ public class CourseClassActivity extends Activity {
 					String img_path=FileUtility.getFilePathInSD(this,uri);
 					//String extName=FileUtility.getFileExtName(img_path);
 					//String tempPath =FileUtility.getRandomSDFileName(FileUtility.SDPATH,extName);
-					String tempPath =FileUtility.getCacheDir()+FileUtility.getFileRealName(img_path);
+					String tempPath =FileUtility.getDiskCacheDir()+FileUtility.getFileRealName(img_path);
 					FileUtility.copyFile(img_path,tempPath);
 					File file1 = new File(tempPath);
 					if(!file1.exists())
@@ -1669,7 +1669,7 @@ public class CourseClassActivity extends Activity {
 					
 					//String extName=FileUtility.getFileExtName(img_path);
 					//String tempPath =FileUtility.getRandomSDFileName(FileUtility.SDPATH,extName);
-					String tempPath =FileUtility.getCacheDir()+FileUtility.getFileRealName(img_path);
+					String tempPath =FileUtility.getDiskCacheDir()+FileUtility.getFileRealName(img_path);
 					FileUtility.copyFile(img_path,tempPath);
 					File file1 = new File(tempPath);
 					if(!file1.exists())
@@ -1688,7 +1688,7 @@ public class CourseClassActivity extends Activity {
 				String p = data.getStringExtra("paths");
 				if (!"".equals(p)&&p != null) {
 					//String tempPath =FileUtility.getRandomSDFileName(FileUtility.SDPATH,FileUtility.getFileExtName(p));
-					String tempPath =FileUtility.getCacheDir()+FileUtility.getFileRealName(p);
+					String tempPath =FileUtility.getDiskCacheDir()+FileUtility.getFileRealName(p);
 					FileUtility.copyFile(p,tempPath);
 
 					File f = new File(tempPath);

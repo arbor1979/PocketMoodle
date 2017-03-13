@@ -74,7 +74,6 @@ public class ContactsMember implements Serializable,Cloneable {
 	private ArrayList<String> roleArray=new ArrayList<String>();
 	private String firstloginTime;
 	private String description;
-	private JSONArray courseTeacher,courseStudent;
 	public String getSchoolName() {
 		return schoolName;
 	}
@@ -84,7 +83,17 @@ public class ContactsMember implements Serializable,Cloneable {
 	}
 
 	public ContactsMember(){
-		super();
+		number="";
+		userType="";
+		name="";
+		remark="";
+		schoolName="";
+		dormitory="";
+		stuEmail="";
+		firstloginTime="";
+		loginTime="";
+		chargeClass="";
+		description="";
 	}
 	
 	public ContactsMember(JSONObject jo){

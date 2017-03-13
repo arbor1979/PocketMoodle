@@ -191,7 +191,7 @@ public class CampusApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		AppUtility.setContext(this);
-		FileUtility.creatSDDir(FileUtility.SDPATH);
+		FileUtility.setContext(this);
 		updateTable();
 	}
 
@@ -249,8 +249,7 @@ public class CampusApplication extends Application {
 		super.onLowMemory();
 		AQUtility.cleanCache(AQUtility.getCacheDir(this, AQuery.CACHE_DEFAULT), 0, 0);
 		BitmapAjaxCallback.clearCache();
-		FileUtility.deleteFileFolder(FileUtility.getCacheDir());
-		FileUtility.deleteFileFolder(FileUtility.creatSDDir("download"));
+		FileUtility.deleteFileFolder(FileUtility.getDiskCacheDir());
 		//FileUtility.deleteFileFolder(FileUtility.creatSDDir("Ïà²á"));
 		//FileUtility.deleteFileFolder(FileUtility.creatSDDir("¿Î¼þ"));
 	

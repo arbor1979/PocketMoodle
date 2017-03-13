@@ -68,7 +68,7 @@ public class MyTagHandler implements TagHandler {
 			String ext = ss[ss.length - 1];
 			
 			// 最终图片保持的地址
-			String savePath = FileUtility.getCacheDir() + imageName + "." + ext;
+			String savePath = FileUtility.getDiskCacheDir() + imageName + "." + ext;
 			
 			File file = new File(savePath);
 			if (file.exists()) {
