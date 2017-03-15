@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="5dp"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:padding="3dp" >
 
         <ImageView
             android:id="@+id/iv_course"
@@ -16,20 +16,14 @@
             android:id="@+id/tv_courseName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:lines="1"
             android:text="课程名称" />
 
         <TextView
             android:id="@+id/tv_teacherName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:lines="1"
             android:text="教师名称" />
-		
-        <TextView
-            android:id="@+id/tv_userNum"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="选修用户数" />
+
 </LinearLayout>

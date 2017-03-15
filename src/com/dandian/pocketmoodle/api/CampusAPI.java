@@ -461,7 +461,7 @@ public class CampusAPI {
 				"http://laoshi.dandian.net/AlbumDownloadDetail.php?IsZip=1", params,
 				HTTP_METHOD, listener);
 	}
-	public static void httpPostToDandian(String functionFile,JSONObject jsonParam,final Handler mHandler,final int completeCode)
+	public static void httpPostToDandian(JSONObject jsonParam,final Handler mHandler,final int completeCode)
 	{
 			
 		CampusParameters params = new CampusParameters();
@@ -477,7 +477,6 @@ public class CampusAPI {
 			}
             params.add(key, value);
 		}
-		params.add("function", functionFile);
 		String url="http://laoshi.dandian.net/newMoodleMobile/service.php";
 		RequestListener listener=new RequestListener() {
 

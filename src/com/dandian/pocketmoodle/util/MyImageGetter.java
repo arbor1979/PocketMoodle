@@ -55,9 +55,7 @@ public class MyImageGetter implements ImageGetter {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String sdcardPath = Environment.getExternalStorageDirectory()
-				.toString(); // 获取SDCARD的路�?
-		// 获取图片后缀�?
+		
 		String[] ss = source.split("\\.");
 		String ext = ss[ss.length - 1];
 
@@ -174,7 +172,13 @@ public class MyImageGetter implements ImageGetter {
 			setBounds(0, 0, drawable.getIntrinsicWidth(),
 					drawable.getIntrinsicHeight());
 		}
-
+		 @Override  
+	    public void draw(Canvas canvas) {  
+	        
+	      if (drawable != null) {  
+	       drawable.draw(canvas);  
+	      }  
+	    }
 		
 
 	}

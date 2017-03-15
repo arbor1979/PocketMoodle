@@ -52,6 +52,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -124,6 +125,7 @@ public class ShowPersonInfo extends Activity {
 		int color=PrefUtility.getInt(Constants.PREF_THEME_NAVBARCOLOR, 0);
 		if(color!=0)
 			nav_bar.setBackgroundColor(color);
+		
 		user=((CampusApplication)getApplicationContext()).getLoginUserObj();
 		userDomain=PrefUtility.get(Constants.PREF_SCHOOL_DOMAIN,"");
 		btnSendMsg=(Button) findViewById(R.id.btnSendMsg);
@@ -385,13 +387,13 @@ public class ShowPersonInfo extends Activity {
 			Intent intent=new Intent(ShowPersonInfo.this,SchoolDetailActivity.class);
 			intent.putExtra("templateName", "博客");
 			try {
-				intent.putExtra("interfaceName","XUESHENG-CHENGJI-Student-Moodle-CourseLib.php?action=courseinfoFromName&courseName="+URLEncoder.encode(mUrl,"utf-8"));
+				intent.putExtra("interfaceName","?function=getUserInfo&action=courseSummary&courseId="+URLEncoder.encode(mUrl,"utf-8"));
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			intent.putExtra("title", mUrl);
-			intent.putExtra("display", mUrl);
+			intent.putExtra("display", getString(R.string.course_summary));
 			startActivity(intent);
 	    }
 		
@@ -404,10 +406,11 @@ public class ShowPersonInfo extends Activity {
 		try {
 			jo.put("用户较验码", checkCode);
 			jo.put("userid", studentId);
+			jo.put("function", "getUserInfo");
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		CampusAPI.httpPostToDandian("getUserInfo", jo, mHandler, 1);
+		CampusAPI.httpPostToDandian(jo, mHandler, 1);
 	}
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -452,7 +455,7 @@ public class ShowPersonInfo extends Activity {
 					try {
 						JSONObject jo = new JSONObject(result);
 						if (jo.optString("结果").equals("失败"))
-							AppUtility.showToastMsg(ShowPersonInfo.this, jo.optString("error"));
+							AppUtility.showErrorToast(ShowPersonInfo.this, jo.optString("error"));
 						else
 						{
 							AppUtility.showToastMsg(ShowPersonInfo.this, getString(R.string.uploadSuccess));
@@ -660,10 +663,11 @@ public class ShowPersonInfo extends Activity {
 		try {
 			jo.put("用户较验码", checkCode);
 			jo.put("action", "changeAvatar");
+			jo.put("function", "getUserInfo");
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		CampusAPI.httpPostToDandian("getUserInfo", jo, mHandler, 2);
+		CampusAPI.httpPostToDandian(jo, mHandler, 2);
 
 	}
 	

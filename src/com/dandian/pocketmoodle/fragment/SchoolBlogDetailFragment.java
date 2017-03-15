@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
 
 import org.json.JSONException;
@@ -40,6 +41,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -93,33 +95,21 @@ public class SchoolBlogDetailFragment extends Fragment {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case -1:
-				showFetchFailedView();
+				showProgress(false);
 				AppUtility.showErrorToast(getActivity(), msg.obj.toString());
 				break;
 			case 0:
 				showProgress(false);
 				String result = msg.obj.toString();
-				String resultStr = "";
 				if (AppUtility.isNotEmpty(result)) {
 					try {
-						resultStr = new String(Base64.decode(result
-								.getBytes("GBK")));
-						Log.d(TAG, resultStr);
-					} catch (UnsupportedEncodingException e) {
-						showFetchFailedView();
-						e.printStackTrace();
-					}
-				}else{
-					showFetchFailedView();
-				}
-
-				if (AppUtility.isNotEmpty(resultStr)) {
-					try {
-						JSONObject jo = new JSONObject(resultStr);
+						JSONObject jo = new JSONObject(result);
 						String res = jo.optString("结果");
-						if(AppUtility.isNotEmpty(res)){
-							AppUtility.showToastMsg(getActivity(), res);
+						if(res.equals("失败"))
+						{
+							AppUtility.showErrorToast(getActivity(), jo.optString("error"));
 						}else{
+							
 							rightBtn=jo.optString("右上按钮");
 							rightBtnUrl=jo.optString("右上按钮URL");
 							rightSubmit=jo.optString("右上按钮Submit");
@@ -138,23 +128,17 @@ public class SchoolBlogDetailFragment extends Fragment {
 			case 1:
 				showProgress(false);
 				result = msg.obj.toString();
-				resultStr = "";
+				
 				if (AppUtility.isNotEmpty(result)) {
 					try {
-						resultStr = new String(Base64.decode(result
-								.getBytes("GBK")));
-						Log.d(TAG, resultStr);
-					} catch (UnsupportedEncodingException e) {
-						showFetchFailedView();
-						e.printStackTrace();
-					}
-				}
-
-				if (AppUtility.isNotEmpty(resultStr)) {
-					try {
-						JSONObject jo = new JSONObject(resultStr);
+						JSONObject jo = new JSONObject(result);
 						String res = jo.optString("结果");
-						if(res.equals("成功")){
+						if(res.equals("失败"))
+						{
+							AppUtility.showErrorToast(getActivity(), jo.optString("error"));
+						}
+						else	
+						{
 							int id=jo.optInt("编号");
 							for(Comment item:blog.getCommentList())
 							{
@@ -179,21 +163,10 @@ public class SchoolBlogDetailFragment extends Fragment {
 			case 2:
 				showProgress(false);
 				result = msg.obj.toString();
-				resultStr = "";
+				
 				if (AppUtility.isNotEmpty(result)) {
 					try {
-						resultStr = new String(Base64.decode(result
-								.getBytes("GBK")));
-						Log.d(TAG, resultStr);
-					} catch (UnsupportedEncodingException e) {
-						showFetchFailedView();
-						e.printStackTrace();
-					}
-				}
-
-				if (AppUtility.isNotEmpty(resultStr)) {
-					try {
-						JSONObject jo = new JSONObject(resultStr);
+						JSONObject jo = new JSONObject(result);
 						String res = jo.optString("结果");
 						if(res.equals("成功")){
 							Intent aintent = new Intent();
@@ -243,7 +216,10 @@ public class SchoolBlogDetailFragment extends Fragment {
 		aq = new AQuery(view);
 		btnLeft = (Button) view.findViewById(R.id.btn_left);
 		btnDel=(Button)view.findViewById(R.id.delButton);
-		
+		RelativeLayout nav_bar=(RelativeLayout) view.findViewById(R.id.nav_bar);
+		int color=PrefUtility.getInt(Constants.PREF_THEME_NAVBARCOLOR, 0);
+		if(color!=0)
+			nav_bar.setBackgroundColor(color);
 		loadingLayout = (LinearLayout) view.findViewById(R.id.data_load);
 		contentLayout = (ScrollView) view.findViewById(R.id.content_layout);
 		commentLayout= (LinearLayout) view.findViewById(R.id.commentLayout);
@@ -254,8 +230,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 		btnLeft.setCompoundDrawablesWithIntrinsicBounds(
 				R.drawable.bg_btn_left_nor, 0, 0, 0);
 
-		
-		aq.id(R.id.tv_title).text(display+" "+getString(R.string.details));
+		aq.id(R.id.tv_title).text(display);
 		aq.id(R.id.layout_btn_left).clicked(new OnClickListener() {
 
 			@Override
@@ -568,51 +543,22 @@ public class SchoolBlogDetailFragment extends Fragment {
 	 */
 	public void getNoticeDetail(boolean flag) {
 		showProgress(flag);
-		Log.d(TAG, "--------" + String.valueOf(new Date().getTime()));
-		long datatime = System.currentTimeMillis();
-		String checkCode = PrefUtility.get(Constants.PREF_CHECK_CODE, "");
-		Log.d(TAG, "----------datatime:" + datatime);
-		Log.d(TAG, "----------checkCode:" + checkCode + "++");
-		Locale locale = getResources().getConfiguration().locale;
-	    String language = locale.getCountry();
-		JSONObject jo = new JSONObject();
+		String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
+		JSONObject queryJson=AppUtility.parseQueryStrToJson(interfaceName);
+		JSONObject jsonObj = new JSONObject();
 		try {
-			jo.put("用户较验码", checkCode);
-			jo.put("DATETIME", datatime);
-			jo.put("language", language);
+			jsonObj.put("用户较验码", checkCode);
+			Iterator it = queryJson.keys();
+			while (it.hasNext()) {
+                String key = (String) it.next();
+                String value = queryJson.getString(key); 
+                jsonObj.put(key, value);
+			}
+			
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		String base64Str = Base64.encode(jo.toString().getBytes());
-		Log.d(TAG, "------->base64Str:" + base64Str);
-		CampusParameters params = new CampusParameters();
-		params.add(Constants.PARAMS_DATA, base64Str);
-		CampusAPI.getSchoolItem(params, interfaceName, new RequestListener() {
-
-			@Override
-			public void onIOException(IOException e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onError(CampusException e) {
-				Log.d(TAG, "----response" + e.getMessage());
-				Message msg = new Message();
-				msg.what = -1;
-				msg.obj = e.getMessage();
-				mHandler.sendMessage(msg);
-			}
-
-			@Override
-			public void onComplete(String response) {
-				Log.d(TAG, "----response" + response);
-				Message msg = new Message();
-				msg.what = 0;
-				msg.obj = response;
-				mHandler.sendMessage(msg);
-			}
-		});
+		CampusAPI.httpPostToDandian(jsonObj, mHandler, 0);
 	}
 	
 	public class CommentAdapter extends BaseAdapter{

@@ -343,10 +343,28 @@ public class WebSiteActivity extends Activity {
 	        chooserIntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.choose_upload));
 	        startActivityForResult(chooserIntent, FILECHOOSER_RESULTCODE_FOR_ANDROID_5);
 	    }
-		
+		@Override    
+		public void onProgressChanged(WebView view, int newProgress) {  
+		    // 进度是100就代表dom树加载完成了
+		    if (newProgress == 100) {        
+		    	String[] removeTags=new String[]{"header","aside","footer"};
+		      mWebView.loadUrl(getDomOperationStatements(removeTags));        
+		    }    
+		  }
 
 	}
-	 
+	private String getDomOperationStatements(String[] hideDomIds) {   
+		  StringBuilder builder = new StringBuilder();    
+		  // add javascript prefix    
+		  builder.append("javascript:(function() { ");   
+		  for (String domId : hideDomIds) {        
+		    builder.append("var items = document.getElementsByTagName('").append(domId).append("');");        
+		    builder.append("while(items.length>0){items[0].parentNode.removeChild(items[0]);}");    
+		  }    
+		  // add javascript suffix    
+		  builder.append("})()");    
+		  return builder.toString();
+		}
 	
 	private class MyWebClient extends WebViewClient
 	{

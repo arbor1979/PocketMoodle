@@ -265,10 +265,11 @@ public class LoginActivity extends Activity implements OnClickListener,
 		try {
 			jsonObj.put("”√ªß√˚", mUsername);
 			jsonObj.put("√‹¬Î", mPassword);
+			jsonObj.put("function", "doLogin");
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		CampusAPI.httpPostToDandian("doLogin", jsonObj, mHandler, 0);
+		CampusAPI.httpPostToDandian(jsonObj, mHandler, 0);
 
 	}
 	

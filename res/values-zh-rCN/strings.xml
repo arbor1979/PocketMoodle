@@ -323,9 +323,10 @@
      <string name="notoken">登录失败，请检查魔灯站点手机服务是否开启</string>
       <string name="updatetip">更新提示</string>
       <string name="input_course_name">输入课程或老师名称</string>
-      <string name="excellent_course">精品课程</string>
+      <string name="excellent_course">推荐课程</string>
       <string name="popular_course">热门课程</string>
       <string name="lastest_login">最近登录</string>
       <string name="first_login">首次登录</string>
       <string name="description">描述</string>
+      <string name="course_summary">课程简介</string>
 </resources>

@@ -323,9 +323,10 @@
      <string name="notoken">登錄失敗，請檢查魔燈站點手機服務是否開啟</string>
       <string name="updatetip">更新提示</string>
        <string name="input_course_name">輸入課程或老師名稱</string>
-       <string name="excellent_course">精品課程</string>
+       <string name="excellent_course">推薦課程</string>
        <string name="popular_course">熱門課程</string>
        <string name="lastest_login">最近登錄</string>
       <string name="first_login">首次登錄</string>
       <string name="description">描述</string>
+      <string name="course_summary">課程簡介</string>
 </resources>

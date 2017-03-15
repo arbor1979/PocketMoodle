@@ -56,6 +56,8 @@ import com.dandian.pocketmoodle.entity.User;
 import com.dandian.pocketmoodle.util.AppUtility;
 import com.dandian.pocketmoodle.util.Base64;
 import com.dandian.pocketmoodle.util.PrefUtility;
+import com.dandian.pocketmoodle.widget.NonScrollableGridView;
+import com.dandian.pocketmoodle.widget.NonScrollableListView;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 /**
@@ -72,9 +74,9 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
  * 修改历史:<br/>
  * 
  */
-public class HomeActivity extends Activity implements OnItemClickListener {
+public class HomeActivity extends Activity {
 	private String TAG= "HomeActivity";
-	private ListView mList;
+	private NonScrollableListView mList;
 	private ListAdapter mAdapter;
 	static Button menu;
 	private DatabaseHelper database;
@@ -82,8 +84,9 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 	public static boolean isruning = false;
 	
 	private ViewPager mViewPager;
-	private JSONArray imageArray,excellentArray,popularArray,categoryArray;
-	private GridView gv_popular,gv_excellent;
+	private JSONArray imageArray,recommendedArray,categoryArray;
+	private JSONObject subCategoryArray;
+	private NonScrollableGridView gv_excellent;
 	private SamplePagerAdapter imagePageDapter;
 	AQuery aq;
 	private LinearLayout loadingLayout,leftlayout,failedLayout;
@@ -119,9 +122,8 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 		tv_title.setText(R.string.school);
 		failedLayout = (LinearLayout) findViewById(R.id.empty_error);
 		mViewPager = ((ViewPager) findViewById(R.id.zoom_imags));
-		mList = (ListView) findViewById(R.id.lv_category);
-		gv_excellent = (GridView) findViewById(R.id.gv_excellent);
-		gv_popular = (GridView) findViewById(R.id.gv_popular);
+		mList = (NonScrollableListView) findViewById(R.id.lv_category);
+		gv_excellent = (NonScrollableGridView) findViewById(R.id.gv_excellent);
 		aq = new AQuery(this);
 		failedLayout.setOnClickListener(new OnClickListener() {
 			@Override
@@ -151,10 +153,11 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 		JSONObject jo = new JSONObject();
 		try {
 			jo.put("用户较验码", checkCode);
+			jo.put("function", "getHomeData");
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		CampusAPI.httpPostToDandian("getHomeData", jo, mHandler, 0);
+		CampusAPI.httpPostToDandian(jo, mHandler, 0);
 
 	}
 	private void showFetchFailedView() {
@@ -195,9 +198,9 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 					else
 					{
 						imageArray=jo.optJSONArray("标题图片");
-						excellentArray=jo.optJSONArray("精品课程");
-						popularArray=jo.optJSONArray("热门课程");
-						categoryArray=jo.optJSONArray("课程类别");
+						recommendedArray=jo.optJSONArray("推荐课程");
+						categoryArray=jo.optJSONArray("课程大类");
+						subCategoryArray=jo.optJSONObject("课程子类");
 						initContent();
 					}
 				}
@@ -226,11 +229,9 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 	private void initContent() {
 		imagePageDapter = new SamplePagerAdapter(this);
 		mViewPager.setAdapter(imagePageDapter);
-		excellentAdapter= new MyGridAdapter(this,excellentArray);
+		excellentAdapter= new MyGridAdapter(this);
 		gv_excellent.setAdapter(excellentAdapter);
-		popularAdapter= new MyGridAdapter(this,popularArray);
-		gv_popular.setAdapter(popularAdapter);
-		mAdapter=new ListAdapter(this,categoryArray);
+		mAdapter=new ListAdapter(this);
 		mList.setAdapter(mAdapter);
 		
 		mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -357,13 +358,12 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 	class MyGridAdapter extends BaseAdapter{ 
         //上下文对象 
         private Context context; 
-        private JSONArray courseArray; 
-        MyGridAdapter(Context context,JSONArray courseArray){ 
+        MyGridAdapter(Context context){ 
             this.context = context; 
-            this.courseArray=courseArray;
+            
         } 
         public int getCount() { 
-            return courseArray.length(); 
+            return recommendedArray.length(); 
         } 
  
         public Object getItem(int item) { 
@@ -384,11 +384,9 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 					.findViewById(R.id.tv_courseName);
 			final TextView tv_teacherName = (TextView) view
 					.findViewById(R.id.tv_teacherName);
-			final TextView tv_userNum = (TextView) view
-					.findViewById(R.id.tv_userNum);
 			JSONObject courseObj = null;
 			try {
-				courseObj = (JSONObject) imageArray.get(position);
+				courseObj = (JSONObject) recommendedArray.get(position);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -398,7 +396,6 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 			aq.id(zoomImageView).image(imageUrl, true, true, 0, R.drawable.default_photo);
 			tv_courseName.setText(courseObj.optString("课程名称"));
 			tv_teacherName.setText(courseObj.optString("教师名称"));
-			tv_userNum.setText(courseObj.optString("选修用户数"));
 			view.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -427,26 +424,24 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 	 * 
 	 */
 	class ListAdapter extends BaseAdapter {
-		private JSONArray list = new JSONArray();
 		private Context context;
 		private LayoutInflater mInflater;
 
-		public ListAdapter(Context context, JSONArray list) {
+		public ListAdapter(Context context) {
 			this.context = context;
-			this.list = list;
 			this.mInflater = LayoutInflater.from(this.context);
 		}
 
 		@Override
 		public int getCount() {
-			return list.length();
+			return categoryArray.length();
 		}
 
 		@Override
 		public Object getItem(int position) {
 		JSONObject item=null;
 			try {
-				item=(JSONObject) list.get(position);
+				item=(JSONObject) categoryArray.get(position);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -475,7 +470,7 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 			}
 
 			final JSONObject cateObj = (JSONObject) getItem(position);
-			holder.name.setText(cateObj.optString("类别名称"));
+			holder.name.setText(cateObj.optString("name"));
 			
 			/*
 			if(chatFriend.getMsgType().equals("群消息")){
@@ -508,17 +503,7 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 		TextView unreadCnt;
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> arg0, View view, int position,
-			long arg3) {
-		ChatFriend chatFriend = (ChatFriend) mList.getItemAtPosition(position);
-		Intent intent = new Intent(this, ChatMsgActivity.class);
-		intent.putExtra("toid", chatFriend.getToid());
-		intent.putExtra("toname", chatFriend.getToname());
-		intent.putExtra("type", chatFriend.getMsgType());
-		intent.putExtra("userImage", chatFriend.getUserImage());
-		startActivity(intent);
-	}
+	
 
 	private DatabaseHelper getHelper() {
 		if (database == null) {

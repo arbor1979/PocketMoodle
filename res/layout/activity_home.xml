@@ -45,34 +45,18 @@
                 android:text="@string/excellent_course"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <GridView
+            <com.dandian.pocketmoodle.widget.NonScrollableGridView
                 android:id="@+id/gv_excellent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:numColumns="2" >
-
-            </GridView>
-            
-            <TextView
-                android:id="@+id/tv_popular"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
-                android:layout_marginTop="5dp"
-                android:text="@string/popular_course"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <GridView
-                android:id="@+id/gv_popular"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
+                android:layout_marginRight="5dp"
                 android:numColumns="2" >
 
-            </GridView>
+            </com.dandian.pocketmoodle.widget.NonScrollableGridView>
 
-            <ListView
+
+            <com.dandian.pocketmoodle.widget.NonScrollableListView
                 android:id="@+id/lv_category"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -80,7 +64,7 @@
                 android:divider="@drawable/stuinfo_line"
                 android:dividerHeight="0.5dip" >
 
-        </ListView>
+        	</com.dandian.pocketmoodle.widget.NonScrollableListView>
 
         </LinearLayout>
     </ScrollView>

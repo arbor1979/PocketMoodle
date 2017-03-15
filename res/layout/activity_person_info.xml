@@ -8,6 +8,7 @@
     <include layout="@layout/setting_head" />
 
     <LinearLayout
+        android:id="@+id/contentLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
