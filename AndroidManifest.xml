@@ -81,6 +81,9 @@
             android:name="com.dandian.pocketmoodle.activity.HomeActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name="com.dandian.pocketmoodle.activity.CoursesSearchActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name="com.dandian.pocketmoodle.activity.SchoolActivity"
             android:screenOrientation="portrait" 
             android:configChanges="orientation|keyboardHidden|screenSize">

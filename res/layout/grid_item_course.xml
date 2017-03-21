@@ -16,14 +16,16 @@
             android:id="@+id/tv_courseName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:lines="1"
+            android:ellipsize="end"
+           	android:singleLine="true"
             android:text="课程名称" />
 
         <TextView
             android:id="@+id/tv_teacherName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:lines="1"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text="教师名称" />
 
 </LinearLayout>

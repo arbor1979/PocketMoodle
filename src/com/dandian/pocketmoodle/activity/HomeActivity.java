@@ -1,22 +1,16 @@
 package com.dandian.pocketmoodle.activity;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher.OnPhotoTapListener;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,33 +26,24 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.dandian.pocketmoodle.CampusApplication;
 import com.dandian.pocketmoodle.R;
 import com.dandian.pocketmoodle.api.CampusAPI;
-import com.dandian.pocketmoodle.api.CampusException;
-import com.dandian.pocketmoodle.api.CampusParameters;
-import com.dandian.pocketmoodle.api.RequestListener;
 import com.dandian.pocketmoodle.base.Constants;
-import com.dandian.pocketmoodle.db.DatabaseHelper;
-import com.dandian.pocketmoodle.entity.ChatFriend;
 import com.dandian.pocketmoodle.entity.User;
 import com.dandian.pocketmoodle.util.AppUtility;
-import com.dandian.pocketmoodle.util.Base64;
 import com.dandian.pocketmoodle.util.PrefUtility;
 import com.dandian.pocketmoodle.widget.NonScrollableGridView;
 import com.dandian.pocketmoodle.widget.NonScrollableListView;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 /**
  * 
@@ -79,8 +64,6 @@ public class HomeActivity extends Activity {
 	private NonScrollableListView mList;
 	private ListAdapter mAdapter;
 	static Button menu;
-	private DatabaseHelper database;
-	private String ACTION_NAME = "ChatInteract";
 	public static boolean isruning = false;
 	
 	private ViewPager mViewPager;
@@ -91,7 +74,7 @@ public class HomeActivity extends Activity {
 	AQuery aq;
 	private LinearLayout loadingLayout,leftlayout,failedLayout;
 	private ScrollView contentLayout;
-	private MyGridAdapter excellentAdapter,popularAdapter;
+	private MyGridAdapter excellentAdapter;
 	private User user;
 	private Button btnLeft;
 	private RelativeLayout nav_bar;
@@ -143,7 +126,6 @@ public class HomeActivity extends Activity {
 			}
 		});
 		user=((CampusApplication)getApplicationContext()).getLoginUserObj();
-		registerBoradcastReceiver();
 		getHomeData();
 	}
 	private void getHomeData()
@@ -408,21 +390,8 @@ public class HomeActivity extends Activity {
 
 			return view;
         } 
-} 
-	/**
-	 * 
-	 * #(c) ruanyun PocketCampus <br/>
-	 * 
-	 * 版本说明: $id:$ <br/>
-	 * 
-	 * 功能说明: 消息list适配器
-	 * 
-	 * <br/>
-	 * 创建说明: 2013-12-9 下午1:10:31 zhuliang 创建文件<br/>
-	 * 
-	 * 修改历史:<br/>
-	 * 
-	 */
+	} 
+
 	class ListAdapter extends BaseAdapter {
 		private Context context;
 		private LayoutInflater mInflater;
@@ -463,6 +432,8 @@ public class HomeActivity extends Activity {
 				convertView = mInflater.inflate(R.layout.list_item_course_category, null);
 				
 				holder.name = (TextView) convertView.findViewById(R.id.tv_name);
+				holder.count = (TextView) convertView.findViewById(R.id.tv_right);
+				holder.subGates = (NonScrollableGridView) convertView.findViewById(R.id.gv_subGates);
 				
 				convertView.setTag(holder);
 			} else {
@@ -471,7 +442,60 @@ public class HomeActivity extends Activity {
 
 			final JSONObject cateObj = (JSONObject) getItem(position);
 			holder.name.setText(cateObj.optString("name"));
+			holder.count.setText(cateObj.optString("coursecount"));
+			JSONArray subCatesArray=subCategoryArray.optJSONArray(cateObj.optString("name"));
 			
+			if(subCatesArray!=null && subCatesArray.length()>0)
+			{
+				holder.subGates.setVisibility(View.VISIBLE);
+				final ArrayList<HashMap<String,Object>> data_list = new ArrayList<HashMap<String,Object>>();
+				for(int i=0;i<subCatesArray.length();i++)
+				{
+					JSONObject item=null;
+					try {
+						item = subCatesArray.getJSONObject(i);
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					if(item!=null)
+					{
+						HashMap<String,Object> map1 = new HashMap<String,Object>();
+						map1.put("name", item.optString("name"));
+						map1.put("id", item.optString("id"));
+						data_list.add(map1);
+					}
+				}
+				if(data_list.size()%2==1)
+				{
+					HashMap<String,Object> map1 = new HashMap<String,Object>();
+					map1.put("name", "");
+					map1.put("id", "");
+					data_list.add(map1);
+				}
+				SimpleAdapter sim_adapter = new SimpleAdapter(context, data_list, R.layout.grid_item, new String[] {"name"}, new int[]{R.id.item_textView});
+				holder.subGates.setAdapter(sim_adapter);
+				holder.subGates.setOnItemClickListener(new OnItemClickListener(){
+
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id) {
+						// TODO Auto-generated method stub
+						HashMap<String,Object> map1=data_list.get(position);
+						if(map1.get("id").toString().length()>0)
+						{
+							Intent intent = new Intent(HomeActivity.this,
+									CoursesSearchActivity.class);
+							intent.putExtra("cateId", map1.get("id").toString());
+							startActivity(intent);
+						}
+					}
+					
+				});
+			
+			}
+			else
+				holder.subGates.setVisibility(View.GONE);
 			/*
 			if(chatFriend.getMsgType().equals("群消息")){
 				holder.photo.setImageResource(R.drawable.contacts_group);
@@ -481,13 +505,11 @@ public class HomeActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					
-					/*
 						Intent intent = new Intent(HomeActivity.this,
-								ShowPersonInfo.class);
-						intent.putExtra("studentId", toid);
-						intent.putExtra("userImage",chatFriend.getUserImage());
+								CoursesSearchActivity.class);
+						intent.putExtra("cateId", cateObj.optString("id"));
 						startActivity(intent);
-					*/
+					
 				}
 				
 			});
@@ -498,89 +520,9 @@ public class HomeActivity extends Activity {
 	class ViewHolder {
 		ImageView photo;
 		TextView name;
-		TextView content;
-		TextView time;
-		TextView unreadCnt;
+		TextView count;
+		NonScrollableGridView subGates;
 	}
 
 	
-
-	private DatabaseHelper getHelper() {
-		if (database == null) {
-			database = OpenHelperManager.getHelper(this, DatabaseHelper.class);
-
-		}
-		return database;
-	}
-
-	private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-			if (action.equals(ACTION_NAME)) {
-				Log.d(TAG,"----------->BroadcastReceiver："
-						+ ACTION_NAME);
-				initContent();
-			}
-		}
-	};
-
-	public void registerBoradcastReceiver() {
-		IntentFilter myIntentFilter = new IntentFilter();
-		myIntentFilter.addAction(ACTION_NAME);
-		// 注册广播
-		registerReceiver(mBroadcastReceiver, myIntentFilter);
-	}
-
-	public void getLastChatMsg(final String toid, final int position) {
-		JSONObject jo = new JSONObject();
-		try {
-			jo.put("用户较验码", PrefUtility.get(Constants.PREF_CHECK_CODE, ""));
-			jo.put("DATETIME", String.valueOf(new Date().getTime()));
-			jo.put("TOID", toid);
-			Log.d(TAG,"----------------->toid:" + toid);
-		} catch (JSONException e1) {
-			e1.printStackTrace();
-		}
-		String base64Str = Base64.encode(jo.toString().getBytes());
-		Log.d(TAG,"---------------->base64Str:" + base64Str);
-		CampusParameters params = new CampusParameters();
-		params.add(Constants.PARAMS_DATA, base64Str);
-		CampusAPI.getLastChatMsg(params, new RequestListener() {
-
-			@Override
-			public void onIOException(IOException e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onError(CampusException e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onComplete(String response) {
-				Bundle bundle = new Bundle();
-				bundle.putInt("position", position);
-				bundle.putString("response", response);
-				bundle.putString("toid", toid);
-				Message msg = new Message();
-				msg.what = 0;
-				msg.obj = bundle;
-				mHandler.sendMessage(msg);
-			}
-		});
-	}
-
-	
-	@Override
-	protected void onDestroy() {
-		
-		super.onDestroy();
-		unregisterReceiver(mBroadcastReceiver);
-		
-		
-	}
 }

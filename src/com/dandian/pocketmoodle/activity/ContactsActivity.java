@@ -195,8 +195,7 @@ public class ContactsActivity extends FragmentActivity {
 		title.setText(R.string.contacts);
 		search_head = (ViewGroup) findViewById(R.id.search_head);
 		search_head.getBackground().setAlpha(50);
-		cancel = (TextView) findViewById(R.id.chat_btn_cancel);
-		cancel.setVisibility(View.GONE);
+		
 		//menu.setBackgroundResource(R.drawable.bg_title_homepage_back);
 		titleGroup = (LinearLayout)findViewById(R.id.title_group);
 		titleGroup.setVisibility(View.GONE);

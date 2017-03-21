@@ -55,14 +55,12 @@
 
             </com.dandian.pocketmoodle.widget.NonScrollableGridView>
 
-
             <com.dandian.pocketmoodle.widget.NonScrollableListView
                 android:id="@+id/lv_category"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:divider="@drawable/stuinfo_line"
-                android:dividerHeight="0.5dip" >
+                android:layout_marginBottom="5dp"
+                android:divider="@null" >
 
         	</com.dandian.pocketmoodle.widget.NonScrollableListView>
 

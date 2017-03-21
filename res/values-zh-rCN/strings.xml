@@ -329,4 +329,6 @@
       <string name="first_login">首次登录</string>
       <string name="description">描述</string>
       <string name="course_summary">课程简介</string>
+       <string name="search_course">课程搜索</string>
+       <string name="search_course_hint">输入课程名或教师名搜索</string>
 </resources>

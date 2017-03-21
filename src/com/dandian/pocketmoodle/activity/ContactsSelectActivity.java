@@ -138,8 +138,6 @@ public class ContactsSelectActivity extends FragmentActivity implements MyListen
 		search_head = (ViewGroup) findViewById(R.id.search_head);
 		
 		search_head.getBackground().setAlpha(50);
-		cancel = (TextView) findViewById(R.id.chat_btn_cancel);
-		cancel.setVisibility(View.GONE);
 		
 		TextView tv_title = (TextView) findViewById(R.id.setting_tv_title);
 		final Button bn_back = (Button) findViewById(R.id.back);

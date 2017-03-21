@@ -315,4 +315,6 @@
       <string name="first_login">First login</string>
       <string name="description">Description</string>
       <string name="course_summary">Course summary</string>
+      <string name="search_course">Search Courses</string>
+      <string name="search_course_hint">Keywords:course name or teacher\'s name</string>
 </resources>
