@@ -360,11 +360,11 @@ public class HomeActivity extends Activity {
         public View getView(int position, View convertView, ViewGroup parent) { 
         	LayoutInflater inflater = LayoutInflater.from(context);
         	View view = inflater.inflate(R.layout.grid_item_course, null);
-			final ImageView zoomImageView = (ImageView) view
+			ImageView zoomImageView = (ImageView) view
 					.findViewById(R.id.iv_course);
-			final TextView tv_courseName = (TextView) view
+			TextView tv_courseName = (TextView) view
 					.findViewById(R.id.tv_courseName);
-			final TextView tv_teacherName = (TextView) view
+			TextView tv_teacherName = (TextView) view
 					.findViewById(R.id.tv_teacherName);
 			JSONObject courseObj = null;
 			try {
@@ -374,16 +374,23 @@ public class HomeActivity extends Activity {
 				e.printStackTrace();
 			}
 			
-			final String imageUrl = courseObj.optString("图片地址");
+			String imageUrl = courseObj.optString("图片地址");
 			aq.id(zoomImageView).image(imageUrl, true, true, 0, R.drawable.default_photo);
 			tv_courseName.setText(courseObj.optString("课程名称"));
 			tv_teacherName.setText(courseObj.optString("教师名称"));
+			view.setTag(courseObj);
 			view.setOnClickListener(new OnClickListener(){
 
 				@Override
 				public void onClick(View v) {
 					// TODO Auto-generated method stub
-					
+					JSONObject courseObj=(JSONObject) v.getTag();
+					Intent intent=new Intent(HomeActivity.this,SchoolDetailActivity.class);
+					intent.putExtra("templateName", "博客");
+					intent.putExtra("interfaceName","?function=getUserInfo&action=courseSummary&courseId="+courseObj.optString("课程编号"));
+					intent.putExtra("title", courseObj.optString("课程名称"));
+					intent.putExtra("display", getString(R.string.course_summary));
+					startActivity(intent);
 				}
 				
 			});

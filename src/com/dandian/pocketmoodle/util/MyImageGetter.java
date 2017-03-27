@@ -41,7 +41,7 @@ public class MyImageGetter implements ImageGetter {
 		this.tv = tv;
 		WindowManager wm = (WindowManager) context
                 .getSystemService(Context.WINDOW_SERVICE);
-		 width = wm.getDefaultDisplay().getWidth()*4/5;
+		 width = wm.getDefaultDisplay().getWidth();
 	}
 
 	@Override

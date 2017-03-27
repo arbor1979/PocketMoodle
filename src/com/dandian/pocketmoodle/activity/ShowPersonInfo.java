@@ -129,6 +129,8 @@ public class ShowPersonInfo extends Activity {
 		user=((CampusApplication)getApplicationContext()).getLoginUserObj();
 		userDomain=PrefUtility.get(Constants.PREF_SCHOOL_DOMAIN,"");
 		btnSendMsg=(Button) findViewById(R.id.btnSendMsg);
+		Button page_exit=(Button) findViewById(R.id.page_exit);
+		
 		if(studentId.equals(user.getId()))
 		{
 			changeheader= (Button) findViewById(R.id.bt_changeHeader);
@@ -141,10 +143,12 @@ public class ShowPersonInfo extends Activity {
 				
 			});
 			btnSendMsg.setVisibility(View.GONE);
+			page_exit.setVisibility(View.VISIBLE);
 		}
 		else
 		{
 			btnSendMsg.setVisibility(View.VISIBLE);
+			page_exit.setVisibility(View.GONE);
 		}
 		
 		aq = new AQuery(this);
@@ -438,6 +442,7 @@ public class ShowPersonInfo extends Activity {
 						//if(memberInfo.getUserType().length()==0)
 						//{
 							userObj=jo.getJSONObject("个人资料");
+							userImage=userObj.optString("用户头像");
 							keyList=jo.getJSONArray("显示字段");
 							initContent();
 							

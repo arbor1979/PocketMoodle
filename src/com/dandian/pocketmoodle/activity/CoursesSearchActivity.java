@@ -12,10 +12,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -70,15 +72,15 @@ public class CoursesSearchActivity extends FragmentActivity {
 		setContentView(R.layout.activity_course_search);
 		search = (EditText) findViewById(R.id.edit_search);
 		
-		search.setFocusable(false);
-		search.setFocusableInTouchMode(false);
+		//search.setFocusable(false);
+		//search.setFocusableInTouchMode(false);
 		aq = new AQuery(this);
 		initViews();
 		cateId = getIntent().getStringExtra("cateId");
-		getCourseList();
+		getCourseList("");
 	}
 	
-	private void getCourseList() {
+	private void getCourseList(String keyword) {
 		loadingDlg=ProgressDialog.show(this, null, getString(R.string.data_loading_progress),true);
 		loadingDlg.show();
 		String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
@@ -87,6 +89,7 @@ public class CoursesSearchActivity extends FragmentActivity {
 			jo.put("用户较验码", checkCode);
 			jo.put("cateId", cateId);
 			jo.put("function", "searchCourse");
+			jo.put("keyword", keyword);
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
@@ -102,6 +105,20 @@ public class CoursesSearchActivity extends FragmentActivity {
 			@Override
 			public void onClick(View v) {
 				finish();
+			}
+			
+		});
+		search.setOnEditorActionListener(new TextView.OnEditorActionListener(){
+
+			@Override
+			public boolean onEditorAction(TextView v, int actionId,
+					KeyEvent event) {
+				if(actionId == EditorInfo.IME_ACTION_SEARCH)  
+                {  
+					getCourseList(search.getText().toString());
+					AppUtility.closeInputMethod(v);
+                }
+				return false;
 			}
 			
 		});
@@ -218,14 +235,14 @@ public class CoursesSearchActivity extends FragmentActivity {
 			}
 
 			final JSONObject cateObj = (JSONObject) getItem(position);
-			aq.id(holder.iv_course_logo).image(cateObj.optString("图片地址"), true, true, 0, R.drawable.default_photo);
+			aq.id(holder.iv_course_logo).image(cateObj.optString("图片地址"), false, true, 200, R.drawable.default_photo);
 			holder.tv_course_name.setText(cateObj.optString("课程名称"));
 			holder.tv_teacher_name.setText(cateObj.optString("教师名称"));
 			if(cateObj.optString("方式1图片").length()>0)
 			{
 				holder.iv_enrol1.setVisibility(View.VISIBLE);
 				holder.tv_enrol1.setVisibility(View.VISIBLE);
-				aq.id(holder.iv_enrol1).image(cateObj.optString("方式1图片"), true, true);
+				aq.id(holder.iv_enrol1).image(cateObj.optString("方式1图片"), false, true);
 				holder.tv_enrol1.setText(cateObj.optString("方式1文字"));
 			}
 			else
@@ -237,7 +254,7 @@ public class CoursesSearchActivity extends FragmentActivity {
 			{
 				holder.iv_enrol2.setVisibility(View.VISIBLE);
 				holder.tv_enrol2.setVisibility(View.VISIBLE);
-				aq.id(holder.iv_enrol2).image(cateObj.optString("方式2图片"), true, true);
+				aq.id(holder.iv_enrol2).image(cateObj.optString("方式2图片"), false, true);
 				holder.tv_enrol2.setText(cateObj.optString("方式2文字"));
 			}
 			else
@@ -256,7 +273,7 @@ public class CoursesSearchActivity extends FragmentActivity {
 				public void onClick(View v) {
 					Intent intent=new Intent(CoursesSearchActivity.this,SchoolDetailActivity.class);
 					intent.putExtra("templateName", "博客");
-					intent.putExtra("interfaceName","?function=getUserInfo&action=courseSummary&courseId="+cateObj.optString("id"));
+					intent.putExtra("interfaceName","?function=getUserInfo&action=courseSummary&courseId="+cateObj.optString("课程编号"));
 					intent.putExtra("title", cateObj.optString("name"));
 					intent.putExtra("display", getString(R.string.course_summary));
 					startActivity(intent);

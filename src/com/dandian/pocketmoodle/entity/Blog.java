@@ -38,7 +38,21 @@ public class Blog implements Serializable{
 	private String username;
 	private List<Comment> commentList;
 	private List<ImageItem> fujianList;
-
+	
+	private String commentIconUrl;
+	private String commentTitle;
+	public String getCommentIconUrl() {
+		return commentIconUrl;
+	}
+	public void setCommentIconUrl(String commentIconUrl) {
+		this.commentIconUrl = commentIconUrl;
+	}
+	public String getCommentTitle() {
+		return commentTitle;
+	}
+	public void setCommentTitle(String commentTitle) {
+		this.commentTitle = commentTitle;
+	}
 	public int getId() {
 		return id;
 	}
@@ -101,6 +115,8 @@ public class Blog implements Serializable{
 		this.detailUrl=jo.optString("内容项URL");
 		this.mainImage=jo.optString("主题图片");
 		this.username=jo.optString("发布者ID");
+		commentIconUrl=jo.optString("评论图标");
+		commentTitle=jo.optString("评论标题");
 		commentList=new ArrayList<Comment>();
 		fujianList=new ArrayList<ImageItem>();
 		org.json.JSONArray js=jo.optJSONArray("评论数据");

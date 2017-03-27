@@ -361,6 +361,15 @@ public class SchoolBlogDetailFragment extends Fragment {
 			tvRight.setVisibility(View.GONE);
 			lyRight.setOnClickListener(null);
 		}
+		if(blog.getCommentIconUrl().length()>0)
+		{	
+			aq.id(R.id.ImageView01).image(blog.getCommentIconUrl(),false,true);
+			listview1.setFooterDividersEnabled(false);
+		}
+		if(blog.getCommentTitle().length()>0)
+			aq.id(R.id.comments_count).text(blog.getCommentTitle());
+		else
+			aq.id(R.id.comments_count).text(String.valueOf(blog.getCommentList().size()));
 		if(blog.getCommentList().size()>0)
 		{
 			commentLayout.setVisibility(View.VISIBLE);
@@ -374,7 +383,6 @@ public class SchoolBlogDetailFragment extends Fragment {
 			    }   
 			 }, 50);
 			 */  
-			aq.id(R.id.comments_count).text(String.valueOf(blog.getCommentList().size()));
 		}
 		else
 		{
@@ -613,9 +621,21 @@ public class SchoolBlogDetailFragment extends Fragment {
 			option.round=115;
 			aq.id(vh.iv_icon).image(comment.getAvater(),option);
 			
-			String timeStr=TimeUtility.cleverTimeString(comment.getPosttime(),getActivity());
-			if(comment.getReply()!=null && comment.getReply().length()>0)
-				timeStr+=" "+comment.getReply();
+			String timeStr="";
+			if(comment.getPosttime().length()>0)
+			{
+				vh.tv_left.setVisibility(View.VISIBLE);
+				if(TimeUtility.StrToDate(comment.getPosttime())!=null)
+				{
+					timeStr=TimeUtility.cleverTimeString(comment.getPosttime(),getActivity());
+					if(comment.getReply()!=null && comment.getReply().length()>0)
+						timeStr+=" "+comment.getReply();
+				}
+				else
+					timeStr=comment.getPosttime();
+			}
+			else
+				vh.tv_left.setVisibility(View.GONE);
 			vh.tv_left.setText(timeStr);
 			vh.iv_icon.setTag(comment);
 			vh.iv_icon.setOnClickListener(new OnClickListener(){
@@ -626,14 +646,15 @@ public class SchoolBlogDetailFragment extends Fragment {
 					Intent intent = new Intent(getActivity(),
 							ShowPersonInfo.class);
 					Comment cm=(Comment)v.getTag();
-					intent.putExtra("studentId", cm.getUsercode());
+					intent.putExtra("studentId", String.valueOf(cm.getId()));
 					startActivity(intent);
 				}
 				
 			});
 			
-			vh.tv_title.setText(comment.getUsername()+":"+comment.getContent());
-			
+			vh.tv_title.setText(comment.getUsername());
+			if(comment.getContent().length()>0)
+				vh.tv_title.append(":"+comment.getContent());
 			
 			convertView.setOnClickListener(new OnClickListener(){
 

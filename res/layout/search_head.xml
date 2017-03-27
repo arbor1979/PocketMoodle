@@ -33,7 +33,9 @@
         android:background="@drawable/search_bg"
         android:gravity="center"
         android:orientation="horizontal"
-        android:padding="5dip" >
+        android:padding="5dip"
+        android:focusable="true" 
+		android:focusableInTouchMode="true"   >
 
         <ImageView
             android:id="@+id/search_img"
@@ -48,7 +50,6 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="5dip"
             android:background="@null"
-            android:focusable="true"
             android:hint="@string/search_course_hint"
             android:textColorHint="@color/gray"
             android:textSize="@dimen/text_size_small"
