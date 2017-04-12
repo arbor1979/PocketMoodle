@@ -88,6 +88,7 @@ public class ShowPersonInfo extends Activity {
 	public static final int REQUEST_CODE_TAKE_PICTURE = 2;// //设置图片操作的标志
 	public static final int REQUEST_CODE_TAKE_CAMERA = 1;// //设置拍照操作的标志
 	private String studentId;
+	private int courseId;
 	private String userImage;
 	AQuery aq;
 	DatabaseHelper database;
@@ -97,7 +98,7 @@ public class ShowPersonInfo extends Activity {
 	private String userDomain;
 	private Dao<User, Integer> userDao;
 	private User user;
-	private Button btnSendMsg;
+	private Button btnSendMsg,btnAddLink;
 	private ProgressDialog loadingDlg;
 	JSONObject userObj;
 	JSONArray keyList;
@@ -114,6 +115,7 @@ public class ShowPersonInfo extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_person_info);
 		studentId = getIntent().getStringExtra("studentId");
+		courseId  = getIntent().getIntExtra("courseId",1);
 		userImage = getIntent().getStringExtra("userImage");
 		try {
 			userDao = getHelper().getUserDao();
@@ -129,6 +131,7 @@ public class ShowPersonInfo extends Activity {
 		user=((CampusApplication)getApplicationContext()).getLoginUserObj();
 		userDomain=PrefUtility.get(Constants.PREF_SCHOOL_DOMAIN,"");
 		btnSendMsg=(Button) findViewById(R.id.btnSendMsg);
+		btnAddLink=(Button) findViewById(R.id.btnAddLink);
 		Button page_exit=(Button) findViewById(R.id.page_exit);
 		
 		if(studentId.equals(user.getId()))
@@ -143,11 +146,13 @@ public class ShowPersonInfo extends Activity {
 				
 			});
 			btnSendMsg.setVisibility(View.GONE);
+			btnAddLink.setVisibility(View.GONE);
 			page_exit.setVisibility(View.VISIBLE);
 		}
 		else
 		{
 			btnSendMsg.setVisibility(View.VISIBLE);
+			btnAddLink.setVisibility(View.VISIBLE);
 			page_exit.setVisibility(View.GONE);
 		}
 		
@@ -173,11 +178,51 @@ public class ShowPersonInfo extends Activity {
 		aq.id(R.id.tv_name).text(userObj.optString("姓名"));
 		if(userObj.optString("角色名称")!=null && userObj.optString("角色名称").length()>0)
 		{
+			aq.id(R.id.user_type).getTextView().setVisibility(View.VISIBLE);
 			aq.id(R.id.user_type).text("("+userObj.optString("角色名称")+")");
+		}
+		else
+			aq.id(R.id.user_type).getTextView().setVisibility(View.GONE);
+		
+		if(userObj.optBoolean("是否联系人"))
+		{
+			btnAddLink.setCompoundDrawablesWithIntrinsicBounds(R.drawable.removelink, 0, 0, 0);
+			btnAddLink.setText(R.string.removelink);
+		}
+		else
+		{
+			btnAddLink.setCompoundDrawablesWithIntrinsicBounds(R.drawable.addlink, 0, 0, 0);
+			btnAddLink.setText(R.string.addlink);
 		}
 		//else
 		//	aq.id(R.id.user_type).text(R.string.moodleuser);
 		aq.id(R.id.setting_tv_title).text(R.string.userinfo);
+		
+		btnAddLink.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				String action;
+				if(userObj.optBoolean("是否联系人"))
+					action="removeLinkman";
+				else
+					action="addLinkman";
+				loadingDlg=ProgressDialog.show(ShowPersonInfo.this, null, getString(R.string.data_loading_progress),true);
+				loadingDlg.show();
+				String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
+				JSONObject jo = new JSONObject();
+				try {
+					jo.put("用户较验码", checkCode);
+					jo.put("userid", studentId);
+					jo.put("action", action);
+					jo.put("function", "getUserInfo");
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+				CampusAPI.httpPostToDandian(jo, mHandler, 3);
+				
+			}
+			
+		});
 		aq.id(R.id.back).clicked(new OnClickListener(){
 
 			@Override
@@ -337,10 +382,8 @@ public class ShowPersonInfo extends Activity {
         					String courseName=itemObj.optString("fullname");
         					String courseId=itemObj.optString("id");
         					SpannableString ss = new SpannableString(courseName);
-        			        ss.setSpan(new StyleSpan(Typeface.NORMAL), 0, ss.length(),
-        			                   Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        			        ss.setSpan(new MyURLSpan(courseId), 0, ss.length(),
-        			                   Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        			        //ss.setSpan(new StyleSpan(Typeface.NORMAL), 0, ss.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        			        ss.setSpan(new MyURLSpan(courseId), 0, ss.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         			        
         			        holder.info.append(ss);
         			        if(i<courseArray.length()-1)
@@ -410,6 +453,7 @@ public class ShowPersonInfo extends Activity {
 		try {
 			jo.put("用户较验码", checkCode);
 			jo.put("userid", studentId);
+			jo.put("courseId", courseId);
 			jo.put("function", "getUserInfo");
 		} catch (JSONException e1) {
 			e1.printStackTrace();
@@ -438,15 +482,16 @@ public class ShowPersonInfo extends Activity {
 					result = msg.obj.toString();
 					try {
 						JSONObject jo = new JSONObject(result);
-						
-						//if(memberInfo.getUserType().length()==0)
-						//{
+						if (jo.optString("结果").equals("失败"))
+							AppUtility.showErrorToast(ShowPersonInfo.this, jo.optString("error"));
+						else
+						{
 							userObj=jo.getJSONObject("个人资料");
 							userImage=userObj.optString("用户头像");
 							keyList=jo.getJSONArray("显示字段");
 							initContent();
+						}
 							
-						//}
 						
 					} catch (JSONException e) {
 						e.printStackTrace();
@@ -479,7 +524,25 @@ public class ShowPersonInfo extends Activity {
 						e.printStackTrace();
 					}
 					break;
+				case 3:
+					if(loadingDlg!=null)
+						loadingDlg.dismiss();
+					result = msg.obj.toString();
 					
+					try {
+						JSONObject jo = new JSONObject(result);
+						if (jo.optString("结果").equals("失败"))
+							AppUtility.showErrorToast(ShowPersonInfo.this, jo.optString("error"));
+						else
+						{
+							userObj.put("是否联系人",jo.optBoolean("是否联系人"));
+							initContent();
+						}
+					}
+					catch (JSONException e) {
+						e.printStackTrace();
+					}
+					break;	
 				case 5:
 					
 					Bundle	upLoadbundle = (Bundle) msg.obj;

@@ -3,7 +3,6 @@ package com.dandian.pocketmoodle.activity;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
@@ -40,16 +39,13 @@ import com.dandian.pocketmoodle.api.CampusParameters;
 import com.dandian.pocketmoodle.api.RequestListener;
 import com.dandian.pocketmoodle.base.Constants;
 import com.dandian.pocketmoodle.db.DatabaseHelper;
-import com.dandian.pocketmoodle.db.InitData;
 import com.dandian.pocketmoodle.entity.ChatFriend;
-import com.dandian.pocketmoodle.entity.ContactsFriends;
 import com.dandian.pocketmoodle.entity.User;
 import com.dandian.pocketmoodle.service.SchoolService;
 import com.dandian.pocketmoodle.service.SchoolService.MyIBinder;
 import com.dandian.pocketmoodle.util.AppUtility;
 import com.dandian.pocketmoodle.util.BaiduPushUtility;
 import com.dandian.pocketmoodle.util.Base64;
-import com.dandian.pocketmoodle.util.DateHelper;
 import com.dandian.pocketmoodle.util.PrefUtility;
 import com.dandian.pocketmoodle.widget.BottomTabLayout;
 import com.dandian.pocketmoodle.widget.BottomTabLayout.OnCheckedChangeListener;
@@ -63,7 +59,7 @@ public class TabHostActivity extends TabActivity   {
 	private String TAG = "TabHostActivity";
 	private BottomTabLayout mainTab;
 	private TabHost tabHost;
-	
+	private Intent messageIntent;
 	private Intent communicationIntent;
 	private Intent schoolIntent,homeIntent;
 	
@@ -72,6 +68,7 @@ public class TabHostActivity extends TabActivity   {
 	private List<ChatFriend> chatFriendList;
 	
 	private final static String TAB_TAG_HOME = "tab_tag_home";
+	private final static String TAB_TAG_MESSAGE = "tab_tag_message";
 	private final static String TAB_TAG_COMMUNICATION = "tab_tag_communication";
 	// private final static String TAB_TAG_SUMMARY = "tab_tag_summary";
 	private final static String TAB_TAG_SCHOOL = "tab_tag_school";
@@ -192,7 +189,7 @@ public class TabHostActivity extends TabActivity   {
 		Intent intent = new Intent(TabHostActivity.this,SchoolService.class);
 		bindService(intent, connection, Context.BIND_AUTO_CREATE);
 		
-		//showUnreadCnt();
+		showUnreadCnt();
 		
 		//°æ±¾¼ì²â
 		versionDetection();
@@ -238,6 +235,7 @@ public class TabHostActivity extends TabActivity   {
 		homeIntent = new Intent(this, HomeActivity.class);
 		schoolIntent = new Intent(this, TabSchoolActivity.class);
 		communicationIntent = new Intent(this, ContactsActivity.class);
+		messageIntent = new Intent(this, ChatFriendActivity.class);
 		// summaryIntent = new Intent(this, SummaryActivity.class);
 		
 	}
@@ -250,7 +248,8 @@ public class TabHostActivity extends TabActivity   {
 		
 		localTabHost.addTab(buildTabSpec(TAB_TAG_SCHOOL, R.string.course,
 				R.drawable.ic_launcher, schoolIntent));
-		
+		localTabHost.addTab(buildTabSpec(TAB_TAG_MESSAGE, R.string.message,
+				R.drawable.ic_launcher, messageIntent));
 		localTabHost.addTab(buildTabSpec(TAB_TAG_COMMUNICATION,
 				R.string.curriculum, R.drawable.ic_launcher,
 				communicationIntent));
@@ -295,6 +294,10 @@ public class TabHostActivity extends TabActivity   {
 			case R.id.bottom_tab_home:
 				tabHost.setCurrentTabByTag(TAB_TAG_HOME);
 			
+				break;
+			case R.id.bottom_tab_message:
+				tabHost.setCurrentTabByTag(TAB_TAG_MESSAGE);
+				
 				break;
 			case R.id.bottom_tab_communication:
 				tabHost.setCurrentTabByTag(TAB_TAG_COMMUNICATION);
@@ -529,7 +532,7 @@ public class TabHostActivity extends TabActivity   {
 				String contentText = intent.getStringExtra("contentText");
 				showDialog(contentText);
 			}else if(action.equals(ACTION_CHATINTERACT)){
-				//showUnreadCnt();
+				showUnreadCnt();
 			}
 			
 		}

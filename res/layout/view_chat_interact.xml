@@ -14,14 +14,12 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#464646"
+        android:background="@color/gray_dark"
         android:orientation="vertical" >
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-      
-            android:background="#27ae62"
+            android:layout_height="55dp"
             android:gravity="center_vertical|right"
             android:padding="5dip" >
             
@@ -52,7 +50,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginBottom="2dip"
                 android:layout_marginTop="2dip"
-                android:background="@drawable/chat_bottombar_btn_selector"
+                
                 android:gravity="center"
                 android:paddingLeft="8dip"
                 android:paddingRight="8dip"

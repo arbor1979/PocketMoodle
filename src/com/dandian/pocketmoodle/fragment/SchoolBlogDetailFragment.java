@@ -90,6 +90,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 	private NonScrollableListView listview1;
 	private TextView contentView;
 	private Dialog dialog;
+	private int courseId=0;
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
@@ -559,6 +560,8 @@ public class SchoolBlogDetailFragment extends Fragment {
 			Iterator it = queryJson.keys();
 			while (it.hasNext()) {
                 String key = (String) it.next();
+                if(key.equals("courseId"))
+                	courseId=queryJson.optInt("courseId");
                 String value = queryJson.getString(key); 
                 jsonObj.put(key, value);
 			}
@@ -647,6 +650,8 @@ public class SchoolBlogDetailFragment extends Fragment {
 							ShowPersonInfo.class);
 					Comment cm=(Comment)v.getTag();
 					intent.putExtra("studentId", String.valueOf(cm.getId()));
+					if(courseId>0)
+						intent.putExtra("courseId", courseId);
 					startActivity(intent);
 				}
 				

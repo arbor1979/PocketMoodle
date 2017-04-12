@@ -291,7 +291,9 @@
     <string name="add">Add</string>
     <string name="loadedalldata">Loaded all the data</string>
     <string name="ifconfirm">If confirm </string>
-    <string name="sendmsg">Message</string>
+    <string name="sendmsg">SendMessage</string>
+    <string name="addlink">AddContact</string>
+    <string name="removelink">RemoveContact</string>
     <string name="saving">Saving&#8230;</string>
      <string name="justnow">Just now</string>
      <string name="minutesago">Minutes ago</string>

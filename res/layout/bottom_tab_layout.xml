@@ -49,7 +49,7 @@
                 android:textSize="@dimen/text_size_xmicro" />
         </FrameLayout>
 
-        <!-- 消息 
+        <!-- 消息 -->
         <FrameLayout
             android:id="@+id/bottom_tab_message"
             android:layout_width="0.0dp"
@@ -79,7 +79,7 @@
                 android:textStyle="bold"
                 android:visibility="invisible" />
         </FrameLayout>
-		-->
+		
         <!-- 沟通 -->
 
         <FrameLayout

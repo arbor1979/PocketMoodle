@@ -306,6 +306,8 @@
     <string name="loadedalldata">已加载所有</string>
     <string name="ifconfirm">是否确认</string>
    <string name="sendmsg">发消息</string>
+   <string name="addlink">加联系人</string>
+   <string name="removelink">移除联系人</string>
    <string name="saving">保存中&#8230;</string>
    <string name="justnow">刚刚</string>
    <string name="minutesago">分钟前</string>

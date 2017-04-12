@@ -85,6 +85,7 @@ import com.example.androidgifdemo.MyTextViewEx;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.PreparedDelete;
+
 import com.dandian.pocketmoodle.activity.ChatMsgActivity;
 import com.dandian.pocketmoodle.activity.ImagesActivity;
 import com.dandian.pocketmoodle.activity.ShowPersonInfo;
@@ -116,7 +117,6 @@ import com.dandian.pocketmoodle.widget.InnerScrollView;
 import com.dandian.pocketmoodle.widget.PredicateLayout;
 import com.dandian.pocketmoodle.widget.XListView;
 import com.dandian.pocketmoodle.widget.XListView.IXListViewListener;
-
 @SuppressLint("NewApi")
 public class ChatMsgActivity extends FragmentActivity implements IXListViewListener{
 	private static final int PIC_REQUEST_CODE_SELECT_CAMERA = 1;// 拍照
@@ -159,12 +159,13 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 	ProgressBar pb;
 	int msgPager = 0;
 	private Timer timer; 
+	private Dao<User, Integer> userDao;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		user=((CampusApplication)getApplicationContext()).getLoginUserObj();
 		
+		user=((CampusApplication)getApplicationContext()).getLoginUserObj();
 		myHeadPic = user.getUserImage();
 		
 		isruning = true;
@@ -196,7 +197,7 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 
 	TimerTask task = new TimerTask( ) {
 		public void run ( ) {
-			getMsgState();
+			//getMsgState();
 		}
 	};
 		
@@ -232,6 +233,10 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 	 */
 	private void initTitle() {
 		layout_info = (LinearLayout)findViewById(R.id.setting_layout_goto);
+		RelativeLayout headerlayout= (RelativeLayout)findViewById(R.id.include);
+		int color=PrefUtility.getInt(Constants.PREF_THEME_NAVBARCOLOR, 0);
+		if(color!=0)
+			headerlayout.setBackgroundColor(color);
 		tv_title = (TextView) findViewById(R.id.setting_tv_title);
 		bn_back = (Button) findViewById(R.id.back);
 		bn_info = (Button) findViewById(R.id.setting_btn_goto);
@@ -241,12 +246,8 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 //			bn_info.setBackgroundResource(R.drawable.contacts_member);
 //			tv_title.setText("群名:" + toname);
 //		}else{
-			//bn_info.setBackgroundResource(R.drawable.shuaizi);
-			Drawable drawable= getResources().getDrawable(R.drawable.shuaizi);
-			drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-			bn_info.setCompoundDrawables(drawable,null,null,null);
-			//bn_info.setBackgroundDrawable(drawable);
-			//tv_title.setText(toname);
+			bn_info.setBackgroundResource(R.drawable.shuaizi);
+			tv_title.setText(toname);
 		//}
 		flaglayout =(RelativeLayout) findViewById(R.id.flaglayout);
 		bn_back.setOnClickListener(new OnClickListener() {
@@ -317,7 +318,7 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 		View localView = getLayoutInflater().inflate(R.layout.view_dialog_schedule, null);
 		ListView list = (ListView) localView.findViewById(R.id.list);
 		Button close = (Button)localView.findViewById(R.id.close);
-		close.setText(R.string.cancel);
+		close.setText("取消");
 		String[] data = getResources().getStringArray(R.array.camera_dialog);
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.view_testing_pop, R.id.time, data);
 		list.setAdapter(adapter);
@@ -363,7 +364,7 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 
 		String sdStatus = Environment.getExternalStorageState();
 		if (!sdStatus.equals(Environment.MEDIA_MOUNTED)) { // 检测sd是否可用
-			AppUtility.showToastMsg(this, getString(R.string.Commons_SDCardErrorTitle));
+			AppUtility.showToastMsg(this, "扩展存储不可用，无法使用相机功能");
 			return;
 		}
 		myPicPath =FileUtility.getRandomSDFileName("jpg");
@@ -382,16 +383,15 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 			Intent intent = new Intent();
 			intent.setType("image/*");
 			intent.setAction(Intent.ACTION_GET_CONTENT);
-			startActivityForResult(intent, REQUEST_CODE_TAKE_PICTURE);
+			startActivityForResult(intent, PIC_Select_CODE_ImageFromLoacal);
 			*/
 			Intent intent; 
 			intent = new Intent(Intent.ACTION_PICK, 
 			                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI); 
 			startActivityForResult(intent, PIC_Select_CODE_ImageFromLoacal);
 		} else {
-			AppUtility.showToastMsg(this, getString(R.string.Commons_SDCardErrorTitle));
+			AppUtility.showToastMsg(ChatMsgActivity.this, "没有SD卡");
 		}
-		
 	}
 
 	// 用当前时间给取得的图片命名
@@ -584,10 +584,10 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 				break;
 			case R.id.setting_layout_goto:
 				AlertDialog.Builder showbuilder = new AlertDialog.Builder(ChatMsgActivity.this);  
-				showbuilder.setTitle("");
-				showbuilder.setMessage(R.string.clearmessagehistory);  
-				showbuilder.setPositiveButton(R.string.go, new clearChatListener());  
-				showbuilder.setNegativeButton(R.string.cancel, new cancelStudentPicListener());
+				showbuilder.setTitle("信息提示");
+				showbuilder.setMessage("清除手机聊天记录？");  
+				showbuilder.setPositiveButton("确定", new clearChatListener());  
+				showbuilder.setNegativeButton("取消", new cancelStudentPicListener());
 	            AlertDialog ad = showbuilder.create();  
 	            ad.show();
 				break;
@@ -605,12 +605,12 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
         	try {
 				chatMsgDao = getHelper().getChatMsgDao();
 				chatMsgDao.delete((PreparedDelete<ChatMsg>)chatMsgDao.deleteBuilder().where().eq("toid", toid).prepare());
-				Toast.makeText(ChatMsgActivity.this, R.string.messagehistoryclear, Toast.LENGTH_LONG).show();
+				Toast.makeText(ChatMsgActivity.this, "聊天记录已清除", Toast.LENGTH_LONG).show();
 				mAdapter.coll.clear();
 				mAdapter.notifyDataSetChanged();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				Toast.makeText(ChatMsgActivity.this, R.string.failed, Toast.LENGTH_LONG).show();
+				Toast.makeText(ChatMsgActivity.this, "聊天记录清除失败", Toast.LENGTH_LONG).show();
 			}
         	
         	
@@ -657,7 +657,7 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 				}
 				
 				String datetime = String.valueOf(new Date().getTime());
-				sendSMS(content, toid, datetime,type,msgid,msg_type);
+				//sendSMS(content, toid, datetime,type,msgid,msg_type);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -906,11 +906,11 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 					JSONObject jo1 = new JSONObject(sendResult);
 					@SuppressWarnings("unchecked")
 					Iterator<String> keyIter=jo1.keys();
-					boolean flag=false;
 					while (keyIter.hasNext()) 
 					{ 
 
 				        String key = (String) keyIter.next(); 
+				        if(jo1.get(key)==JSONObject.NULL) continue;
 				        String value = (String) jo1.get(key); 
 				        if(value.equals("成功"))
 				        	value="送达";
@@ -930,7 +930,6 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 										{
 											item.setSendstate("已读");
 											chatMsgDao.update(item);
-											flag=true;
 										}
 										break;
 									}
@@ -940,12 +939,8 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 								{
 									if(item.getMsg_id().equals(key))
 									{
-										if(!item.getSendstate().equals(value))
-										{
-											item.setSendstate(value);
-											chatMsgDao.update(item);
-											flag=true;
-										}
+										item.setSendstate(value);
+										chatMsgDao.update(item);
 										break;
 									}
 								}
@@ -955,8 +950,7 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 					    
 
 					}
-					if(flag)
-						mAdapter.notifyDataSetChanged();
+					mAdapter.notifyDataSetChanged();
 					
 					
 				} catch (JSONException e) {
@@ -1080,11 +1074,10 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 		    		String toid=toidArray[i];
 		    		ContactsMember contactsMember;
 		    		
-		    		
 		    		contactsMember=((CampusApplication)getApplicationContext()).getLinkManDic().get(toid);
 		    		if(contactsMember!=null)
 		    		{
-		    		
+		    			
 		    			TextView btn=new TextView(ChatMsgActivity.this);
 		    			if(!ReadList.contains(contactsMember.getUserNumber()))
 		    				btn.setBackgroundResource(R.drawable.button_round_corner_blue);
@@ -1145,7 +1138,7 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 						else
 						{
 							path=entity.getRemoteimage();
-							aq.id(viewHolder.showImage).progress(viewHolder.progressBarImage).image(path,true,true,200,0);
+							aq.id(viewHolder.showImage).progress(viewHolder.progressBarImage).image(path,false,true,200,0);
 						}
 							
 						if (msgIds.size() > 0 && msgIds.contains(String.valueOf(entity.getId()))) {
@@ -1164,7 +1157,7 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 							aq.id(viewHolder.showImage).image(zoombitmap);
 						}
 						else
-							aq.id(viewHolder.showImage).progress(viewHolder.progressBarImage).image(path,true,true,200,0,cb);
+							aq.id(viewHolder.showImage).progress(viewHolder.progressBarImage).image(path,false,true,200,0,cb);
 					}
 				}
 			}else{
@@ -1184,13 +1177,7 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 				if(AppUtility.isNotEmpty(entity.getSendstate()))
 				{
 					viewHolder.tvSendState.setVisibility(View.VISIBLE);
-					String state[]=getResources().getStringArray(R.array.send_status);
-					ArrayList<String> example=new ArrayList<String>();
-					example.add("送达");
-					example.add("已读");
-					example.add("失败");
-					int index=example.indexOf(entity.getSendstate());
-					viewHolder.tvSendState.setText(state[index]);
+					viewHolder.tvSendState.setText(entity.getSendstate());
 					if(entity.getSendstate().equals("送达"))
 						viewHolder.tvSendState.setBackgroundResource(R.drawable.chat_sendstate_bg_hassend);
 					else if(entity.getSendstate().equals("已读"))
@@ -1224,10 +1211,10 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 			
 			if (bitmap != null) {
 				aq.id(viewHolder.imgUser).image(bitmap);
+				//ImageUtility.getRoundedCornerBitmap(bitmap, 20,800);
 				Log.d(TAG, "----------------------");
 			}else{
-				aq.id(viewHolder.imgUser).image(path,true,true);
-				Log.d(TAG, "======================");
+				aq.id(viewHolder.imgUser).image(path);
 			}
 		    
 			viewHolder.imgUser.setOnClickListener(new OnClickListener() {
@@ -1251,7 +1238,7 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 							ChatMsg cm=(ChatMsg)tv.getTag();
 							if(cm!=null)
 							{
-								AppUtility.showToastMsg(ChatMsgActivity.this, getString(R.string.tryresend));
+								AppUtility.showToastMsg(ChatMsgActivity.this, "正在尝试重发..");
 								if(cm.getType().equals("img"))
 								{
 									Bitmap disckBitmap = null;
@@ -1292,18 +1279,20 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 	
 	private void openLinkmanInfo(String toid,int flag)
 	{
-
-			Intent intent = new Intent(ChatMsgActivity.this,
-					ShowPersonInfo.class);
-			if (flag== 0) {
-				intent.putExtra("studentId", toid);
-				intent.putExtra("userImage", userImage);
-			} else {
-				intent.putExtra("studentId", user.getUserNumber());
-				String myPic = user.getUserImage();
-				intent.putExtra("userImage", myPic);
-			}
-			startActivity(intent);
+		Intent intent = new Intent(ChatMsgActivity.this,
+				ShowPersonInfo.class);
+		if (flag== 0) {
+			String[] weiyima=toid.split("_");
+			intent.putExtra("studentId", weiyima[1]);
+			intent.putExtra("userImage", userImage);
+			intent.putExtra("userType", weiyima[0]);
+		} else {
+			intent.putExtra("studentId", user.getId());
+			String myPic = user.getUserImage();
+			intent.putExtra("userImage", myPic);
+			intent.putExtra("userType", user.getUserType());
+		}
+		startActivity(intent);
 		
 	}
 	
@@ -1569,7 +1558,7 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 					mHandler.sendMessage(msg);
 				}
 				else
-					AppUtility.showErrorToast(this, getString(R.string.failedcopytosdcard));
+					AppUtility.showErrorToast(this, "向SD卡复制文件出错");
 				
 				
 				break;
@@ -1659,13 +1648,14 @@ public class ChatMsgActivity extends FragmentActivity implements IXListViewListe
 	@Override
     public void onSaveInstanceState(Bundle savedInstanceState){
 		super.onSaveInstanceState(savedInstanceState);
-		savedInstanceState.putString("myPicPath", myPicPath);
 		
+		savedInstanceState.putString("myPicPath", myPicPath);
 		
 	}
 	@Override
     public void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
+        
         myPicPath=savedInstanceState.getString("myPicPath");
     }
 }
