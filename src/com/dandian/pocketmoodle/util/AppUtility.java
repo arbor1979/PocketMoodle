@@ -17,7 +17,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.conn.util.InetAddressUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -71,7 +70,7 @@ public class AppUtility {
 	public static DisplayImageOptions headOptions;
 	
 	public static void setViewHeightBasedOnChildren(ExpandableListView listView) {
-		// »ñÈ¡ListView¶ÔÓ¦µÄAdapter
+		// ï¿½ï¿½È¡ListViewï¿½ï¿½Ó¦ï¿½ï¿½Adapter
 		ListAdapter listAdapter = listView.getAdapter();
 		if (listAdapter == null) {
 			// pre-condition
@@ -79,17 +78,17 @@ public class AppUtility {
 		}
 
 		int totalHeight = 0;
-		for (int i = 0, len = listAdapter.getCount(); i < len; i++) { // listAdapter.getCount()·µ»ØÊý¾ÝÏîµÄÊýÄ¿
+		for (int i = 0, len = listAdapter.getCount(); i < len; i++) { // listAdapter.getCount()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿
 			View listItem = listAdapter.getView(i, null, listView);
-			listItem.measure(0, 0); // ¼ÆËã×ÓÏîView µÄ¿í¸ß
-			totalHeight += listItem.getMeasuredHeight(); // Í³¼ÆËùÓÐ×ÓÏîµÄ×Ü¸ß¶È
+			listItem.measure(0, 0); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½View ï¿½Ä¿ï¿½ï¿½
+			totalHeight += listItem.getMeasuredHeight(); // Í³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½
 		}
 
 		ViewGroup.LayoutParams params = listView.getLayoutParams();
 		params.height = totalHeight
 				+ (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-		// listView.getDividerHeight()»ñÈ¡×ÓÏî¼ä·Ö¸ô·ûÕ¼ÓÃµÄ¸ß¶È
-		// params.height×îºóµÃµ½Õû¸öListViewÍêÕûÏÔÊ¾ÐèÒªµÄ¸ß¶È
+		// listView.getDividerHeight()ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Õ¼ï¿½ÃµÄ¸ß¶ï¿½
+		// params.heightï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ListViewï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Òªï¿½Ä¸ß¶ï¿½
 		listView.setLayoutParams(params);
 	}
 
@@ -123,9 +122,9 @@ public class AppUtility {
 	}
 
 	/**
-	 * ¹¦ÄÜÃèÊö:¼ì²éÓÊÏä¸ñÊ½
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½
 	 * 
-	 * @author zhuliang 2013-12-11 ÏÂÎç7:26:42
+	 * @author zhuliang 2013-12-11 ï¿½ï¿½ï¿½ï¿½7:26:42
 	 * 
 	 * @param email
 	 * @return
@@ -140,9 +139,9 @@ public class AppUtility {
 		return false;
 	}
 	/**
-	 * ¹¦ÄÜÃèÊö:»ñÈ¡Õû¸öÎÄ¼þ¼ÐµÄ´óÐ¡
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ÐµÄ´ï¿½Ð¡
 	 *
-	 * @author linrr  2014-1-25 ÉÏÎç11:48:24
+	 * @author linrr  2014-1-25 ï¿½ï¿½ï¿½ï¿½11:48:24
 	 * 
 	 * @param f
 	 * @return
@@ -161,9 +160,9 @@ public class AppUtility {
 		return size;
 	}
 	/**
-	 * ¹¦ÄÜÃèÊö:¿ìËÙÈ¡ÏûToastÌáÊ¾
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½Toastï¿½ï¿½Ê¾
 	 *
-	 * @author linrr  2014-1-25 ÉÏÎç11:32:21
+	 * @author linrr  2014-1-25 ï¿½ï¿½ï¿½ï¿½11:32:21
 	 * 
 	 * @param context
 	 * @param msg
@@ -187,9 +186,9 @@ public class AppUtility {
 		   mToast.cancel();
    }
 	/**
-	 * ¹¦ÄÜÃèÊö:¼ì²éÊÖ»úºÅÂë¸ñÊ½
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½
 	 * 
-	 * @author zhuliang 2013-12-11 ÏÂÎç7:40:38
+	 * @author zhuliang 2013-12-11 ï¿½ï¿½ï¿½ï¿½7:40:38
 	 * 
 	 * @param phone
 	 * @return
@@ -240,7 +239,7 @@ public class AppUtility {
 	}
 
 	/**
-	 * »ñÈ¡sd¿¨µÄÂ·¾¶
+	 * ï¿½ï¿½È¡sdï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
 	 * 
 	 * @return
 	 */
@@ -248,9 +247,9 @@ public class AppUtility {
 	public static String getSDPath() {
 		File sdDir = null;
 		boolean sdCardExist = Environment.getExternalStorageState().equals(
-				android.os.Environment.MEDIA_MOUNTED); // ÅÐ¶Ïsd¿¨ÊÇ·ñ´æÔÚ
+				android.os.Environment.MEDIA_MOUNTED); // ï¿½Ð¶ï¿½sdï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½
 		if (sdCardExist) {
-			sdDir = Environment.getExternalStorageDirectory();// »ñÈ¡¸úÄ¿Â¼
+			sdDir = Environment.getExternalStorageDirectory();// ï¿½ï¿½È¡ï¿½ï¿½Ä¿Â¼
 		}
 		return sdDir.toString();
 	}
@@ -276,7 +275,7 @@ public class AppUtility {
 	}
 
 	/**
-	 * Éú³ÉUUID
+	 * ï¿½ï¿½ï¿½ï¿½UUID
 	 * 
 	 * @return
 	 */
@@ -285,7 +284,7 @@ public class AppUtility {
 	}
 
 	/**
-	 * MD5¼ÓÃÜ
+	 * MD5ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param str
 	 * @return
@@ -319,7 +318,7 @@ public class AppUtility {
 	}
 
 	/**
-	 * ÅÐ¶Ï×Ö·û´®ÊÇ·ñÎªÊý×Ö
+	 * ï¿½Ð¶ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param str
 	 * @return
@@ -329,9 +328,9 @@ public class AppUtility {
 		return pattern.matcher(str).matches();
 	}
 	/**
-	 * ¹¦ÄÜÃèÊö:½«ÎÄ¼þ´óÐ¡×ª»»³ÉMB,KB,GBÐÎÊ½
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ð¡×ªï¿½ï¿½ï¿½ï¿½MB,KB,GBï¿½ï¿½Ê½
 	 *
-	 * @author linrr  2014-1-23 ÏÂÎç3:41:07
+	 * @author linrr  2014-1-23 ï¿½ï¿½ï¿½ï¿½3:41:07
 	 * 
 	 * @param size
 	 * @return
@@ -368,11 +367,11 @@ public class AppUtility {
 		}
 
 	/**
-	 * ±£³ÖÆÁÄ»»½ÐÑ×´Ì¬£¨¼´±³¾°µÆ²»Ï¨Ãð£©
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ²ï¿½Ï¨ï¿½ï¿½
 	 * 
 	 * @param context
 	 * @param on
-	 *            ÊÇ·ñ»½ÐÑ
+	 *            ï¿½Ç·ï¿½ï¿½ï¿½
 	 */
 	@SuppressLint("Wakelock")
 	@SuppressWarnings({ "deprecation" })
@@ -458,7 +457,7 @@ public class AppUtility {
 	}
 
 	/**
-	 * ¼ì²éIPµØÖ·ÊÇ·ñÕýÈ·
+	 * ï¿½ï¿½ï¿½IPï¿½ï¿½Ö·ï¿½Ç·ï¿½ï¿½ï¿½È·
 	 * 
 	 * @param ip
 	 * @return
@@ -471,9 +470,9 @@ public class AppUtility {
 	}
 
 	/**
-	 * ¹¦ÄÜÃèÊö£º×Ö·û´®×ª»»int
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½×ªï¿½ï¿½int
 	 * 
-	 * @author yanzy 2013-11-26 ÏÂÎç12:02:05
+	 * @author yanzy 2013-11-26 ï¿½ï¿½ï¿½ï¿½12:02:05
 	 * 
 	 * @param str
 	 * @return
@@ -497,9 +496,9 @@ public class AppUtility {
 	}
 
 	/**
-	 * ¹¦ÄÜÃèÊö:ÅÐ¶Ï×Ö·û´®²»Îª¿Õ
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½Ð¶ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½
 	 * 
-	 * @author yanzy 2013-11-26 ÏÂÎç1:02:37
+	 * @author yanzy 2013-11-26 ï¿½ï¿½ï¿½ï¿½1:02:37
 	 * 
 	 * @param str
 	 * @return
@@ -510,41 +509,6 @@ public class AppUtility {
 		} else {
 			return false;
 		}
-	}
-
-	/**
-	 * get the IP address of the device
-	 * 
-	 * @return IP address add by zhuliang copy from wgz's AfterSale
-	 */
-	public static String getLocalIpAddress() {
-		String deviceIp = null;
-		boolean keepLookupOn = true;
-
-		try {
-			Enumeration<NetworkInterface> availableNetwork = NetworkInterface
-					.getNetworkInterfaces();
-
-			while (availableNetwork.hasMoreElements() && keepLookupOn) {
-				NetworkInterface intf = availableNetwork.nextElement();
-				Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses();
-
-				while (enumIpAddr.hasMoreElements()) {
-					InetAddress inetAddress = enumIpAddr.nextElement();
-
-					deviceIp = inetAddress.getHostAddress().toString();
-
-					if (!inetAddress.isLoopbackAddress()
-							&& InetAddressUtils.isIPv4Address(deviceIp)) {
-						keepLookupOn = false;
-						break;
-					}
-				}
-			}
-		} catch (SocketException ex) {
-			ex.printStackTrace();
-		}
-		return deviceIp;
 	}
 
 	public static String getStudentPicPath(String className, String studentId) {
@@ -569,9 +533,9 @@ public class AppUtility {
 	}
 	
 	/**
-	 * ¹¦ÄÜÃèÊö: ÅÐ¶ÏÊÇ·ñ³õÊ¼»¯»ù´¡Êý¾Ý
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 *
-	 * @author yanzy  2013-12-26 ÏÂÎç12:12:28
+	 * @author yanzy  2013-12-26 ï¿½ï¿½ï¿½ï¿½12:12:28
 	 * 
 	 * @return
 	 */
@@ -589,9 +553,9 @@ public class AppUtility {
 	}
 	
 	/**
-	 * ¹¦ÄÜÃèÊö: ÅÐ¶ÏÊÇ·ñ³õÊ¼»¯ÁªÏµÈË
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½
 	 *
-	 * @author yanzy  2013-12-26 ÏÂÎç12:12:28
+	 * @author yanzy  2013-12-26 ï¿½ï¿½ï¿½ï¿½12:12:28
 	 * 
 	 * @return
 	 */
@@ -612,9 +576,9 @@ public class AppUtility {
 	}
 	
 	/**
-	 * ¹¦ÄÜÃèÊö:»ñÈ¡ÈÕÆÚºÍÐÇÆÚ
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½È¡ï¿½ï¿½ï¿½Úºï¿½ï¿½ï¿½ï¿½ï¿½
 	 *
-	 * @author shengguo  2014-5-10 ÏÂÎç1:52:11
+	 * @author shengguo  2014-5-10 ï¿½ï¿½ï¿½ï¿½1:52:11
 	 * 
 	 * @param date
 	 * @return
@@ -622,7 +586,7 @@ public class AppUtility {
 	public static String getWeekAndDate(Date date){
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.SIMPLIFIED_CHINESE);
 		String time = sdf.format(date);
-		String[] weekDays = {"ÐÇÆÚÈÕ","ÐÇÆÚÒ»","ÐÇÆÚ¶þ","ÐÇÆÚÈý","ÐÇÆÚËÄ","ÐÇÆÚÎå","ÐÇÆÚÁù"};
+		String[] weekDays = {"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½","ï¿½ï¿½ï¿½ï¿½Ò»","ï¿½ï¿½ï¿½Ú¶ï¿½","ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½","ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½","ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½","ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"};
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)-1;
@@ -634,9 +598,9 @@ public class AppUtility {
 	}
 	
 	/**
-	 * ¹¦ÄÜÃèÊö:»ñÈ¡´¹Ö±ÎÄ±¾
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½È¡ï¿½ï¿½Ö±ï¿½Ä±ï¿½
 	 *
-	 * @author zhuliang  2014-1-11 ÏÂÎç3:34:58
+	 * @author zhuliang  2014-1-11 ï¿½ï¿½ï¿½ï¿½3:34:58
 	 * 
 	 * @param text
 	 * @return
@@ -653,9 +617,9 @@ public class AppUtility {
 	}
 	
 	/**
-	 * ¹¦ÄÜÃèÊö:´òÓ¡´íÎóÌáÊ¾
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½Ó¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
 	 *
-	 * @author shengguo  2014-4-28 ÏÂÎç2:51:46
+	 * @author shengguo  2014-4-28 ï¿½ï¿½ï¿½ï¿½2:51:46
 	 * 
 	 * @param context
 	 * @param exception
@@ -669,21 +633,21 @@ public class AppUtility {
 		exception = exception.substring(exception.lastIndexOf(".") + 1,
 				exception.length());
 		if (exception.equals("ConnectTimeoutException")) {
-			string = "Á¬½Ó³¬Ê±!";
+			string = "ï¿½ï¿½ï¿½Ó³ï¿½Ê±!";
 		}
 		if (exception.equals("IllegalArgumentException")) {
-			string = "·þÎñÆ÷µØÖ·´íÎó!";
+			string = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½!";
 		}
 		if (exception.equals("SocketTimeoutException")) {
-			string = "·þÎñÆ÷Î´ÏìÓ¦!";
+			string = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½Ó¦!";
 		}
 		if (exception.equals("HttpHostConnectException")) {
-			string = "Çë¼ì²éÍøÂçÁ¬½Ó!";
+			string = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!";
 		}
 		if (exception.equals("UnknownHostException")) {
-			string = "·þÎñÆ÷ÎÞ·¨·ÃÎÊ£¬Çë¼ì²éÍøÂçÁ¬½Ó";
+			string = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
 		}
-		if (exception.indexOf("ÖØÐÂµÇÂ¼")>-1 || exception.indexOf("relogin")>-1) {
+		if (exception.indexOf("ï¿½ï¿½ï¿½Âµï¿½Â¼")>-1 || exception.indexOf("relogin")>-1) {
 			string = exception;
 			reLogin();
 		}
@@ -697,7 +661,7 @@ public class AppUtility {
 				| Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 	}
-	//³ÌÐòÊÇ·ñ½øÈëºóÌ¨
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Ì¨
 	public static boolean isApplicationBroughtToBackground(final Context context) { 
 
 	    ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE); 
@@ -719,7 +683,7 @@ public class AppUtility {
 	    return false; 
 
 	}
-	//ÊÇ·ñ´¦ÓÚËøÆÁ
+	//ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public static boolean isLockScreen(final Context context) { 
 		KeyguardManager kgm = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         if(kgm.inKeyguardRestrictedInputMode())
@@ -736,12 +700,12 @@ public class AppUtility {
 		  
 		  public void onLoadComplete(SoundPool soundPool, int sampleId, int status)
 		  {
-			  sp.play(sampleId,     //ÉùÒô×ÊÔ´
-			        1,         //×óÉùµÀ
-			        1,         //ÓÒÉùµÀ
-			        0,             //ÓÅÏÈ¼¶£¬0×îµÍ
-			        0,         //Ñ­»·´ÎÊý£¬0ÊÇ²»Ñ­»·£¬-1ÊÇÓÀÔ¶Ñ­»·
-			        1);            //»Ø·ÅËÙ¶È£¬0.5-2.0Ö®¼ä¡£1ÎªÕý³£ËÙ¶È
+			  sp.play(sampleId,     //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´
+			        1,         //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			        1,         //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			        0,             //ï¿½ï¿½ï¿½È¼ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½
+			        0,         //Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Ç²ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½-1ï¿½ï¿½ï¿½ï¿½Ô¶Ñ­ï¿½ï¿½
+			        1);            //ï¿½Ø·ï¿½ï¿½Ù¶È£ï¿½0.5-2.0Ö®ï¿½ä¡£1Îªï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½
 			  
 		  }
 		  
@@ -760,9 +724,9 @@ public class AppUtility {
         return Pix/scale; 
 	}
 	/**
-	 * ¹¦ÄÜÃèÊö:¿ªÆô¿Î³ÌÌáÐÑ
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½ï¿½ï¿½ï¿½Î³ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * 
-	 * @author shengguo 2014-5-24 ÏÂÎç5:17:18
+	 * @author shengguo 2014-5-24 ï¿½ï¿½ï¿½ï¿½5:17:18
 	 * 
 	 */
 	
@@ -771,7 +735,7 @@ public class AppUtility {
 		intent.setAction("reminderMeClass");
 		PendingIntent sender = PendingIntent.getBroadcast(ct,
 				0, intent, 0);
-		AlarmManager am = (AlarmManager) ct.getSystemService(Activity.ALARM_SERVICE);// 24Ð¡Ê±Ò»¸öÖÜÆÚ£¬²»Í£µÄ·¢ËÍ¹ã²¥
+		AlarmManager am = (AlarmManager) ct.getSystemService(Activity.ALARM_SERVICE);// 24Ð¡Ê±Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½ï¿½ï¿½Í£ï¿½Ä·ï¿½ï¿½Í¹ã²¥
 		am.cancel(sender);
 		if(PrefUtility.getBoolean("booleanReminderDayClass", true))
 		{
@@ -786,7 +750,7 @@ public class AppUtility {
 				dt=DateHelper.getStringDate(dtStr,pattern);
 			}
 			
-			// ¿ªÊ¼Ê±¼ä
+			// ï¿½ï¿½Ê¼Ê±ï¿½ï¿½
 			long firstime = dt.getTime();
 			am.setRepeating(AlarmManager.RTC_WAKEUP, firstime,
 					24*60*60*1000,sender);
@@ -804,7 +768,7 @@ public class AppUtility {
 				0, intent, 0);
 		AlarmManager am = (AlarmManager) ct.getSystemService(Activity.ALARM_SERVICE);
 		am.cancel(sender);
-		if(userType.equals("Ñ§Éú"))
+		if(userType.equals("Ñ§ï¿½ï¿½"))
 		{
 			String dtStr=DateHelper.getToday("yyyy-MM-dd HH:00:00");
 			Date dt=DateHelper.getStringDate(dtStr,null);
@@ -833,10 +797,10 @@ public class AppUtility {
     }  
 	public static List getHtmlTagContent(String html,String tagname) { 
         List resultList = new ArrayList(); 
-        Pattern p = Pattern.compile("<"+tagname+">([^</"+tagname+">]*)");//Æ¥Åä<tagname>¿ªÍ·£¬</tagname>½áÎ²µÄÎÄµµ 
-        Matcher m = p.matcher(html );//¿ªÊ¼±àÒë 
+        Pattern p = Pattern.compile("<"+tagname+">([^</"+tagname+">]*)");//Æ¥ï¿½ï¿½<tagname>ï¿½ï¿½Í·ï¿½ï¿½</tagname>ï¿½ï¿½Î²ï¿½ï¿½ï¿½Äµï¿½ 
+        Matcher m = p.matcher(html );//ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ 
         while (m.find()) { 
-            resultList.add(m.group(1));//»ñÈ¡±»Æ¥ÅäµÄ²¿·Ö 
+            resultList.add(m.group(1));//ï¿½ï¿½È¡ï¿½ï¿½Æ¥ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ 
         } 
         return resultList; 
     } 
@@ -845,7 +809,7 @@ public class AppUtility {
 	{
         headOptions =
                 new DisplayImageOptions.Builder()
-                        .cacheOnDisc(true)//Í¼Æ¬´æ±¾µØ
+                        .cacheOnDisc(true)//Í¼Æ¬ï¿½æ±¾ï¿½ï¿½
                         .cacheInMemory(false)
                         .showImageOnFail(R.drawable.ic_launcher)
                                 //.displayer(new FadeInBitmapDisplayer(50))
@@ -853,10 +817,10 @@ public class AppUtility {
                         .bitmapConfig(Bitmap.Config.RGB_565)
                         .imageScaleType(ImageScaleType.EXACTLY)
                         .build();
-		//³õÊ¼»¯Í¼Æ¬¼ÓÔØ¿â
+		//ï¿½ï¿½Ê¼ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½Ø¿ï¿½
 				DisplayImageOptions defaultOptions =
 					        new DisplayImageOptions.Builder()
-					            .cacheOnDisc(true)//Í¼Æ¬´æ±¾µØ
+					            .cacheOnDisc(true)//Í¼Æ¬ï¿½æ±¾ï¿½ï¿½
 					            .cacheInMemory(false)
 					            .showImageOnFail(R.drawable.empty_photo)
 					            //.displayer(new FadeInBitmapDisplayer(50))
@@ -869,7 +833,7 @@ public class AppUtility {
 					    ImageLoaderConfiguration config =
 					        new ImageLoaderConfiguration.Builder(ctx)
 					    
-					    //.memoryCacheExtraOptions(480, 800) // max width, max height£¬¼´±£´æµÄÃ¿¸ö»º´æÎÄ¼þµÄ×î´ó³¤¿í  
+					    //.memoryCacheExtraOptions(480, 800) // max width, max heightï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ó³¤¿ï¿½  
 					    //.discCacheExtraOptions(480, 800, CompressFormat.JPEG, 75, null) 
 					    //.threadPriority(Thread.NORM_PRIORITY - 2)  
 		                //.denyCacheImageMultipleSizesInMemory()  
@@ -912,8 +876,8 @@ public class AppUtility {
 	}
 	public static boolean responseHasError(JSONObject jo)
 	{
-		String loginStatus = jo.optString("½á¹û");
-		if (loginStatus.equals("Ê§°Ü")) 
+		String loginStatus = jo.optString("ï¿½ï¿½ï¿½");
+		if (loginStatus.equals("Ê§ï¿½ï¿½")) 
 		{
 			AppUtility.showToastMsg(context, jo.optString("errorMsg"),1);
 			return true;
@@ -929,7 +893,7 @@ public class AppUtility {
 	    InputMethodManager imm = (InputMethodManager)view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 	    boolean isOpen = imm.isActive();
 	    if (isOpen) {
-	        // imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);//Ã»ÓÐÏÔÊ¾ÔòÏÔÊ¾
+	        // imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);//Ã»ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Ê¾
 	        imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 	    }
 	}

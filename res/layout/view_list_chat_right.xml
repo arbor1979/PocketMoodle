@@ -58,7 +58,7 @@
                 android:textSize="@dimen/text_size_normal" />
         </RelativeLayout>
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
@@ -69,17 +69,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="39dp"
+                android:layout_marginRight="3dp"
+                
                 android:background="@drawable/chat_sendstate_bg_hassend"
                 android:text="送达"
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_size_xmicro" />
 
             <ImageView
+                android:id="@+id/chat_left_icon"
                 android:layout_width="10dip"
                 android:layout_height="10dip"
                 android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="26dp"
+                android:layout_marginRight="3dp"
+                
                 android:contentDescription="@null"
                 android:src="@drawable/ic_time" />
 
@@ -87,12 +90,14 @@
                 android:id="@+id/chat_left_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                
                 android:layout_gravity="right|center_vertical"
                 android:text="16:50"
                 android:textColor="#606366"
                 android:textSize="@dimen/text_size_xmicro" />
 
-        </FrameLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

@@ -233,7 +233,7 @@ public class TabHostActivity extends TabActivity   {
 	private void prepareIntent() {
 		
 		homeIntent = new Intent(this, HomeActivity.class);
-		schoolIntent = new Intent(this, TabSchoolActivity.class);
+		schoolIntent = new Intent(this, MyCourseActivity.class);
 		communicationIntent = new Intent(this, ContactsActivity.class);
 		messageIntent = new Intent(this, ChatFriendActivity.class);
 		// summaryIntent = new Intent(this, SummaryActivity.class);

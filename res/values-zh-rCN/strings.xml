@@ -128,12 +128,15 @@
     <string name="Commons.SDCardErrorSDUnavailable">SD卡不能使用</string>
     <string name="curriculum">课表</string>
      <string name="course">课程</string>
+     <string name="my">我的</string>
     <string name="study">学习</string>
     <string name="message">消息</string>
     <string name="contacts">联系人</string>
     <string name="member">成员</string>
     <string name="summary">总结</string>
     <string name="school">首页</string>
+    <string name="mycourse">我的课程</string>
+    
     <string name="roll_call">点名</string>
 	<string name="album">相册</string>
     <!-- Home Page -->
@@ -332,5 +335,9 @@
       <string name="description">描述</string>
       <string name="course_summary">课程简介</string>
        <string name="search_course">课程搜索</string>
-       <string name="search_course_hint">输入课程名或教师名搜索</string>
+       <string name="search_course_hint">输入姓名搜索</string>
+       <string name="competencies">能力</string>
+       <string name="participants">成员</string>
+       <string name="grades">成绩</string>
+        <string name="notes">笔记</string>
 </resources>

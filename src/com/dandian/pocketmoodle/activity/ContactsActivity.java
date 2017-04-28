@@ -98,6 +98,16 @@ public class ContactsActivity extends FragmentActivity {
 		Log.d(TAG, "----------------onCreate-----------------------");
 		dm = getResources().getDisplayMetrics();
 		setContentView(R.layout.activity_contacts);
+		
+		RelativeLayout nav_bar=(RelativeLayout) findViewById(R.id.nav_bar);
+		int color=PrefUtility.getInt(Constants.PREF_THEME_NAVBARCOLOR, 0);
+		if(color!=0)
+			nav_bar.setBackgroundColor(color);
+		
+		LinearLayout contactsgroup=(LinearLayout) findViewById(R.id.contactsgroup);
+		color=PrefUtility.getInt(Constants.PREF_THEME_LISTCOLOR, 0);
+		if(color!=0)
+			contactsgroup.setBackgroundColor(color);
 		contacts = (LinearLayout) findViewById(R.id.content);
 		search = (EditText) findViewById(R.id.edit_search);
 		mLoadingDialog = DialogUtility.createLoadingDialog(ContactsActivity.this, getString(R.string.data_loading_progress));

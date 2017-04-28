@@ -1,15 +1,5 @@
 package com.dandian.pocketmoodle.activity;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -30,9 +20,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -54,20 +46,16 @@ import com.dandian.pocketmoodle.util.PrefUtility;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
-/**
- * 
- * #(c) ruanyun PocketCampus <br/>
- * 
- * 版本说明: $id:$ <br/>
- * 
- * 功能说明: 消息列表界面
- * 
- * <br/>
- * 创建说明: 2013-12-9 下午12:51:50 zhuliang 创建文件<br/>
- * 
- * 修改历史:<br/>
- * 
- */
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 public class ChatFriendActivity extends Activity implements OnItemClickListener {
 	private String TAG= "ChatFriendActivity";
 	private ListView mList;
@@ -97,13 +85,21 @@ public class ChatFriendActivity extends Activity implements OnItemClickListener 
 		menu = (Button) findViewById(R.id.btn_back);
 		layout_menu = (LinearLayout) findViewById(R.id.layout_back);
 		title = (TextView) findViewById(R.id.tv_title);
-		
+		title = (TextView) findViewById(R.id.tv_title);
+		RelativeLayout head=(RelativeLayout) findViewById(R.id.head);
+		int color=PrefUtility.getInt(Constants.PREF_THEME_NAVBARCOLOR, 0);
+		if(color!=0)
+			head.setBackgroundColor(color);
 		menu.setBackgroundResource(R.drawable.personalinfo);
-		
+		FrameLayout contentLayout=(FrameLayout) findViewById(R.id.contentLayout);
+		color=PrefUtility.getInt(Constants.PREF_THEME_LISTCOLOR, 0);
+		if(color!=0)
+			contentLayout.setBackgroundColor(color);
 		title.setText(R.string.message);
 		LinearLayout lygoto=(LinearLayout) findViewById(R.id.layout_goto);
 		lygoto.setVisibility(View.VISIBLE);
 		Button btgoto=(Button) findViewById(R.id.btn_goto);
+		btgoto.setVisibility(View.VISIBLE);
 		btgoto.setText(R.string.groupsend);
 		btgoto.setOnClickListener(new OnClickListener(){
 
@@ -180,20 +176,7 @@ public class ChatFriendActivity extends Activity implements OnItemClickListener 
 		}
 	}
 
-	/**
-	 * 
-	 * #(c) ruanyun PocketCampus <br/>
-	 * 
-	 * 版本说明: $id:$ <br/>
-	 * 
-	 * 功能说明: 消息list适配器
-	 * 
-	 * <br/>
-	 * 创建说明: 2013-12-9 下午1:10:31 zhuliang 创建文件<br/>
-	 * 
-	 * 修改历史:<br/>
-	 * 
-	 */
+
 	class MessageAdapter extends BaseAdapter {
 		private List<ChatFriend> list = new ArrayList<ChatFriend>();
 		private Context context;
@@ -227,7 +210,7 @@ public class ChatFriendActivity extends Activity implements OnItemClickListener 
 				holder = new ViewHolder();
 				convertView = mInflater.inflate(R.layout.view_message_list, null);
 				holder.photo = (ImageView) convertView.findViewById(R.id.photo);
-				holder.name = (TextView) convertView.findViewById(R.id.name);
+				holder.name = (TextView) convertView.findViewById(R.id.contact_name);
 				holder.content = (TextView) convertView
 						.findViewById(R.id.content);
 				holder.time = (TextView) convertView.findViewById(R.id.time);
@@ -251,7 +234,7 @@ public class ChatFriendActivity extends Activity implements OnItemClickListener 
 				holder.time.setText(DateHelper.getDateString(
 						chatFriend.getLastTime(), "MM-dd"));
 			}
-			//显示带表情的字符串
+
 			SpannableString spannableString = ExpressionUtil
 					.getExpressionString(ChatFriendActivity.this, chatFriend
 							.getLastContent().toString());
@@ -283,10 +266,7 @@ public class ChatFriendActivity extends Activity implements OnItemClickListener 
 				*/
 				aq.id(holder.photo).image(chatFriend.getUserImage(),true,true,0,R.drawable.ic_launcher);
 			}
-			/*
-			if(chatFriend.getMsgType().equals("群消息")){
-				holder.photo.setImageResource(R.drawable.contacts_group);
-			}*/
+
 			holder.photo.setOnClickListener(new OnClickListener(){
 
 				@Override
@@ -356,7 +336,7 @@ public class ChatFriendActivity extends Activity implements OnItemClickListener 
 	public void registerBoradcastReceiver() {
 		IntentFilter myIntentFilter = new IntentFilter();
 		myIntentFilter.addAction(ACTION_NAME);
-		// 注册广播
+
 		registerReceiver(mBroadcastReceiver, myIntentFilter);
 	}
 

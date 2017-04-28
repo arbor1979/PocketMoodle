@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="fill_parent"
     android:background="@drawable/common_frame_selector"
     android:gravity="center_vertical"
     android:orientation="horizontal"
@@ -9,14 +9,14 @@
 
     <ImageView
         android:id="@+id/iv_icon"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="46.0dip"
+        android:layout_height="46.0dip"
         android:contentDescription="@null"
         android:src="@drawable/ic_launcher" />
 
     <LinearLayout
         android:layout_width="0.0dip"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:layout_marginLeft="6.0dip"
         android:layout_marginRight="6.0dip"
         android:layout_weight="1"
@@ -28,10 +28,10 @@
             style="@style/school_title_style"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             android:text="2013-2014学期期末考试" />
 
         <LinearLayout
-             android:id="@+id/ll_bottom"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:baselineAligned="true"
@@ -53,7 +53,6 @@
             </LinearLayout>
 
             <LinearLayout
-               
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

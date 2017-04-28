@@ -87,6 +87,10 @@ public class WebSiteActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.web_site);
+		RelativeLayout headerlayout= (RelativeLayout)findViewById(R.id.headerlayout);
+		int color=PrefUtility.getInt(Constants.PREF_THEME_NAVBARCOLOR, 0);
+		if(color!=0)
+			headerlayout.setBackgroundColor(color);
 		frameLayout = (LinearLayout)findViewById(R.id.mainLayout);
 		loading=(FrameLayout)findViewById(R.id.loading);
 		mWebView = (WebView) findViewById(R.id.website);

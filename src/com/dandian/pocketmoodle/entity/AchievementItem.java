@@ -25,7 +25,7 @@ public class AchievementItem {
 	private List<Achievement> achievements;
 	private String rightButton;
 	private String rightButtonURL;
-
+	private String summary;
 	public AchievementItem(JSONObject jo) {
 		templateName = jo.optString("适用模板");
 		title = jo.optString("标题显示");
@@ -40,6 +40,15 @@ public class AchievementItem {
 		}
 		rightButton=jo.optString("右上按钮");
 		rightButtonURL=jo.optString("右上按钮URL");
+		summary=jo.optString("简介");
+	}
+
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
 	}
 
 	public String getRightButton() {
@@ -61,6 +70,7 @@ public class AchievementItem {
 	public class Achievement {
 		private String id;// 编号
 		private String icon;// 图标
+		private String icon_link;// 图标
 		private String title;// 标题
 		private String total;// 总分
 		private String rank;// 排名
@@ -71,6 +81,7 @@ public class AchievementItem {
 		public Achievement(JSONObject jo) {
 			id = jo.optString("编号");
 			icon = jo.optString("图标");
+			icon_link=jo.optString("图标链接");
 			title = jo.optString("第一行");
 			total = jo.optString("第二行左");
 			rank = jo.optString("第二行右");
@@ -78,6 +89,14 @@ public class AchievementItem {
 			templateName = jo.optString("模板");
 			templateGrade = jo.optString("模板级别");
 			theColor= jo.optString("颜色");
+		}
+
+		public String getIcon_link() {
+			return icon_link;
+		}
+
+		public void setIcon_link(String icon_link) {
+			this.icon_link = icon_link;
 		}
 
 		public String getTheColor() {

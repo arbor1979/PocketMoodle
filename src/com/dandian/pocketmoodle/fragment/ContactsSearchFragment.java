@@ -279,7 +279,6 @@ public class ContactsSearchFragment extends DialogFragment {
 			}
 			
 			holder.name.setText(contactsMember.getName());
-			holder.name.setText(holder.name.getText()+"("+contactsMember.getUserType()+")");
 			
 			convertView.setOnClickListener(new View.OnClickListener() {
 
@@ -290,7 +289,7 @@ public class ContactsSearchFragment extends DialogFragment {
 					// Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent(getActivity(),
 							ChatMsgActivity.class);
-					intent.putExtra("toid", contactsMember.getUserNumber());
+					intent.putExtra("toid", contactsMember.getNumber());
 					intent.putExtra("type", "消息");
 					intent.putExtra("toname", contactsMember.getName());
 					intent.putExtra("userImage", contactsMember.getUserImage());
@@ -369,9 +368,7 @@ public class ContactsSearchFragment extends DialogFragment {
 		searchList = new ArrayList<ContactsMember>();
 		for (ContactsMember contactsMember : listData) {
 			if(contactsMember != null){
-				String userNumber = contactsMember.getUserNumber();
 				String name = contactsMember.getName();
-				String userName = contactsMember.getStudentID();
 				if (characterParser.isLetter(str)) {
 					if (characterParser.isFinals(str)) {
 						String pinyin = SearchParser
@@ -388,11 +385,6 @@ public class ContactsSearchFragment extends DialogFragment {
 					}
 				} else if (name.indexOf(str) > -1) {
 					searchList.add(contactsMember);
-				}
-				if (userNumber.indexOf("老师") > -1) {
-					if (userName.indexOf(str) > -1) {
-						searchList.add(contactsMember);
-					}
 				}
 			}
 		}

@@ -1,26 +1,26 @@
 package com.dandian.pocketmoodle.fragment;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -32,34 +32,40 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.dandian.pocketmoodle.R;
 import com.dandian.pocketmoodle.activity.ChatMsgActivity;
+import com.dandian.pocketmoodle.activity.MyCourseActivity;
 import com.dandian.pocketmoodle.activity.SchoolActivity;
 import com.dandian.pocketmoodle.activity.SchoolDetailActivity;
 import com.dandian.pocketmoodle.activity.ShowPersonInfo;
 import com.dandian.pocketmoodle.activity.WebSiteActivity;
 import com.dandian.pocketmoodle.api.CampusAPI;
+import com.dandian.pocketmoodle.api.CampusException;
+import com.dandian.pocketmoodle.api.CampusParameters;
+import com.dandian.pocketmoodle.api.RequestListener;
 import com.dandian.pocketmoodle.base.Constants;
 import com.dandian.pocketmoodle.entity.AchievementItem;
 import com.dandian.pocketmoodle.entity.AchievementItem.Achievement;
 import com.dandian.pocketmoodle.util.AppUtility;
-import com.dandian.pocketmoodle.util.MyImageGetter;
+import com.dandian.pocketmoodle.util.Base64;
 import com.dandian.pocketmoodle.util.PrefUtility;
+import com.dandian.pocketmoodle.fragment.SchoolSectionFragment.AchieveAdapter;
+import com.dandian.pocketmoodle.fragment.SchoolSectionFragment.AchieveAdapter.ViewHolder;
 
 /**
  * 成绩
  */
 @SuppressLint("ValidFragment")
-public class SchoolAchievementFragment extends Fragment {
+public class SchoolSectionFragment extends Fragment {
 	private String TAG = "SchoolAchievementFragment";
 	private ListView myListview;
 	private Button btnLeft;
-	private TextView tvTitle,tvRight;
+	private TextView tvTitle,tvRight,tv_summary;
 	private LinearLayout lyLeft,lyRight;
 	private LinearLayout loadingLayout;
 	private LinearLayout contentLayout;
 	private LinearLayout failedLayout;
 	private LinearLayout emptyLayout;
 	private AchievementItem achievementItem;
-	private String interfaceName,title,display;
+	private String interfaceName,title;
 	private LayoutInflater inflater;
 	private AchieveAdapter adapter;
 	private List<Achievement> achievements = new ArrayList<Achievement>();
@@ -85,25 +91,10 @@ public class SchoolAchievementFragment extends Fragment {
 						achievementItem = new AchievementItem(jo);
 						Log.d(TAG, "--------noticesItem.getNotices().size():"
 								+ achievementItem.getAchievements().size());
-						if(achievementItem.getSummary()!=null && achievementItem.getSummary().length()>0)
-						{
-							TextView tv_summary=new TextView(getActivity());
-							LayoutParams params=new LayoutParams(LayoutParams.WRAP_CONTENT,
-									LayoutParams.WRAP_CONTENT);
-							tv_summary.setLayoutParams(params);
-							
-							tv_summary.setBackgroundColor(Color.WHITE);
-							Spanned spanned = Html.fromHtml(achievementItem.getSummary(), new MyImageGetter(getActivity(),tv_summary), null);
-							tv_summary.setText(spanned);
-							myListview.setAdapter(null);
-							myListview.addHeaderView(tv_summary);
-							tv_summary.setPadding(10, 10, 10, 10);
-							myListview.setAdapter(adapter);
-						}
+						
 						achievements = achievementItem.getAchievements();
 						adapter.notifyDataSetChanged();
-						if(achievementItem.getTitle()!=null && achievementItem.getTitle().length()>0)
-							tvTitle.setText(achievementItem.getTitle());
+						tvTitle.setText(achievementItem.getTitle());
 						if(achievementItem.getRightButton()!=null && achievementItem.getRightButton().length()>0)
 						{
 							tvRight.setText(achievementItem.getRightButton());
@@ -150,20 +141,19 @@ public class SchoolAchievementFragment extends Fragment {
 		    break;
 		}
 	}
-	public SchoolAchievementFragment() {
+	public SchoolSectionFragment() {
 		
 	}
-	public SchoolAchievementFragment(String title,String iunterfaceName,String display) {
+	public SchoolSectionFragment(String title,String iunterfaceName) {
 		this.interfaceName = iunterfaceName;
 		this.title = title;
-		this.display=display;
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		this.inflater = inflater;
-		View view = inflater.inflate(R.layout.school_listview_fragment,
+		View view = inflater.inflate(R.layout.school_section_listview,
 				container, false);
 		
 		RelativeLayout nav_bar=(RelativeLayout) view.findViewById(R.id.nav_bar);
@@ -171,6 +161,8 @@ public class SchoolAchievementFragment extends Fragment {
 		if(color!=0)
 			nav_bar.setBackgroundColor(color);
 		myListview = (ListView) view.findViewById(R.id.my_listview);
+		tv_summary=(TextView)view.findViewById(R.id.tv_summary);
+		myListview.addHeaderView(tv_summary);
 		btnLeft = (Button) view.findViewById(R.id.btn_left);
 		tvTitle = (TextView) view.findViewById(R.id.tv_title);
 		tvRight = (TextView) view.findViewById(R.id.tv_right);
@@ -184,7 +176,7 @@ public class SchoolAchievementFragment extends Fragment {
 		btnLeft.setVisibility(View.VISIBLE);
 		btnLeft.setCompoundDrawablesWithIntrinsicBounds(
 				R.drawable.bg_btn_left_nor, 0, 0, 0);
-		tvTitle.setText(display);
+		tvTitle.setText(title);
 		adapter = new AchieveAdapter();
 		myListview.setAdapter(adapter);
 		lyLeft.setOnClickListener(new OnClickListener() {
@@ -271,7 +263,7 @@ public class SchoolAchievementFragment extends Fragment {
 
 			if (null == convertView) {
 				convertView = inflater.inflate(
-						R.layout.school_achievement_or_question_item, parent,
+						R.layout.school_section_list_item, parent,
 						false);
 				holder = new ViewHolder();
 
@@ -283,10 +275,6 @@ public class SchoolAchievementFragment extends Fragment {
 						.findViewById(R.id.thieDescription);
 				holder.rank = (TextView) convertView
 						.findViewById(R.id.tv_right);
-				holder.ll_bottom = (LinearLayout) convertView
-						.findViewById(R.id.ll_bottom);
-				holder.iv_right = (ImageView) convertView
-						.findViewById(R.id.iv_right);
 				
 				convertView.setTag(holder);
 			} else {
@@ -297,7 +285,6 @@ public class SchoolAchievementFragment extends Fragment {
 			String imagurl = achievement.getIcon();
 			Log.d(TAG, "----imagurl:" + imagurl);
 			if (imagurl != null && !imagurl.equals("")) {
-				holder.icon.setVisibility(View.VISIBLE);
 				aq.id(holder.icon).image(imagurl);
 				if(achievement.getIcon_link().equals("个人资料"))
 				{
@@ -314,24 +301,11 @@ public class SchoolAchievementFragment extends Fragment {
 					});
 				}
 			}
-			else
-				holder.icon.setVisibility(View.GONE);
 	
 			holder.title.setText(achievement.getTitle());
-			if(achievement.getTotal().length()==0 && achievement.getRank().length()==0)
-				holder.ll_bottom.setVisibility(View.GONE);
-			else
-				holder.ll_bottom.setVisibility(View.VISIBLE);
-			if(achievement.getTotal().length()==0)
-				holder.total.setVisibility(View.GONE);
-			else
-				holder.total.setVisibility(View.VISIBLE);
 			holder.total.setText(achievement.getTotal());
 			holder.rank.setText(achievement.getRank());
-			if(achievement.getDetailUrl().length()==0)
-				holder.iv_right.setVisibility(View.GONE);
-			else
-				holder.iv_right.setVisibility(View.VISIBLE);
+			
 			if(achievement.getTheColor()!=null && achievement.getTheColor().length()>0)
 			{
 				if(achievement.getTheColor().toLowerCase().equals("red"))
@@ -360,7 +334,7 @@ public class SchoolAchievementFragment extends Fragment {
 							DetailUrl=DetailUrl.replace("\\", "/");
 							String[] loginUrl=DetailUrl.split("/");
 							contractIntent.putExtra("loginUrl", "http://"+loginUrl[2]+"/login/index.php");
-							contractIntent.putExtra("title", display);
+							contractIntent.putExtra("title", title);
 							startActivity(contractIntent);
 						}
 						else if(DetailUrl.equals("发送消息"))
@@ -393,8 +367,8 @@ public class SchoolAchievementFragment extends Fragment {
 							if(pos>-1)
 								preUrl=interfaceName.substring(0, pos);
 							intent.putExtra("interfaceName", preUrl+DetailUrl+"&newFlag=1");
-							intent.putExtra("title", display);
-							intent.putExtra("display", display);
+							intent.putExtra("title", title);
+							intent.putExtra("display", title);
 							startActivityForResult(intent,101);
 						}
 						
@@ -410,8 +384,6 @@ public class SchoolAchievementFragment extends Fragment {
 			TextView title;
 			TextView total;
 			TextView rank;
-			LinearLayout ll_bottom;
-			ImageView iv_right;
 		}
 		
 	}

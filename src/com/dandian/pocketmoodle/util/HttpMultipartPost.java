@@ -1,17 +1,5 @@
 package com.dandian.pocketmoodle.util;
 
-import java.io.File;
-import java.nio.charset.Charset;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,6 +10,18 @@ import com.dandian.pocketmoodle.api.CampusParameters;
 import com.dandian.pocketmoodle.api.HttpManager;
 import com.dandian.pocketmoodle.entity.CustomMultipartEntity;
 import com.dandian.pocketmoodle.entity.CustomMultipartEntity.ProgressListener;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
+
+import java.io.File;
+import java.nio.charset.Charset;
 
 
 public class HttpMultipartPost extends AsyncTask<String, Integer, String> {

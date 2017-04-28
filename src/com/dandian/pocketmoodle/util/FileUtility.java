@@ -69,7 +69,7 @@ public class FileUtility {
      */  
     public static String creatFileDir(String dirName) {
     	String newDir;
-    	newDir=getDiskFileDir()+dirName+"/";
+    	newDir=getDiskFileDir()+"/"+dirName+"/";
     	File dir = new File(newDir);  
         if(!dir.exists())
         	dir.mkdirs();
@@ -78,7 +78,7 @@ public class FileUtility {
     }  
     public static String creatCacheDir(String dirName) {
     	String newDir;
-    	newDir=getDiskCacheDir()+dirName+"/";
+    	newDir=getDiskCacheDir()+"/"+dirName+"/";
     	File dir = new File(newDir);  
         if(!dir.exists())
         	dir.mkdirs();

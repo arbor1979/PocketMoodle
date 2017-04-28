@@ -78,17 +78,20 @@ public class HomeActivity extends Activity {
 	private User user;
 	private Button btnLeft;
 	private RelativeLayout nav_bar;
-	private final int MSG_UPDATE_IMAGE=1;
+	private final int MSG_UPDATE_IMAGE=10;
 	private long MSG_DELAY=5000;
 	private int currentItem;//当前viewpage选中页
 	private boolean isAutoPlay = false;
 	private ImageView tips[];//图片轮播下面的小点
+	private TextView tv_excellent;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG, "----------------onCreate-----------------------");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 		loadingLayout = (LinearLayout) findViewById(R.id.data_load);
+		tv_excellent=(TextView) findViewById(R.id.tv_excellent);
+		tv_excellent.setVisibility(View.GONE);
 		leftlayout=(LinearLayout) findViewById(R.id.layout_back);
 		btnLeft = (Button) findViewById(R.id.btn_back);
 		btnLeft.setVisibility(View.VISIBLE);
@@ -111,7 +114,9 @@ public class HomeActivity extends Activity {
 		failedLayout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				getHomeData();
+				getHomeData("标题图片",0);
+				getHomeData("推荐课程",1);
+				getHomeData("课程类别",2);
 			}
 		});
 		leftlayout.setOnClickListener(new OnClickListener() {
@@ -126,20 +131,23 @@ public class HomeActivity extends Activity {
 			}
 		});
 		user=((CampusApplication)getApplicationContext()).getLoginUserObj();
-		getHomeData();
+		getHomeData("标题图片",0);
+		getHomeData("推荐课程",1);
+		getHomeData("课程类别",2);
 	}
-	private void getHomeData()
+	private void getHomeData(String $action,int handleId)
 	{
 		showProgress(true);
 		String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
 		JSONObject jo = new JSONObject();
 		try {
 			jo.put("用户较验码", checkCode);
+			jo.put("action", $action);
 			jo.put("function", "getHomeData");
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		CampusAPI.httpPostToDandian(jo, mHandler, 0);
+		CampusAPI.httpPostToDandian(jo, mHandler, handleId);
 
 	}
 	private void showFetchFailedView() {
@@ -180,10 +188,50 @@ public class HomeActivity extends Activity {
 					else
 					{
 						imageArray=jo.optJSONArray("标题图片");
+						initContent(msg.what);
+					}
+				}
+				catch (Exception e) {
+					
+					AppUtility.showErrorToast(HomeActivity.this,
+							e.getLocalizedMessage());
+				}
+				break;
+			case 1:
+				showProgress(false);
+				result = msg.obj.toString();
+				try 
+				{
+					JSONObject jo = new JSONObject(result);
+					if(jo.optString("结果").equals("失败"))
+						AppUtility.showErrorToast(HomeActivity.this,
+								jo.optString("error"));
+					else
+					{
 						recommendedArray=jo.optJSONArray("推荐课程");
+						initContent(msg.what);
+					}
+				}
+				catch (Exception e) {
+					
+					AppUtility.showErrorToast(HomeActivity.this,
+							e.getLocalizedMessage());
+				}
+				break;
+			case 2:
+				showProgress(false);
+				result = msg.obj.toString();
+				try 
+				{
+					JSONObject jo = new JSONObject(result);
+					if(jo.optString("结果").equals("失败"))
+						AppUtility.showErrorToast(HomeActivity.this,
+								jo.optString("error"));
+					else
+					{
 						categoryArray=jo.optJSONArray("课程大类");
 						subCategoryArray=jo.optJSONObject("课程子类");
-						initContent();
+						initContent(msg.what);
 					}
 				}
 				catch (Exception e) {
@@ -208,63 +256,77 @@ public class HomeActivity extends Activity {
 		}
 	};
 	@SuppressWarnings("deprecation")
-	private void initContent() {
-		imagePageDapter = new SamplePagerAdapter(this);
-		mViewPager.setAdapter(imagePageDapter);
-		excellentAdapter= new MyGridAdapter(this);
-		gv_excellent.setAdapter(excellentAdapter);
-		mAdapter=new ListAdapter(this);
-		mList.setAdapter(mAdapter);
-		
-		mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-			  
-            //配合Adapter的currentItem字段进行设置。
-            @Override
-            public void onPageSelected(int arg0) {
-            	currentItem = arg0;
-                setImageBackground(currentItem);
-            }
-              
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-            }
-              
-            //覆写该方法实现轮播效果的暂停和恢复
-            @Override
-            public void onPageScrollStateChanged(int arg0) {
-                switch (arg0) {
-                case ViewPager.SCROLL_STATE_DRAGGING:
-                	isAutoPlay = false;  
-                    break;
-                case ViewPager.SCROLL_STATE_IDLE:
-                	if(!isAutoPlay)
-                	{
-                		mHandler.sendEmptyMessageDelayed(MSG_UPDATE_IMAGE, MSG_DELAY);
-                		isAutoPlay=true;
-                	}
-                    break;
-                default:
-                    break;
-                }
-            }
-        });
-		LinearLayout linearLayout = (LinearLayout) findViewById(R.id.viewGroup);
-		tips = new ImageView[imageArray.length()];
-		for(int i=0; i<imageArray.length(); i++){
-			ImageView mImageView = new ImageView(this);
-			tips[i] = mImageView;
-			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT,    
-                    LayoutParams.WRAP_CONTENT));  
-			layoutParams.rightMargin = 3;
-			layoutParams.leftMargin = 3;
-			layoutParams.bottomMargin=15;
-			mImageView.setBackgroundResource(R.drawable.page_indicator_unfocused);
-			linearLayout.addView(mImageView, layoutParams);
+	private void initContent(int actionid) {
+		if(actionid==0)
+		{
+			imagePageDapter = new SamplePagerAdapter(this);
+			mViewPager.setAdapter(imagePageDapter);
+			mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+				  
+	            //配合Adapter的currentItem字段进行设置。
+	            @Override
+	            public void onPageSelected(int arg0) {
+	            	currentItem = arg0;
+	                setImageBackground(currentItem);
+	            }
+	              
+	            @Override
+	            public void onPageScrolled(int arg0, float arg1, int arg2) {
+	            }
+	              
+	            //覆写该方法实现轮播效果的暂停和恢复
+	            @Override
+	            public void onPageScrollStateChanged(int arg0) {
+	                switch (arg0) {
+	                case ViewPager.SCROLL_STATE_DRAGGING:
+	                	isAutoPlay = false;  
+	                    break;
+	                case ViewPager.SCROLL_STATE_IDLE:
+	                	if(!isAutoPlay)
+	                	{
+	                		mHandler.sendEmptyMessageDelayed(MSG_UPDATE_IMAGE, MSG_DELAY);
+	                		isAutoPlay=true;
+	                	}
+	                    break;
+	                default:
+	                    break;
+	                }
+	            }
+	        });
+			LinearLayout linearLayout = (LinearLayout) findViewById(R.id.viewGroup);
+			tips = new ImageView[imageArray.length()];
+			for(int i=0; i<imageArray.length(); i++){
+				ImageView mImageView = new ImageView(this);
+				tips[i] = mImageView;
+				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT,    
+	                    LayoutParams.WRAP_CONTENT));  
+				layoutParams.rightMargin = 3;
+				layoutParams.leftMargin = 3;
+				layoutParams.bottomMargin=15;
+				mImageView.setBackgroundResource(R.drawable.page_indicator_unfocused);
+				linearLayout.addView(mImageView, layoutParams);
+			}
+			setImageBackground(0);
+			isAutoPlay=true;
+			mHandler.sendEmptyMessageDelayed(MSG_UPDATE_IMAGE, MSG_DELAY);
 		}
-		setImageBackground(0);
-		isAutoPlay=true;
-		mHandler.sendEmptyMessageDelayed(MSG_UPDATE_IMAGE, MSG_DELAY);
-		
+		else if(actionid==1)
+		{
+			tv_excellent.setVisibility(View.VISIBLE);
+			excellentAdapter= new MyGridAdapter(this);
+			gv_excellent.setAdapter(excellentAdapter);
+			
+		}
+		else if(actionid==2)
+		{
+			if(categoryArray!=null)
+			{
+				mAdapter=new ListAdapter(this);
+				mList.setAdapter(mAdapter);
+			}
+		}
+		contentLayout.scrollTo(0, 0);
+
 	}
 	private void setImageBackground(int selectItems){  
         for(int i=0; i<tips.length; i++){  

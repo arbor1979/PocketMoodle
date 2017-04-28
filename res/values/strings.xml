@@ -124,6 +124,8 @@
     <string name="Commons.SDCardErrorSDUnavailable">SD卡不能使用</string>
     <string name="curriculum">课表</string>
      <string name="course">Course</string>
+      <string name="my">My</string>
+      <string name="mycourse">My courses</string>
     <string name="study">学习</string>
     <string name="message">Messaging</string>
     <string name="contacts">Contacts</string>
@@ -318,5 +320,9 @@
       <string name="description">Description</string>
       <string name="course_summary">Course summary</string>
       <string name="search_course">Search Courses</string>
-      <string name="search_course_hint">Keywords:course name or teacher\'s name</string>
+      <string name="search_course_hint">Keywords:enter user\'s name</string>
+       <string name="competencies">Competencies</string>
+       <string name="participants">Participants</string>
+       <string name="grades">Grades</string>
+      <string name="notes">Notes</string>
 </resources>

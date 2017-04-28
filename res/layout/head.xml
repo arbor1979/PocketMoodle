@@ -42,6 +42,7 @@
 
         <Button
             android:id="@+id/btn_goto"
+            style="@style/top_bar_btn"
             android:layout_width="wrap_content"
             android:layout_height="30dip"
             android:layout_gravity="center"

@@ -30,6 +30,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -46,6 +47,7 @@ import com.dandian.pocketmoodle.api.CampusParameters;
 import com.dandian.pocketmoodle.api.RequestListener;
 import com.dandian.pocketmoodle.base.Constants;
 import com.dandian.pocketmoodle.entity.AchievementDetail;
+import com.dandian.pocketmoodle.entity.AchievementItem;
 import com.dandian.pocketmoodle.entity.AchievementDetail.Achievement;
 import com.dandian.pocketmoodle.util.AppUtility;
 import com.dandian.pocketmoodle.util.Base64;
@@ -87,60 +89,31 @@ public class SchoolAchievementDetailFragment extends Fragment {
 			case 0:
 				showProgress(false);
 				String result = msg.obj.toString();
-				String resultStr = "";
-				byte[] contact64byte = null;
-				if (AppUtility.isNotEmpty(result)) {
-					try {
-						contact64byte = Base64.decode(result.getBytes("GBK"));
+				try 
+				{
+					JSONObject jo = new JSONObject(result);
+					if(jo.optString("结果").equals("失败"))
+						AppUtility.showErrorToast(getActivity(),
+								jo.optString("error"));
+					else
+					{
+						achievementDetail = new AchievementDetail(jo);
+						initDate();
 						
-						Log.d(TAG, resultStr);
-					} catch (UnsupportedEncodingException e) {
-						showFetchFailedView();
-						e.printStackTrace();
-					}
-				}else{
-					showFetchFailedView();
+					} 
 				}
-				resultStr=ZLibUtils.decompress(contact64byte);
-				if (AppUtility.isNotEmpty(resultStr)) {
-					try {
-						JSONObject jo = new JSONObject(resultStr);
-						String res = jo.optString("结果");
-						if(AppUtility.isNotEmpty(res)){
-							AppUtility.showToastMsg(getActivity(), res);
-						}else{
-							achievementDetail = new AchievementDetail(jo);
-							Log.d(TAG, "--------noticesItem.getNotices().size():"
-									+ achievementDetail.getAchievements().size());
-							initDate();
-						}
-					} catch (JSONException e) {
-						//showFetchFailedView();
-						e.printStackTrace();
-					}
-				}else{
-					showFetchFailedView();
+				catch (Exception e) {
+					
+					AppUtility.showErrorToast(getActivity(),
+							e.getLocalizedMessage());
 				}
 				break;
 			case 1:
 				result = msg.obj.toString();
-				resultStr = "";
+				
 				if (AppUtility.isNotEmpty(result)) {
 					try {
-						resultStr = new String(Base64.decode(result
-								.getBytes("GBK")));
-						Log.d(TAG, resultStr);
-					} catch (UnsupportedEncodingException e) {
-						showFetchFailedView();
-						e.printStackTrace();
-					}
-				}else{
-					showFetchFailedView();
-				}
-
-				if (AppUtility.isNotEmpty(resultStr)) {
-					try {
-						JSONObject jo = new JSONObject(resultStr);
+						JSONObject jo = new JSONObject(result);
 						String res = jo.optString("结果");
 						AppUtility.showToastMsg(getActivity(), res);
 						if(res.equals("成功"))
@@ -163,23 +136,10 @@ public class SchoolAchievementDetailFragment extends Fragment {
 				break;
 			case 3:
 				result = msg.obj.toString();
-				resultStr = "";
+
 				if (AppUtility.isNotEmpty(result)) {
 					try {
-						resultStr = new String(Base64.decode(result
-								.getBytes("GBK")));
-						Log.d(TAG, resultStr);
-					} catch (UnsupportedEncodingException e) {
-						showFetchFailedView();
-						e.printStackTrace();
-					}
-				}else{
-					showFetchFailedView();
-				}
-
-				if (AppUtility.isNotEmpty(resultStr)) {
-					try {
-						JSONObject jo = new JSONObject(resultStr);
+						JSONObject jo = new JSONObject(result);
 						String res = jo.optString("结果");
 						
 						if(res.equals("成功"))
@@ -238,6 +198,10 @@ public class SchoolAchievementDetailFragment extends Fragment {
 		this.inflater = inflater;
 		View view = inflater.inflate(R.layout.school_listview_fragment,
 				container, false);
+		RelativeLayout nav_bar=(RelativeLayout) view.findViewById(R.id.nav_bar);
+		int color=PrefUtility.getInt(Constants.PREF_THEME_NAVBARCOLOR, 0);
+		if(color!=0)
+			nav_bar.setBackgroundColor(color);
 		myListview = (ListView) view.findViewById(R.id.my_listview);
 		btnLeft = (Button) view.findViewById(R.id.btn_left);
 		tvRight = (TextView) view.findViewById(R.id.tv_right);
@@ -284,7 +248,8 @@ public class SchoolAchievementDetailFragment extends Fragment {
 	 * 
 	 */
 	private void initDate() {
-		tvTitle.setText(achievementDetail.getTitle());
+		if(achievementDetail.getTitle()!=null && achievementDetail.getTitle().length()>0)
+			tvTitle.setText(achievementDetail.getTitle());
 		achievements = achievementDetail.getAchievements();
 		//设置Weight值
 		float leftWeight = achievementDetail.getLeftWeight() / 10.0f;
@@ -440,50 +405,15 @@ public class SchoolAchievementDetailFragment extends Fragment {
 	 */
 	public void getAchievesItem() {
 		showProgress(true);
-		Log.d(TAG, "--------" + String.valueOf(new Date().getTime()));
-		long datatime = System.currentTimeMillis();
-		String checkCode = PrefUtility.get(Constants.PREF_CHECK_CODE, "");
-		Log.d(TAG, "----------datatime:" + datatime);
-		Log.d(TAG, "----------checkCode:" + checkCode + "++");
-		JSONObject jo = new JSONObject();
-		Locale locale = getResources().getConfiguration().locale;
-	    String language = locale.getCountry();
-	    String thisVersion = CampusApplication.getVersion();
+		String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
+		JSONObject jo=null;
 		try {
+			jo = new JSONObject(interfaceName);
 			jo.put("用户较验码", checkCode);
-			jo.put("DATETIME", datatime);
-			jo.put("language", language);
-			jo.put("当前版本", thisVersion);
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		String base64Str = Base64.encode(jo.toString().getBytes());
-		Log.d(TAG, "------->base64Str:" + base64Str);
-		CampusParameters params = new CampusParameters();
-		params.add(Constants.PARAMS_DATA, base64Str);
-		CampusAPI.getSchoolItemZip(params, interfaceName, new RequestListener() {
-
-			@Override
-			public void onIOException(IOException e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onError(CampusException e) {
-				Log.d(TAG, "----response" + e.getMessage());
-
-			}
-
-			@Override
-			public void onComplete(String response) {
-				Log.d(TAG, "----response" + response);
-				Message msg = new Message();
-				msg.what = 0;
-				msg.obj = response;
-				mHandler.sendMessage(msg);
-			}
-		});
+		CampusAPI.httpPostToDandian(jo, mHandler, 0);
 	}
 
 	
@@ -589,11 +519,14 @@ public class SchoolAchievementDetailFragment extends Fragment {
 								intent=new Intent(getActivity(),SchoolDetailActivity.class);
 							intent.putExtra("templateName", achievement.getTemplateName());
 						}
-						int pos=interfaceName.indexOf("?");
-						String preUrl=interfaceName;
-						if(pos>-1)
-							preUrl=interfaceName.substring(0, pos);
-						intent.putExtra("interfaceName", preUrl+achievement.getUrl());
+						JSONObject obj=null;
+						try {
+							obj = new JSONObject(achievement.getUrl());
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						intent.putExtra("interfaceName", obj.toString());
 						intent.putExtra("title", achievement.getFraction());
 						intent.putExtra("display", achievement.getFraction());
 						startActivityForResult(intent,101);

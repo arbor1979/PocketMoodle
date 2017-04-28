@@ -97,10 +97,10 @@ public class ContactsMember implements Serializable,Cloneable {
 	}
 	
 	public ContactsMember(JSONObject jo){
-		number = jo.optString("编号");
+		number = jo.optString("id");
 		studentID = jo.optString("学号");
 		password = jo.optString("密码");
-		name = jo.optString("姓名");
+		name = jo.optString("fullname");
 		seatNumber = jo.optString("座号");
 		gender = jo.optString("性别");
 		stuPhone = jo.optString("学生电话");
@@ -114,7 +114,7 @@ public class ContactsMember implements Serializable,Cloneable {
 			remark="";
 		stuStatus = jo.optString("学生状态");
 		userNumber = jo.optString("用户唯一码");
-		userImage = jo.optString("用户头像");
+		userImage = jo.optString("profileimageurl");
 		XingMing=jo.optString("XingMing");
 		userGrade=jo.optString("用户评级");
 		firstloginTime=jo.optString("首次登录");

@@ -8,8 +8,6 @@ import java.util.Map;
 import net.minidev.json.JSONValue;
 import net.minidev.json.parser.ParseException;
 
-import org.apache.http.client.HttpClient;
-
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -40,10 +38,10 @@ import com.dandian.pocketmoodle.db.DatabaseHelper;
 
 
 public class CampusApplication extends Application {
-	private HttpClient httpClient;
-	private Map<String,ContactsMember> linkManDic;//ËùÓÐÁªÏµÈË
-	private List<ContactsFriends>  linkGroupList;//ÁªÏµÈË×é
-	private Map<String,List<Student>>  studentDic;//Ëù´øÑ§Éú
+
+	private Map<String,ContactsMember> linkManDic;
+	private List<ContactsFriends>  linkGroupList;
+	private Map<String,List<Student>>  studentDic;
 	private User loginUserObj; 
 	private DatabaseHelper database;
 	
@@ -250,24 +248,11 @@ public class CampusApplication extends Application {
 		AQUtility.cleanCache(AQUtility.getCacheDir(this, AQuery.CACHE_DEFAULT), 0, 0);
 		BitmapAjaxCallback.clearCache();
 		FileUtility.deleteFileFolder(FileUtility.getDiskCacheDir());
-		//FileUtility.deleteFileFolder(FileUtility.creatSDDir("Ïà²á"));
-		//FileUtility.deleteFileFolder(FileUtility.creatSDDir("¿Î¼þ"));
+		//FileUtility.deleteFileFolder(FileUtility.creatSDDir("ï¿½ï¿½ï¿½"));
+		//FileUtility.deleteFileFolder(FileUtility.creatSDDir("ï¿½Î¼ï¿½"));
 	
 		Runtime.getRuntime().gc();
-		this.shutdownHttpClient();
 		
-	}
-	
-
-	private void shutdownHttpClient() {
-		if (httpClient != null && httpClient.getConnectionManager() != null) {
-			httpClient.getConnectionManager().shutdown();
-		}
-	}
-
-
-	public HttpClient getHttpClient() {
-		return httpClient;
 	}
 
 	public static String getVersion() {

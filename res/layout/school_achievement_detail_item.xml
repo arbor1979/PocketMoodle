@@ -40,7 +40,7 @@
         
         android:gravity="right"
         android:padding="6.0dip"
-        android:textColor="@color/topbar_background" />
+        />
 
     <TextView
         android:id="@+id/tv_right"
@@ -48,8 +48,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         android:layout_marginTop="5dp"
-        
         android:gravity="left"
-        android:padding="6.0dip" />
+        android:padding="6.0dip"
+         />
+
 </LinearLayout>
 </LinearLayout>

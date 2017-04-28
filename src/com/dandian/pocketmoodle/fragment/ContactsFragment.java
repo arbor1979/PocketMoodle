@@ -1,8 +1,6 @@
 package com.dandian.pocketmoodle.fragment;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -10,11 +8,11 @@ import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,18 +32,15 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.androidquery.callback.ImageOptions;
-import com.dandian.pocketmoodle.CampusApplication;
 import com.dandian.pocketmoodle.R;
 import com.dandian.pocketmoodle.activity.ChatMsgActivity;
 import com.dandian.pocketmoodle.activity.ShowPersonInfo;
-import com.dandian.pocketmoodle.db.DatabaseHelper;
-import com.dandian.pocketmoodle.entity.ContactsFriends;
+import com.dandian.pocketmoodle.api.CampusAPI;
+import com.dandian.pocketmoodle.base.Constants;
 import com.dandian.pocketmoodle.entity.ContactsMember;
-import com.dandian.pocketmoodle.entity.User;
 import com.dandian.pocketmoodle.util.AppUtility;
 import com.dandian.pocketmoodle.util.ExpressionUtil;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
+import com.dandian.pocketmoodle.util.PrefUtility;
 /**
  * 
  *  #(c) ruanyun PocketCampus <br/>
@@ -70,13 +65,10 @@ public class ContactsFragment extends Fragment {
 	private AQuery aq;
 	private static final String TAG = "ContactsFragment";
 	
-	private PinyinComparator pinyinComparator;
 	public List<ContactsMember> memberList;
 	public Map<String,String> chatFriendMap;
 	static Dialog mLoadingDialog = null;
-	private Dao<User, Integer> userDao;
-	DatabaseHelper database;
-	private User user;
+
 	@SuppressLint("HandlerLeak")
 	public Handler mHandler = new Handler(){
 
@@ -84,35 +76,57 @@ public class ContactsFragment extends Fragment {
 		public void handleMessage(Message msg) {
 			switch(msg.what){
 			case 0 :
-				initLayout.setVisibility(View.GONE);
-				expandableListView.setVisibility(View.VISIBLE);
-				initContent();
-				
-				
+				showProgress(false);
+	
+				String result = msg.obj.toString();
+				if (AppUtility.isNotEmpty(result)) 
+				{
+					try 
+					{
+						JSONObject jo = new JSONObject(result);
+						String res = jo.optString("结果");
+						if (res.equals("失败")) {
+							AppUtility.showToastMsg(getActivity(), jo.optString("error"));
+						} 
+						else 
+						{
+							groupList.clear();
+							childList.clear();
+							memberList.clear();
+							JSONArray ja=jo.optJSONArray("groupName");
+							for(int i=0;i<ja.length();i++)
+							{
+								String groupName=ja.getString(i);
+								groupList.add(groupName);
+								JSONArray memberArray=jo.optJSONArray(groupName);
+								List<ContactsMember> listMember = new ArrayList<ContactsMember>();
+								for(int j=0;j<memberArray.length();j++)
+								{
+									JSONObject memberItem=memberArray.getJSONObject(j);
+									ContactsMember contactsMember=new ContactsMember(memberItem);
+									listMember.add(contactsMember);
+									memberList.add(contactsMember);
+								}
+								childList.add(listMember);
+								
+							}
+							initContent();
+						}
+					}
+					catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}
 				break;
+				
 				default:
 					break;
 			}
 		}
 		
 	};
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		user=((CampusApplication)getActivity().getApplicationContext()).getLoginUserObj();
 
-		Log.d(TAG, "----------------onCreate is running------------");
-		
-
-	}
 	
-	private DatabaseHelper getHelper() {
-		if (database == null) {
-			database = OpenHelperManager.getHelper(getActivity(), DatabaseHelper.class);
-
-		}
-		return database;
-	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -121,72 +135,37 @@ public class ContactsFragment extends Fragment {
 		expandableListView = (ExpandableListView)localView.findViewById(R.id.contacts);
 		initLayout = (LinearLayout) localView.findViewById(R.id.initlayout);
 		
-		expandableListView.setVisibility(View.GONE);
-		initLayout.setVisibility(View.VISIBLE);
-		
-		
-		Thread thread = new Thread(){
-
-			@Override
-			public void run() {
-				query();
-				Message msg = new Message();
-				msg.what = 0;
-				
-				mHandler.sendMessage(msg);
-			}
-			
-		};
-		thread.start();
-		return localView;
-	}
-
-	/**
-	 * 功能描述:  	查询联系人数据
-	 *
-	 * @author zhuliang  2013-12-13 下午5:01:06
-	 *
-	 */
-	private void query() {
-		Log.d(TAG, "------------------query refresh is running----------------");
 		groupList = new ArrayList<String>();
 		childList = new ArrayList<List<ContactsMember>>();
 		memberList = new ArrayList<ContactsMember>();
-		String userNumber = user.getUserNumber();
-		try {
-		
-			//searchChatContent();
-			
-				//List<ContactsFriends> friendsList = contactsFriendsDao.queryForAll();
-				List<ContactsFriends> friendsList=((CampusApplication)getActivity().getApplicationContext()).getLinkGroupList();
-				for (ContactsFriends contactsFriends : friendsList) {
-					String friendsName = contactsFriends.getFriendsName();
-					String friendsMember = contactsFriends.getFriendsMember();
-					JSONArray jaFriends = new JSONArray(friendsMember);
-					List<ContactsMember> listMember = new ArrayList<ContactsMember>();
-					if (jaFriends != null && jaFriends.length() > 0) {
-						for (int i = 0; i < jaFriends.length(); i++) {
-							String str = jaFriends.optString(i);
-							if (!str.equals(userNumber)) {
-								
-								ContactsMember contactsMember=((CampusApplication)getActivity().getApplicationContext()).getLinkManDic().get(str);
-								listMember.add(contactsMember);
-								memberList.add(contactsMember);
-								
-							}
-						}
-					}
-					groupList.add(friendsName);
-					pinyinComparator = new PinyinComparator();
-					Collections.sort(listMember, pinyinComparator);
-					childList.add(listMember);
-				}
-			
-			
-
-		} catch (JSONException e) {
-			e.printStackTrace();
+		getContracts();
+		initContent();
+		return localView;
+	}
+	
+	private void showProgress(boolean progress) {
+		if (progress) {
+			expandableListView.setVisibility(View.GONE);
+			initLayout.setVisibility(View.VISIBLE);
+		} else {
+			expandableListView.setVisibility(View.VISIBLE);
+			initLayout.setVisibility(View.GONE);
 		}
+	}
+	public void getContracts()
+	{
+		showProgress(true);
+		String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
+		JSONObject jo = new JSONObject();
+		try {
+			jo.put("用户较验码", checkCode);
+			jo.put("function", "getContacts");
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
+		CampusAPI.httpPostToDandian(jo, mHandler, 0);
+			
+		
 	}
 	
 	public class PinyinComparator implements Comparator<ContactsMember> {
@@ -282,7 +261,7 @@ public class ContactsFragment extends Fragment {
 						.get(childPosition);
 				aq = new AQuery(getActivity());
 				if (contactsMember != null) {
-					String toid = contactsMember.getUserNumber();
+					String toid = contactsMember.getNumber();
 					String url = contactsMember.getUserImage();
 					
 					if(toid != null && !toid.trim().equals("") && map!=null && map.containsKey(toid)){
@@ -304,26 +283,13 @@ public class ContactsFragment extends Fragment {
 					options.fallback = R.drawable.man;
 					aq.id(holder.photo).image(url, options);
 					holder.name.setText(contactsMember.getName().trim());
-					String groupName=this.groupList.get(groupPosition);
-					for(int i=0;i<contactsMember.getKechengArray().size();i++)
-					{
-						if(contactsMember.getKechengArray().get(i).equals(groupName))
-						{
-							String role=contactsMember.getRoleArray().get(i);
-							if(role.indexOf("教师")>=0)
-								role=getString(R.string.teacher);
-							else
-								role=getString(R.string.student);
-							holder.name.setText(holder.name.getText()+"("+role+")");
-							break;
-						}
-					}
+					
 					holder.group.setOnClickListener(new OnClickListener() {
 	
 						@Override
 						public void onClick(View v) {
 							Intent intent = new Intent(getActivity(),ChatMsgActivity.class);
-							intent.putExtra("toid", contactsMember.getUserNumber());
+							intent.putExtra("toid", contactsMember.getNumber());
 							intent.putExtra("type", "消息");
 							intent.putExtra("toname", contactsMember.getName());
 							intent.putExtra("userImage", contactsMember.getUserImage());
@@ -338,7 +304,7 @@ public class ContactsFragment extends Fragment {
 							
 								Intent intent = new Intent(getActivity(),
 										ShowPersonInfo.class);
-								intent.putExtra("studentId", contactsMember.getUserNumber());
+								intent.putExtra("studentId", contactsMember.getNumber());
 								intent.putExtra("userImage", contactsMember.getUserImage());
 								startActivity(intent);
 							

@@ -45,7 +45,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:drawableTop="@drawable/bottom_course_selector"
-                android:text="@string/course"
+                android:text="@string/my"
                 android:textSize="@dimen/text_size_xmicro" />
         </FrameLayout>
 

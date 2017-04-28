@@ -7,6 +7,8 @@ import com.dandian.pocketmoodle.fragment.SchoolAchievementFragment;
 import com.dandian.pocketmoodle.fragment.SchoolBlogFragment;
 import com.dandian.pocketmoodle.fragment.SchoolNoticeFragment;
 import com.dandian.pocketmoodle.fragment.SchoolQuestionnaireFragment;
+import com.dandian.pocketmoodle.fragment.SchoolSectionFragment;
+import com.dandian.pocketmoodle.fragment.SchoolTreeFragment;
 import com.dandian.pocketmoodle.fragment.SchoolWorkAttendanceFragment;
 import com.dandian.pocketmoodle.fragment.SubjectFragment;
 
@@ -30,7 +32,8 @@ public class SchoolActivity extends FragmentActivity {
 		TemplateNameS.add("调查问卷");
 		TemplateNameS.add("日历");
 		TemplateNameS.add("博客");
-		
+		TemplateNameS.add("树状列表");
+		TemplateNameS.add("课程小节");
 	}
 
 	@Override
@@ -71,6 +74,11 @@ public class SchoolActivity extends FragmentActivity {
 			break;
 		case 5:
 			fragment = SchoolBlogFragment.newInstance(title,interfaceName,display);
+			break;
+		case 6:
+			fragment = new SchoolTreeFragment(title,interfaceName);
+		case 7:
+			fragment = new SchoolSectionFragment(title,interfaceName);
 			break;
 		}
 		if(getSupportFragmentManager().findFragmentById(
