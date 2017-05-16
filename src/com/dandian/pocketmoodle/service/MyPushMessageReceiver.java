@@ -2,10 +2,9 @@ package com.dandian.pocketmoodle.service;
 
 import java.sql.SQLException;
 import java.util.List;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -14,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.baidu.android.pushservice.PushMessageReceiver;
 import com.dandian.pocketmoodle.CampusApplication;
 import com.dandian.pocketmoodle.R;
@@ -34,6 +32,7 @@ import com.j256.ormlite.dao.Dao;
 /**
  * Push消息处理receiver
  */
+@SuppressLint("NewApi")
 public class MyPushMessageReceiver extends PushMessageReceiver {
 	/** TAG to Log */
 	public static final String TAG = PushMessageReceiver.class.getSimpleName();
@@ -263,15 +262,7 @@ public class MyPushMessageReceiver extends PushMessageReceiver {
 			        builder.build();
 			        Notification notification = builder.getNotification();
 			        mNotificationManager.notify(1, notification);
-			        
-			        /*
-					notification.setLatestEventInfo(context,contentText, toname+":"+content,
-					contentIntent);
-					notification.flags|=Notification.FLAG_AUTO_CANCEL;
-					notification.defaults = Notification.DEFAULT_SOUND;
-					//用mNotificationManager的notify方法通知用户生成标题栏消息通知
-					mNotificationManager.notify(1, notification);
-					*/
+			    
 				}
 				else
 				{

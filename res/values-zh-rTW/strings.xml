@@ -339,4 +339,5 @@
        <string name="participants">成員</string>
        <string name="grades">成績</string>
        <string name="notes">筆記</string>
+       <string name="backgrounddownload">後臺下載中。。。</string>
 </resources>

@@ -2,15 +2,11 @@ package com.dandian.pocketmoodle.util;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -27,17 +23,19 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Application;
+import android.app.DownloadManager;
+import android.app.DownloadManager.Request;
 import android.app.KeyguardManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -53,7 +51,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.dandian.pocketmoodle.R;
-import com.dandian.pocketmoodle.activity.HomeActivity;
 import com.dandian.pocketmoodle.activity.LoginActivity;
 import com.dandian.pocketmoodle.base.Constants;
 import com.dandian.pocketmoodle.service.Alarmreceiver;
@@ -70,7 +67,7 @@ public class AppUtility {
 	public static DisplayImageOptions headOptions;
 	
 	public static void setViewHeightBasedOnChildren(ExpandableListView listView) {
-		// ï¿½ï¿½È¡ListViewï¿½ï¿½Ó¦ï¿½ï¿½Adapter
+
 		ListAdapter listAdapter = listView.getAdapter();
 		if (listAdapter == null) {
 			// pre-condition
@@ -78,17 +75,15 @@ public class AppUtility {
 		}
 
 		int totalHeight = 0;
-		for (int i = 0, len = listAdapter.getCount(); i < len; i++) { // listAdapter.getCount()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿
+		for (int i = 0, len = listAdapter.getCount(); i < len; i++) { 
 			View listItem = listAdapter.getView(i, null, listView);
-			listItem.measure(0, 0); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½View ï¿½Ä¿ï¿½ï¿½
-			totalHeight += listItem.getMeasuredHeight(); // Í³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü¸ß¶ï¿½
+			listItem.measure(0, 0); 
+			totalHeight += listItem.getMeasuredHeight(); 
 		}
 
 		ViewGroup.LayoutParams params = listView.getLayoutParams();
 		params.height = totalHeight
 				+ (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-		// listView.getDividerHeight()ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Õ¼ï¿½ÃµÄ¸ß¶ï¿½
-		// params.heightï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ListViewï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Òªï¿½Ä¸ß¶ï¿½
 		listView.setLayoutParams(params);
 	}
 
@@ -121,14 +116,7 @@ public class AppUtility {
 		listView.setLayoutParams(params);
 	}
 
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½
-	 * 
-	 * @author zhuliang 2013-12-11 ï¿½ï¿½ï¿½ï¿½7:26:42
-	 * 
-	 * @param email
-	 * @return
-	 */
+	
 	public static final boolean checkEmail(String email) {
 		Pattern pattern = Pattern
 				.compile("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$");
@@ -138,15 +126,7 @@ public class AppUtility {
 		}
 		return false;
 	}
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ÐµÄ´ï¿½Ð¡
-	 *
-	 * @author linrr  2014-1-25 ï¿½ï¿½ï¿½ï¿½11:48:24
-	 * 
-	 * @param f
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public static long getFileSize(File f) throws Exception {
 		long size = 0;
 		File flist[] = f.listFiles();
@@ -159,15 +139,7 @@ public class AppUtility {
 		}
 		return size;
 	}
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½Toastï¿½ï¿½Ê¾
-	 *
-	 * @author linrr  2014-1-25 ï¿½ï¿½ï¿½ï¿½11:32:21
-	 * 
-	 * @param context
-	 * @param msg
-	 * @param duration
-	 */
+	
 	public static void showToast(Context context, String msg, int duration) {
         // if (mToast != null) {
         // mToast.cancel();
@@ -185,14 +157,7 @@ public class AppUtility {
 	   if(mToast!=null)
 		   mToast.cancel();
    }
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½
-	 * 
-	 * @author zhuliang 2013-12-11 ï¿½ï¿½ï¿½ï¿½7:40:38
-	 * 
-	 * @param phone
-	 * @return
-	 */
+	
 	public static final boolean checkPhone(String phone) {
 		Pattern pattern = Pattern
 				.compile("^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$");
@@ -238,18 +203,13 @@ public class AppUtility {
 		return context;
 	}
 
-	/**
-	 * ï¿½ï¿½È¡sdï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
-	 * 
-	 * @return
-	 */
 	@SuppressLint("SdCardPath")
 	public static String getSDPath() {
 		File sdDir = null;
 		boolean sdCardExist = Environment.getExternalStorageState().equals(
-				android.os.Environment.MEDIA_MOUNTED); // ï¿½Ð¶ï¿½sdï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½
+				android.os.Environment.MEDIA_MOUNTED); 
 		if (sdCardExist) {
-			sdDir = Environment.getExternalStorageDirectory();// ï¿½ï¿½È¡ï¿½ï¿½Ä¿Â¼
+			sdDir = Environment.getExternalStorageDirectory();
 		}
 		return sdDir.toString();
 	}
@@ -274,21 +234,12 @@ public class AppUtility {
 		}
 	}
 
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½UUID
-	 * 
-	 * @return
-	 */
+	
 	public static String UUIDGenerator() {
 		return UUID.randomUUID().toString().replaceAll("-", "");
 	}
 
-	/**
-	 * MD5ï¿½ï¿½ï¿½ï¿½
-	 * 
-	 * @param str
-	 * @return
-	 */
+	
 	public static String MD5Encode(String str) {
 		MessageDigest md5 = null;
 		try {
@@ -317,24 +268,12 @@ public class AppUtility {
 		return hexValue.toString().substring(8, 24);
 	}
 
-	/**
-	 * ï¿½Ð¶ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½ï¿½ï¿½
-	 * 
-	 * @param str
-	 * @return
-	 */
+	
 	public static boolean isNumeric(String str) {
 		Pattern pattern = Pattern.compile("[0-9]*");
 		return pattern.matcher(str).matches();
 	}
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ð¡×ªï¿½ï¿½ï¿½ï¿½MB,KB,GBï¿½ï¿½Ê½
-	 *
-	 * @author linrr  2014-1-23 ï¿½ï¿½ï¿½ï¿½3:41:07
-	 * 
-	 * @param size
-	 * @return
-	 */
+	
 	public static int formetFileSize(long size){
 		String length_display = null;
 		int b_size = 0;
@@ -366,13 +305,7 @@ public class AppUtility {
 			return b_size;
 		}
 
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ²ï¿½Ï¨ï¿½ï¿½
-	 * 
-	 * @param context
-	 * @param on
-	 *            ï¿½Ç·ï¿½ï¿½ï¿½
-	 */
+	
 	@SuppressLint("Wakelock")
 	@SuppressWarnings({ "deprecation" })
 	public static void keepScreenOn(Context context, boolean on) {
@@ -456,12 +389,7 @@ public class AppUtility {
 				.setPositiveButton(R.string.go, null).show();
 	}
 
-	/**
-	 * ï¿½ï¿½ï¿½IPï¿½ï¿½Ö·ï¿½Ç·ï¿½ï¿½ï¿½È·
-	 * 
-	 * @param ip
-	 * @return
-	 */
+	
 	public static boolean checkIPAddress(String ip) {
 		Pattern pattern = Pattern
 				.compile("\\b((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\.((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\.((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\.((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\b");
@@ -469,14 +397,7 @@ public class AppUtility {
 		return matcher.matches();
 	}
 
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½×ªï¿½ï¿½int
-	 * 
-	 * @author yanzy 2013-11-26 ï¿½ï¿½ï¿½ï¿½12:02:05
-	 * 
-	 * @param str
-	 * @return
-	 */
+	
 	public static int parseInt(String str) {
 		if (!"".equals(str) && !"null".equals(str) && str != null
 				&& isNumeric(str)) {
@@ -495,14 +416,7 @@ public class AppUtility {
 		}
 	}
 
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½Ð¶ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½
-	 * 
-	 * @author yanzy 2013-11-26 ï¿½ï¿½ï¿½ï¿½1:02:37
-	 * 
-	 * @param str
-	 * @return
-	 */
+	
 	public static boolean isNotEmpty(String str) {
 		if (str != null && !"".equals(str) && !"null".equals(str)) {
 			return true;
@@ -532,13 +446,7 @@ public class AppUtility {
 		return text;
 	}
 	
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-	 *
-	 * @author yanzy  2013-12-26 ï¿½ï¿½ï¿½ï¿½12:12:28
-	 * 
-	 * @return
-	 */
+	
 	public static boolean isInitBaseData(){
 //		String init_flag = PrefUtility.get(Constants.PREF_INIT_BASE_FLAG, "");
 //		String userNumber = PrefUtility.get(Constants.PREF_USER_NUNMBER, "");
@@ -552,13 +460,7 @@ public class AppUtility {
 		return PrefUtility.getBoolean(Constants.PREF_INIT_BASEDATE_FLAG, false);
 	}
 	
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½
-	 *
-	 * @author yanzy  2013-12-26 ï¿½ï¿½ï¿½ï¿½12:12:28
-	 * 
-	 * @return
-	 */
+	
 	public static boolean isInitContactData(){
 //		String init_flag = PrefUtility.get(Constants.PREF_INIT_CONTACT_FLAG, "");
 //		String userNumber = PrefUtility.get(Constants.PREF_USER_NUNMBER, "");
@@ -575,18 +477,11 @@ public class AppUtility {
 		return PrefUtility.getBoolean(Constants.PREF_INIT_CONTACT_FLAG, false);
 	}
 	
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½È¡ï¿½ï¿½ï¿½Úºï¿½ï¿½ï¿½ï¿½ï¿½
-	 *
-	 * @author shengguo  2014-5-10 ï¿½ï¿½ï¿½ï¿½1:52:11
-	 * 
-	 * @param date
-	 * @return
-	 */
+	
 	public static String getWeekAndDate(Date date){
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.SIMPLIFIED_CHINESE);
 		String time = sdf.format(date);
-		String[] weekDays = {"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½","ï¿½ï¿½ï¿½ï¿½Ò»","ï¿½ï¿½ï¿½Ú¶ï¿½","ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½","ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½","ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½","ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"};
+		String[] weekDays = {"ÐÇÆÚÈÕ","ÐÇÆÚÒ»","ÐÇÆÚ¶þ","ÐÇÆÚÈý","ÐÇÆÚËÄ","ÐÇÆÚÎå","ÐÇÆÚÁù"};
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)-1;
@@ -597,14 +492,7 @@ public class AppUtility {
 		return time +" "+ weekDays[dayOfWeek];
 	}
 	
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½È¡ï¿½ï¿½Ö±ï¿½Ä±ï¿½
-	 *
-	 * @author zhuliang  2014-1-11 ï¿½ï¿½ï¿½ï¿½3:34:58
-	 * 
-	 * @param text
-	 * @return
-	 */
+	
 	public static String getVerticalText(String text){
 		StringBuffer stringBuffer = new StringBuffer();  
         if (text != null && text.length() > 0) {  
@@ -616,14 +504,7 @@ public class AppUtility {
 	    return stringBuffer.toString();
 	}
 	
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½Ó¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
-	 *
-	 * @author shengguo  2014-4-28 ï¿½ï¿½ï¿½ï¿½2:51:46
-	 * 
-	 * @param context
-	 * @param exception
-	 */
+	
 	public static void showErrorToast(Context context,String exception){
 		String string = exception;
 		Log.d(TAG, "e----->" + exception);
@@ -633,24 +514,21 @@ public class AppUtility {
 		exception = exception.substring(exception.lastIndexOf(".") + 1,
 				exception.length());
 		if (exception.equals("ConnectTimeoutException")) {
-			string = "ï¿½ï¿½ï¿½Ó³ï¿½Ê±!";
+			string = "Á¬½Ó³¬Ê±!";
 		}
 		if (exception.equals("IllegalArgumentException")) {
-			string = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½!";
+			string = "·þÎñÆ÷µØÖ·´íÎó!";
 		}
 		if (exception.equals("SocketTimeoutException")) {
-			string = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½Ó¦!";
+			string = "·þÎñÆ÷Î´ÏìÓ¦!";
 		}
 		if (exception.equals("HttpHostConnectException")) {
-			string = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!";
+			string = "Çë¼ì²éÍøÂçÁ¬½Ó!";
 		}
 		if (exception.equals("UnknownHostException")) {
-			string = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
+			string = "·þÎñÆ÷ÎÞ·¨·ÃÎÊ£¬Çë¼ì²éÍøÂçÁ¬½Ó";
 		}
-		if (exception.indexOf("ï¿½ï¿½ï¿½Âµï¿½Â¼")>-1 || exception.indexOf("relogin")>-1) {
-			string = exception;
-			reLogin();
-		}
+		
 		AppUtility.showToastMsg(context, string,1);
 	}
 	private static void reLogin()
@@ -661,7 +539,7 @@ public class AppUtility {
 				| Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 	}
-	//ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Ì¨
+
 	public static boolean isApplicationBroughtToBackground(final Context context) { 
 
 	    ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE); 
@@ -683,7 +561,7 @@ public class AppUtility {
 	    return false; 
 
 	}
-	//ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	
 	public static boolean isLockScreen(final Context context) { 
 		KeyguardManager kgm = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         if(kgm.inKeyguardRestrictedInputMode())
@@ -700,12 +578,12 @@ public class AppUtility {
 		  
 		  public void onLoadComplete(SoundPool soundPool, int sampleId, int status)
 		  {
-			  sp.play(sampleId,     //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´
-			        1,         //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-			        1,         //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-			        0,             //ï¿½ï¿½ï¿½È¼ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½
-			        0,         //Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½Ç²ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½-1ï¿½ï¿½ï¿½ï¿½Ô¶Ñ­ï¿½ï¿½
-			        1);            //ï¿½Ø·ï¿½ï¿½Ù¶È£ï¿½0.5-2.0Ö®ï¿½ä¡£1Îªï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½
+			  sp.play(sampleId,     //ÉùÒô×ÊÔ´
+			        1,         //×óÉùµÀ
+			        1,         //ÓÒÉùµÀ
+			        0,             //ÓÅÏÈ¼¶£¬0×îµÍ
+			        0,         //Ñ­»·´ÎÊý£¬0ÊÇ²»Ñ­»·£¬-1ÊÇÓÀÔ¶Ñ­»·
+			        1);            //»Ø·ÅËÙ¶È£¬0.5-2.0Ö®¼ä¡£1ÎªÕý³£ËÙ¶È
 			  
 		  }
 		  
@@ -723,19 +601,13 @@ public class AppUtility {
 		float scale = context.getResources().getDisplayMetrics().density;  
         return Pix/scale; 
 	}
-	/**
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:ï¿½ï¿½ï¿½ï¿½ï¿½Î³ï¿½ï¿½ï¿½ï¿½ï¿½
-	 * 
-	 * @author shengguo 2014-5-24 ï¿½ï¿½ï¿½ï¿½5:17:18
-	 * 
-	 */
 	
 	public static void beginReminder(Context ct) {
 		Intent intent = new Intent(ct, Alarmreceiver.class);
 		intent.setAction("reminderMeClass");
 		PendingIntent sender = PendingIntent.getBroadcast(ct,
 				0, intent, 0);
-		AlarmManager am = (AlarmManager) ct.getSystemService(Activity.ALARM_SERVICE);// 24Ð¡Ê±Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½ï¿½ï¿½Í£ï¿½Ä·ï¿½ï¿½Í¹ã²¥
+		AlarmManager am = (AlarmManager) ct.getSystemService(Activity.ALARM_SERVICE);
 		am.cancel(sender);
 		if(PrefUtility.getBoolean("booleanReminderDayClass", true))
 		{
@@ -750,7 +622,7 @@ public class AppUtility {
 				dt=DateHelper.getStringDate(dtStr,pattern);
 			}
 			
-			// ï¿½ï¿½Ê¼Ê±ï¿½ï¿½
+			// 
 			long firstime = dt.getTime();
 			am.setRepeating(AlarmManager.RTC_WAKEUP, firstime,
 					24*60*60*1000,sender);
@@ -768,7 +640,7 @@ public class AppUtility {
 				0, intent, 0);
 		AlarmManager am = (AlarmManager) ct.getSystemService(Activity.ALARM_SERVICE);
 		am.cancel(sender);
-		if(userType.equals("Ñ§ï¿½ï¿½"))
+		if(userType.equals("Ñ§Éú"))
 		{
 			String dtStr=DateHelper.getToday("yyyy-MM-dd HH:00:00");
 			Date dt=DateHelper.getStringDate(dtStr,null);
@@ -797,10 +669,10 @@ public class AppUtility {
     }  
 	public static List getHtmlTagContent(String html,String tagname) { 
         List resultList = new ArrayList(); 
-        Pattern p = Pattern.compile("<"+tagname+">([^</"+tagname+">]*)");//Æ¥ï¿½ï¿½<tagname>ï¿½ï¿½Í·ï¿½ï¿½</tagname>ï¿½ï¿½Î²ï¿½ï¿½ï¿½Äµï¿½ 
-        Matcher m = p.matcher(html );//ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ 
+        Pattern p = Pattern.compile("<"+tagname+">([^</"+tagname+">]*)"); 
+        Matcher m = p.matcher(html ); 
         while (m.find()) { 
-            resultList.add(m.group(1));//ï¿½ï¿½È¡ï¿½ï¿½Æ¥ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ 
+            resultList.add(m.group(1)); 
         } 
         return resultList; 
     } 
@@ -809,7 +681,7 @@ public class AppUtility {
 	{
         headOptions =
                 new DisplayImageOptions.Builder()
-                        .cacheOnDisc(true)//Í¼Æ¬ï¿½æ±¾ï¿½ï¿½
+                        .cacheOnDisc(true)
                         .cacheInMemory(false)
                         .showImageOnFail(R.drawable.ic_launcher)
                                 //.displayer(new FadeInBitmapDisplayer(50))
@@ -817,10 +689,10 @@ public class AppUtility {
                         .bitmapConfig(Bitmap.Config.RGB_565)
                         .imageScaleType(ImageScaleType.EXACTLY)
                         .build();
-		//ï¿½ï¿½Ê¼ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½Ø¿ï¿½
+		
 				DisplayImageOptions defaultOptions =
 					        new DisplayImageOptions.Builder()
-					            .cacheOnDisc(true)//Í¼Æ¬ï¿½æ±¾ï¿½ï¿½
+					            .cacheOnDisc(true)
 					            .cacheInMemory(false)
 					            .showImageOnFail(R.drawable.empty_photo)
 					            //.displayer(new FadeInBitmapDisplayer(50))
@@ -833,7 +705,7 @@ public class AppUtility {
 					    ImageLoaderConfiguration config =
 					        new ImageLoaderConfiguration.Builder(ctx)
 					    
-					    //.memoryCacheExtraOptions(480, 800) // max width, max heightï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ó³¤¿ï¿½  
+					    //.memoryCacheExtraOptions(480, 800) //   
 					    //.discCacheExtraOptions(480, 800, CompressFormat.JPEG, 75, null) 
 					    //.threadPriority(Thread.NORM_PRIORITY - 2)  
 		                //.denyCacheImageMultipleSizesInMemory()  
@@ -874,27 +746,32 @@ public class AppUtility {
 		
 		return obj;
 	}
-	public static boolean responseHasError(JSONObject jo)
-	{
-		String loginStatus = jo.optString("ï¿½ï¿½ï¿½");
-		if (loginStatus.equals("Ê§ï¿½ï¿½")) 
-		{
-			AppUtility.showToastMsg(context, jo.optString("errorMsg"),1);
-			return true;
-		}
-		else if(jo.optString("exception")!=null || jo.optString("exception").length()>0)
-		{
-			AppUtility.showErrorToast(context,jo.optString("errorcode"));
-			return true;
-		}
-		return false;
-	}
+	
 	public static void closeInputMethod(View view) {
 	    InputMethodManager imm = (InputMethodManager)view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 	    boolean isOpen = imm.isActive();
 	    if (isOpen) {
-	        // imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);//Ã»ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Ê¾
+
 	        imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 	    }
+	}
+	public static void downloadUrl(String url,File file,Context context)
+	{
+		if(file==null)
+		{
+			String path=FileUtility.creatFileDir("download");
+			String fileName=FileUtility.getUrlRealName(url);
+			String filePath=path+fileName;
+			file = new File(filePath);  
+		}
+		DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);  
+	   	 Uri uri = Uri.parse(url);  
+	   	 Request request = new Request(uri); 
+	   	 request.setDestinationUri(Uri.fromFile(file));
+	   	 //request.setDestinationInExternalFilesDir(context, "", file.getAbsolutePath());
+	   	 request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE|DownloadManager.Request.NETWORK_WIFI);
+	   	 //request.setDestinationInExternalFilesDir(WebSiteActivity.this, null, "PacketCampus");
+	   	 downloadManager.enqueue(request);  
+	   	 AppUtility.showToastMsg(context, context.getString(R.string.backgrounddownload));
 	}
 }

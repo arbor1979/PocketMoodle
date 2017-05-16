@@ -33,7 +33,7 @@ public class Comment implements Serializable{
 		this.posttime = jo.optString("时间");
 		this.content = jo.optString("内容");
 		this.deleteUrl=jo.optString("删除URL");
-		this.usercode=jo.optString("用户唯一码");
+		this.usercode=jo.optString("用户编号");
 		this.reply=jo.optString("回复");
 		this.replyUrl=jo.optString("回复URL");
 		

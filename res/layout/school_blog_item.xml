@@ -44,14 +44,29 @@
                     android:text="阿斯多夫撒"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tv_time"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_weight="1"
-                    android:enabled="false"
-                    android:text="2月2日" />
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:id="@+id/tv_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="1"
+                        android:enabled="false"
+                        android:text="2月2日" />
+
+                    <TextView
+                        android:id="@+id/tv_replys"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:enabled="false"
+                        android:gravity="right" />
+
+                </LinearLayout>
 
             </LinearLayout>
         </LinearLayout>

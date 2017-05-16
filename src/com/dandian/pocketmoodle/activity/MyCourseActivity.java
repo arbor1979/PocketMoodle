@@ -1,8 +1,5 @@
 package com.dandian.pocketmoodle.activity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,26 +11,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -44,9 +32,6 @@ import com.dandian.pocketmoodle.base.Constants;
 import com.dandian.pocketmoodle.entity.User;
 import com.dandian.pocketmoodle.util.AppUtility;
 import com.dandian.pocketmoodle.util.PrefUtility;
-import com.dandian.pocketmoodle.widget.NonScrollableGridView;
-import com.dandian.pocketmoodle.widget.NonScrollableListView;
-import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 /**
  * 
@@ -259,22 +244,22 @@ public class MyCourseActivity extends Activity {
 			else
 				holder.summary.setVisibility(View.GONE);
 			JSONObject options=courseItem.optJSONObject("navOptions");
-			if(options.optBoolean("competencies"))
+			if(options==null || options.optBoolean("competencies"))
 				holder.button1.setVisibility(View.VISIBLE);
 			else
 				holder.button1.setVisibility(View.INVISIBLE);
-			if(options.optBoolean("participants"))
+			if(options==null || options.optBoolean("participants"))
 			{
 				holder.button2.setText(getString(R.string.participants)+"("+courseItem.optString("enrolledusercount")+")");
 				holder.button2.setVisibility(View.VISIBLE);
 			}
 			else
 				holder.button2.setVisibility(View.INVISIBLE);
-			if(options.optBoolean("grades"))
+			if(options==null || options.optBoolean("grades"))
 				holder.button3.setVisibility(View.VISIBLE);
 			else
 				holder.button3.setVisibility(View.INVISIBLE);
-			if(options.optBoolean("notes"))
+			if(options!=null && options.optBoolean("notes"))
 				holder.button4.setVisibility(View.VISIBLE);
 			else
 				holder.button4.setVisibility(View.INVISIBLE);

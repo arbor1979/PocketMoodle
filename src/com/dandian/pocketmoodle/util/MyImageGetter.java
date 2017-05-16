@@ -41,7 +41,7 @@ public class MyImageGetter implements ImageGetter {
 		this.tv = tv;
 		WindowManager wm = (WindowManager) context
                 .getSystemService(Context.WINDOW_SERVICE);
-		 width = wm.getDefaultDisplay().getWidth();
+		 width = wm.getDefaultDisplay().getWidth()*9/10;
 	}
 
 	@Override
@@ -68,9 +68,12 @@ public class MyImageGetter implements ImageGetter {
 			// 如果文件已经存在，直接返�?
 			//Drawable drawable = Drawable.createFromPath(savePath);
 			Drawable drawable=ImageUtility.decodeFile(context,file,width);
+			float rate=((float)width)/drawable.getIntrinsicWidth();
+			int showWidth=width;
+			int showHeight= (int)(drawable.getIntrinsicHeight()*rate);
 			if(drawable!=null){
-				drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
-						drawable.getIntrinsicHeight());
+				drawable.setBounds(0, 0, showWidth,
+						showHeight);
 			}
 			return drawable;
 		}
@@ -134,9 +137,16 @@ public class MyImageGetter implements ImageGetter {
 					fileout.write(buffer);
 				}
 				fileout.flush();
-				
+				fileout.close();
 				//Drawable mDrawable = Drawable.createFromPath(savePath);
 				Drawable mDrawable=ImageUtility.decodeFile(context,file,width);
+				float rate=((float)width)/mDrawable.getIntrinsicWidth();
+				int showWidth=width;
+				int showHeight= (int)(mDrawable.getIntrinsicHeight()*rate);
+				if(mDrawable!=null){
+					mDrawable.setBounds(0, 0, showWidth,
+							showHeight);
+				}
 				return mDrawable;
 			} catch (Exception e) {
 				// TODO: handle exception

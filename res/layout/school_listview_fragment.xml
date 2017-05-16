@@ -7,12 +7,12 @@
     <include layout="@layout/topbar" />
 
     <LinearLayout
+        
         android:id="@+id/content_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" >
-
-        <ListView
+         <ListView
             android:id="@+id/my_listview"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" />
@@ -20,6 +20,7 @@
         <include layout="@layout/list_empty" />
     </LinearLayout>
 
+   
     <!-- 数据加载中提示 -->
 
     <include layout="@layout/list_loading_with_text" />

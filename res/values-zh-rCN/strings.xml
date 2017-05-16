@@ -340,4 +340,5 @@
        <string name="participants">成员</string>
        <string name="grades">成绩</string>
         <string name="notes">笔记</string>
+        <string name="backgrounddownload">后台下载中。。。</string>
 </resources>

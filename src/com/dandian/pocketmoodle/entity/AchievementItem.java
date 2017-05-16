@@ -78,6 +78,7 @@ public class AchievementItem {
 	    private String templateName;
 	    private String templateGrade;
 	    private String theColor;
+	    private String detailTitle;
 		public Achievement(JSONObject jo) {
 			id = jo.optString("编号");
 			icon = jo.optString("图标");
@@ -89,6 +90,15 @@ public class AchievementItem {
 			templateName = jo.optString("模板");
 			templateGrade = jo.optString("模板级别");
 			theColor= jo.optString("颜色");
+			detailTitle=jo.optString("目标标题");
+		}
+
+		public String getDetailTitle() {
+			return detailTitle;
+		}
+
+		public void setDetailTitle(String detailTitle) {
+			this.detailTitle = detailTitle;
 		}
 
 		public String getIcon_link() {

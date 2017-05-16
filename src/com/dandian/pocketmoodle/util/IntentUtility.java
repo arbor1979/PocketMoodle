@@ -63,7 +63,8 @@ public class IntentUtility {
 		String end = url.substring(url.lastIndexOf(".") + 1,url.length()).toLowerCase();
 		if (end==null || end.length()==0)
 			return null;
-		
+		if(end.indexOf("?")>0)
+			end=end.substring(0, end.indexOf("?"));
 		System.out.println("-------------------end----------" + end);
 		/* 依扩展名的类型决定MimeType */
 		if (end.equals("m4a") || end.equals("mp3") || end.equals("mid")

@@ -10,6 +10,7 @@
         android:id="@+id/iv_icon"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_gravity="top"
         android:contentDescription="@null"
         android:src="@drawable/ic_launcher" />
 
@@ -21,15 +22,20 @@
         android:gravity="center"
         android:orientation="vertical" >
 
-       
         <TextView
             android:id="@+id/tv_title"
-            
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2013-2014学期期末考试"
+            android:textSize="@dimen/text_size_normal"
+            android:textStyle="bold" />
+
+		<TextView
+            android:id="@+id/tv_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text_size_small"
             android:text="2013-2014学期期末考试" />
-		
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

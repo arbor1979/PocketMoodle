@@ -25,6 +25,8 @@ public class BlogsItem {
 	private List<Blog> notices;
 	private String rightButton;
 	private String rightButtonUrl;
+	private String topLine1;
+	private String topLine2;
 	public BlogsItem() {
 		super();
 	}
@@ -36,6 +38,24 @@ public class BlogsItem {
 		rightButton=jo.optString("右上按钮");
 		rightButtonUrl=jo.optString("右上按钮URL");
 		notices = getNotices(joArr);
+		topLine1=jo.optString("论坛介绍");
+		topLine2=jo.optString("讨论区数目");
+	}
+
+	public String getTopLine1() {
+		return topLine1;
+	}
+
+	public void setTopLine1(String topLine1) {
+		this.topLine1 = topLine1;
+	}
+
+	public String getTopLine2() {
+		return topLine2;
+	}
+
+	public void setTopLine2(String topLine2) {
+		this.topLine2 = topLine2;
 	}
 
 	public String getRightButton() {

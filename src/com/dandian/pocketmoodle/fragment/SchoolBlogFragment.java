@@ -11,11 +11,16 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,7 +29,9 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.AbsListView.LayoutParams;
 
 import com.androidquery.AQuery;
 import com.androidquery.callback.AbstractAjaxCallback;
@@ -38,10 +45,13 @@ import com.dandian.pocketmoodle.api.CampusException;
 import com.dandian.pocketmoodle.api.CampusParameters;
 import com.dandian.pocketmoodle.api.RequestListener;
 import com.dandian.pocketmoodle.base.Constants;
+import com.dandian.pocketmoodle.entity.AchievementItem;
 import com.dandian.pocketmoodle.entity.Blog;
 import com.dandian.pocketmoodle.entity.BlogsItem;
 import com.dandian.pocketmoodle.util.AppUtility;
 import com.dandian.pocketmoodle.util.Base64;
+import com.dandian.pocketmoodle.util.MyImageGetter;
+import com.dandian.pocketmoodle.util.MyTagHandler;
 import com.dandian.pocketmoodle.util.PrefUtility;
 import com.dandian.pocketmoodle.util.ZLibUtils;
 import com.dandian.pocketmoodle.widget.XListView;
@@ -61,12 +71,13 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 	private LinearLayout failedLayout;
 	private LinearLayout emptyLayout;
 	
-	private String interfaceName,title,display;
+	private String interfaceName,title;
 	private LayoutInflater inflater;
 	private NoticeAdapter adapter;
 	private List<Blog> noticesList=new ArrayList<Blog>();
 
 	private int pagesize=10;
+	private int page=0;
 	AQuery aq;
 	Button btn_right;
 	LinearLayout lyRight;
@@ -82,34 +93,51 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 
 			case 0:
 				showProgress(false);
-			String result = msg.obj.toString();
-			String resultStr=null;
-			byte[] contact64byte = null;
-			if (AppUtility.isNotEmpty(result)) {
-				try {
-					contact64byte = Base64.decode(result.getBytes("GBK"));
-					
-				} catch (UnsupportedEncodingException e) {
-					showFetchFailedView();
-					e.printStackTrace();
-				}
-			}else{
-				showFetchFailedView();
-			}
-			resultStr=ZLibUtils.decompress(contact64byte);
-		
-			if (AppUtility.isNotEmpty(resultStr)) {
-				try {
-					JSONObject jo = new JSONObject(resultStr);
-					String res = jo.optString("结果");
-					if(AppUtility.isNotEmpty(res)){
-						AppUtility.showToastMsg(getActivity(), res);
-					}else{
+				String result = msg.obj.toString();
+				try 
+				{
+					JSONObject jo = new JSONObject(result);
+					if(jo.optString("结果").equals("失败"))
+						AppUtility.showErrorToast(getActivity(),
+								jo.optString("error"));
+					else
+					{
 						final BlogsItem noticesItem = new BlogsItem(jo);
 						Log.d(TAG, "--------noticesItem.getNotices().size():"
 								+ noticesItem.getNotices().size());
 						List<Blog> notices = noticesItem.getNotices();
-						
+						if(noticesItem.getTopLine1()!=null && noticesItem.getTopLine1().length()>0)
+						{
+							TextView tv_summary1=new TextView(getActivity());
+							TextView tv_summary2=new TextView(getActivity());
+							LinearLayout layout=new LinearLayout(getActivity());
+							layout.setOrientation(LinearLayout.VERTICAL);
+							LayoutParams params=new LayoutParams(LayoutParams.MATCH_PARENT,
+									LayoutParams.WRAP_CONTENT);
+							layout.setBackgroundColor(Color.WHITE);
+							layout.setLayoutParams(params);
+							LinearLayout.LayoutParams params1=new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+									LayoutParams.WRAP_CONTENT);
+							params1.setMargins(20,20,20,0);
+							tv_summary1.setLayoutParams(params1);
+							layout.addView(tv_summary1);
+							tv_summary2.setLayoutParams(params1);
+							layout.addView(tv_summary2);
+							tv_summary1.setBackgroundColor(Color.WHITE);
+							tv_summary2.setBackgroundColor(Color.WHITE);
+							tv_summary2.setTextColor(Color.GRAY);
+							tv_summary2.setTextSize(12);
+							tv_summary2.setGravity(Gravity.RIGHT);
+							Spanned spanned = Html.fromHtml(noticesItem.getTopLine1(), new MyImageGetter(getActivity(),tv_summary1), new MyTagHandler(getActivity()));
+							tv_summary1.setText(spanned);
+							tv_summary1.setMovementMethod(LinkMovementMethod.getInstance());
+							if(noticesItem.getTopLine2()!=null && noticesItem.getTopLine2().length()>0)
+								tv_summary2.setText(noticesItem.getTopLine2());
+							myListview.setAdapter(null);
+							myListview.addHeaderView(layout);
+							myListview.setAdapter(adapter);
+							
+						}
 						myListview.stopLoadMore();
 						if(noticesItem.getTitle()!=null && noticesItem.getTitle().length()>0)
 							tvTitle.setText(noticesItem.getTitle());
@@ -133,11 +161,7 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 								public void onClick(View v) {
 									Intent intent =new Intent(getActivity(),SchoolDetailActivity.class);
 									intent.putExtra("templateName", "调查问卷");
-									int pos=interfaceName.indexOf("?");
-									String preUrl=interfaceName;
-									if(pos>-1)
-										preUrl=interfaceName.substring(0, pos);
-									intent.putExtra("interfaceName", preUrl+noticesItem.getRightButtonUrl());
+									intent.putExtra("interfaceName", noticesItem.getRightButtonUrl());
 									intent.putExtra("title", title);
 									intent.putExtra("status", "进行中");
 									intent.putExtra("autoClose", "是");
@@ -147,17 +171,20 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 							});
 						}
 						
-					}
-				} catch (JSONException e) {
-					showFetchFailedView();
-					e.printStackTrace();
-				} 
-			}else{
-				showFetchFailedView();
-			}
-			break;
+						
+						
+					} 
+				}
+				catch (Exception e) {
+					
+					AppUtility.showErrorToast(getActivity(),
+							e.getLocalizedMessage());
+				}
+				break;
 		
-		}
+			
+		
+			}
 		}
 	};
 	public SchoolBlogFragment() {
@@ -179,13 +206,16 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 			Bundle savedInstanceState) {
 		
 		title=getArguments().getString("title");
-		display=getArguments().getString("display");
+		
 		
 		interfaceName=getArguments().getString("interfaceName");
 		this.inflater = inflater;
 		View view = inflater.inflate(R.layout.school_xlistview_fragment,
 				container, false);
-		
+		RelativeLayout nav_bar=(RelativeLayout) view.findViewById(R.id.nav_bar);
+		int color=PrefUtility.getInt(Constants.PREF_THEME_NAVBARCOLOR, 0);
+		if(color!=0)
+			nav_bar.setBackgroundColor(color);
 		aq= new AQuery(view);
 		myListview = (XListView) view.findViewById(R.id.my_listview);
 		myListview.setDivider(getResources().getDrawable(R.color.transparent));
@@ -204,7 +234,7 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 		btnLeft.setCompoundDrawablesWithIntrinsicBounds(
 				R.drawable.bg_btn_left_nor, 0, 0, 0);
 		adapter = new NoticeAdapter();
-		tvTitle.setText(display);
+		tvTitle.setText(title);
 		myListview.setAdapter(adapter);
 		lyLeft.setOnClickListener(new OnClickListener() {
 
@@ -236,47 +266,16 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 	private void getNoticesList(boolean flag)
 	{
 		showProgress(flag);
-		long datatime = System.currentTimeMillis();
-		String checkCode = PrefUtility.get(Constants.PREF_CHECK_CODE, "");
-		JSONObject jo = new JSONObject();
-		Locale locale = getResources().getConfiguration().locale;
-	    String language = locale.getCountry();
+		String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
+		JSONObject jo=null;
 		try {
+			jo = new JSONObject(interfaceName);
 			jo.put("用户较验码", checkCode);
-			jo.put("DATETIME", datatime);
-			jo.put("language", language);
-			jo.put("start", noticesList.size());
-			jo.put("pagesize", pagesize);
+			jo.put("page", page);
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
-		String base64Str = Base64.encode(jo.toString().getBytes());
-		Log.d(TAG, "------->base64Str:" + base64Str);
-		CampusParameters params = new CampusParameters();
-		params.add(Constants.PARAMS_DATA, base64Str);
-		CampusAPI.getSchoolItemZip(params, interfaceName, new RequestListener() {
-
-			@Override
-			public void onIOException(IOException e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onError(CampusException e) {
-				Log.d(TAG, "----response" + e.getMessage());
-
-			}
-
-			@Override
-			public void onComplete(String response) {
-				Log.d(TAG, "----response" + response);
-				Message msg = new Message();
-				msg.what = 0;
-				msg.obj = response;
-				mHandler.sendMessage(msg);
-			}
-		});
+		CampusAPI.httpPostToDandian(jo, mHandler, 0);
 	}
 	
 	/**
@@ -333,6 +332,7 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 				holder.name = (TextView) convertView.findViewById(R.id.tv_name);
 				holder.openDetail=(LinearLayout) convertView.findViewById(R.id.rl_detail);
 				holder.image = (ImageView) convertView.findViewById(R.id.iv_image);
+				holder.replys = (TextView) convertView.findViewById(R.id.tv_replys);
 				
 				convertView.setTag(holder);
 			} else {
@@ -359,8 +359,8 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 
 			holder.name.setText(notice.getPoster());
 			holder.title.setText(notice.getTitle());
-			holder.time.setText(notice.getPosttime()+" "+notice.getComments());
-			
+			holder.time.setText(notice.getPosttime());
+			holder.replys.setText(notice.getComments());
 			AbstractAjaxCallback.setTimeout(30000);
 			String imagurl = notice.getMainImage();
 			Log.d(TAG, "----imagurl:" + imagurl);
@@ -371,32 +371,32 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 			} else {
 				aq.id(holder.image).visibility(View.GONE);
 			}
-			
-			holder.content.setText(notice.getContent());
+			Spanned spanned = Html.fromHtml(notice.getContent(), null,null);
+			holder.content.setText(spanned);
+			//holder.content.setMovementMethod(LinkMovementMethod.getInstance());
+			//holder.content.setText(notice.getContent());
 			//查看详细信息
 			holder.openDetail.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
-					if(notice.getDetailUrl().substring(0, 4).equalsIgnoreCase("http"))
+					if(notice.getDetailUrl()!=null)
 					{
-						Intent contractIntent = new Intent(getActivity(),WebSiteActivity.class);
-						contractIntent.putExtra("url",notice.getDetailUrl());
-						contractIntent.putExtra("title",title+"详情");
-						getActivity().startActivity(contractIntent);
-					}
-					else
-					{
-						Intent intent =new Intent(getActivity(),SchoolDetailActivity.class);
-						intent.putExtra("templateName", "博客");
-						int pos=interfaceName.indexOf("?");
-						String preUrl=interfaceName;
-						if(pos>-1)
-							preUrl=interfaceName.substring(0, pos);
-						intent.putExtra("interfaceName", preUrl+notice.getDetailUrl());
-						intent.putExtra("title", title);
-						intent.putExtra("display", display);
-						startActivityForResult(intent,101);
+						if(notice.getDetailUrl().length()>4 && notice.getDetailUrl().substring(0, 4).equalsIgnoreCase("http"))
+						{
+							Intent contractIntent = new Intent(getActivity(),WebSiteActivity.class);
+							contractIntent.putExtra("url",notice.getDetailUrl());
+							contractIntent.putExtra("title",title+"详情");
+							getActivity().startActivity(contractIntent);
+						}
+						else
+						{
+							Intent intent =new Intent(getActivity(),SchoolDetailActivity.class);
+							intent.putExtra("templateName", "博客");
+							intent.putExtra("interfaceName", notice.getDetailUrl());
+							intent.putExtra("title", title);
+							startActivityForResult(intent,101);
+						}
 					}
 				}
 			});
@@ -411,6 +411,7 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 			ImageView image;
 			TextView content;
 			TextView name;
+			TextView replys;
 			LinearLayout openDetail;
 		}
 	}
@@ -418,6 +419,7 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 	@Override
 	public void onLoadMore() {
 		// TODO Auto-generated method stub
+		page++;
 		getNoticesList(false);
 	}
 	@Override
@@ -430,6 +432,7 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 		switch (resultCode) { //resultCode为回传的标记，我在B中回传的是RESULT_OK
 		case 1:
 			noticesList.clear();
+			page=0;
 			getNoticesList(true);
 		    break;
 		default:

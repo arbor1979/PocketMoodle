@@ -77,7 +77,7 @@ import com.dandian.pocketmoodle.widget.NonScrollableListView;
 public class SchoolBlogDetailFragment extends Fragment {
 	private String TAG = "SchoolNoticeDetailFragment";
 	private Button btnLeft,btnDel;
-	private String title,interfaceName,display;
+	private String title,interfaceName;
 	private LinearLayout loadingLayout;
 	private ScrollView contentLayout;
 	private LinearLayout failedLayout,commentLayout;
@@ -191,11 +191,10 @@ public class SchoolBlogDetailFragment extends Fragment {
 	public SchoolBlogDetailFragment() {
 
 	}
-	public static final Fragment newInstance(String title, String interfaceName,String display){
+	public static final Fragment newInstance(String title, String interfaceName){
     	Fragment fragment = new SchoolBlogDetailFragment();
     	Bundle bundle = new Bundle();
     	bundle.putString("title", title);
-    	bundle.putString("display", display);
     	bundle.putString("interfaceName", interfaceName);
     	fragment.setArguments(bundle);
     	return fragment;
@@ -208,7 +207,6 @@ public class SchoolBlogDetailFragment extends Fragment {
 			Bundle savedInstanceState) {
 		
 		title=getArguments().getString("title");
-		display=getArguments().getString("display");
 		
 		interfaceName=getArguments().getString("interfaceName");
 		View view = inflater.inflate(R.layout.school_blog_detail_fragment,
@@ -231,7 +229,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 		btnLeft.setCompoundDrawablesWithIntrinsicBounds(
 				R.drawable.bg_btn_left_nor, 0, 0, 0);
 
-		aq.id(R.id.tv_title).text(display);
+		aq.id(R.id.tv_title).text(title);
 		aq.id(R.id.layout_btn_left).clicked(new OnClickListener() {
 
 			@Override
@@ -297,10 +295,10 @@ public class SchoolBlogDetailFragment extends Fragment {
 		Spanned spanned = Html.fromHtml(content, new MyImageGetter(getActivity(),contentView), new MyTagHandler(getActivity()));		
 		contentView.setText(spanned);		
 		
-		
+		TextView tv_fujian=aq.id(R.id.tv_fujian).getTextView();
 		if(blog.getFujianList()!=null && blog.getFujianList().size()>0)
 		{
-			contentView.append(getString(R.string.attachment)+"：\r\n");
+			tv_fujian.append(getString(R.string.attachment)+"：\r\n");
 			for(int i=0;i<blog.getFujianList().size();i++)
 			{
 				ImageItem jo;
@@ -313,8 +311,8 @@ public class SchoolBlogDetailFragment extends Fragment {
 			        ss.setSpan(new MyURLSpan(jo.getDownAddress()), 0, ss.length(),
 			                   Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			        
-			        contentView.append(ss);
-			        contentView.append("\r\n\r\n");
+			        tv_fujian.append(ss);
+			        tv_fujian.append("\r\n\r\n");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -325,6 +323,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 
 		}
 		aq.id(R.id.tv_content).getTextView().setMovementMethod(LinkMovementMethod.getInstance());
+		tv_fujian.setMovementMethod(LinkMovementMethod.getInstance());
 		if(rightBtn!=null && rightBtn.length()>0 && rightBtn!="null")
 		{
 			tvRight.setText(rightBtn);
@@ -533,7 +532,8 @@ public class SchoolBlogDetailFragment extends Fragment {
 		    	}
 		    	else
 		    	{
-		    		TabHostActivity.schoolService.downLoadUpdate(mUrl, 1003);
+		    		//TabHostActivity.schoolService.downLoadUpdate(mUrl, 1003);
+		    		AppUtility.downloadUrl(mUrl, file, getActivity());
 		    		
 		    	}
 	        }
@@ -553,18 +553,10 @@ public class SchoolBlogDetailFragment extends Fragment {
 	public void getNoticeDetail(boolean flag) {
 		showProgress(flag);
 		String checkCode=PrefUtility.get(Constants.PREF_CHECK_CODE, "");
-		JSONObject queryJson=AppUtility.parseQueryStrToJson(interfaceName);
-		JSONObject jsonObj = new JSONObject();
+		JSONObject jsonObj=null;
 		try {
+			jsonObj = new JSONObject(interfaceName);
 			jsonObj.put("用户较验码", checkCode);
-			Iterator it = queryJson.keys();
-			while (it.hasNext()) {
-                String key = (String) it.next();
-                if(key.equals("courseId"))
-                	courseId=queryJson.optInt("courseId");
-                String value = queryJson.getString(key); 
-                jsonObj.put(key, value);
-			}
 			
 		} catch (JSONException e1) {
 			e1.printStackTrace();
@@ -604,6 +596,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 				vh.iv_icon=(ImageView)convertView.findViewById(R.id.iv_icon);
 				vh.tv_title=(TextView)convertView.findViewById(R.id.tv_title);
 				vh.tv_left=(TextView)convertView.findViewById(R.id.thieDescription);
+				vh.tv_content=(TextView)convertView.findViewById(R.id.tv_content);
 				convertView.setTag(vh);
 
 			}
@@ -631,8 +624,6 @@ public class SchoolBlogDetailFragment extends Fragment {
 				if(TimeUtility.StrToDate(comment.getPosttime())!=null)
 				{
 					timeStr=TimeUtility.cleverTimeString(comment.getPosttime(),getActivity());
-					if(comment.getReply()!=null && comment.getReply().length()>0)
-						timeStr+=" "+comment.getReply();
 				}
 				else
 					timeStr=comment.getPosttime();
@@ -649,17 +640,26 @@ public class SchoolBlogDetailFragment extends Fragment {
 					Intent intent = new Intent(getActivity(),
 							ShowPersonInfo.class);
 					Comment cm=(Comment)v.getTag();
-					intent.putExtra("studentId", String.valueOf(cm.getId()));
+					intent.putExtra("studentId", String.valueOf(cm.getUsercode()));
 					if(courseId>0)
 						intent.putExtra("courseId", courseId);
 					startActivity(intent);
 				}
 				
 			});
-			
 			vh.tv_title.setText(comment.getUsername());
-			if(comment.getContent().length()>0)
-				vh.tv_title.append(":"+comment.getContent());
+			if(comment.getReply()!=null && comment.getReply().length()>0)
+				vh.tv_title.append(" "+comment.getReply());
+			if(comment.getContent()!=null && comment.getContent().length()>0)
+			{
+				Spanned spanned = Html.fromHtml(comment.getContent(), new MyImageGetter(getActivity(),contentView), new MyTagHandler(getActivity()));		
+				vh.tv_content.setText(spanned);	
+				vh.tv_content.setVisibility(View.VISIBLE);
+				vh.tv_content.setMovementMethod(LinkMovementMethod.getInstance());
+			}
+			else
+				vh.tv_content.setVisibility(View.GONE);
+			
 			
 			convertView.setOnClickListener(new OnClickListener(){
 
@@ -732,6 +732,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 		}
 		public class ViewHolder {
 			public TextView tv_title;
+			public TextView tv_content;
 			public ImageView iv_icon;
 			public TextView tv_left;
 			

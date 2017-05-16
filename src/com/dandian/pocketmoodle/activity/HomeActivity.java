@@ -231,6 +231,8 @@ public class HomeActivity extends Activity {
 					{
 						categoryArray=jo.optJSONArray("课程大类");
 						subCategoryArray=jo.optJSONObject("课程子类");
+						if(subCategoryArray==null)
+							subCategoryArray=new JSONObject();
 						initContent(msg.what);
 					}
 				}
@@ -449,7 +451,7 @@ public class HomeActivity extends Activity {
 					JSONObject courseObj=(JSONObject) v.getTag();
 					Intent intent=new Intent(HomeActivity.this,SchoolDetailActivity.class);
 					intent.putExtra("templateName", "博客");
-					intent.putExtra("interfaceName","?function=getUserInfo&action=courseSummary&courseId="+courseObj.optString("课程编号"));
+					intent.putExtra("interfaceName",courseObj.optString("DetailUrl"));
 					intent.putExtra("title", courseObj.optString("课程名称"));
 					intent.putExtra("display", getString(R.string.course_summary));
 					startActivity(intent);

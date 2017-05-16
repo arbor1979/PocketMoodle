@@ -15,6 +15,7 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +43,7 @@ import com.dandian.pocketmoodle.entity.AchievementItem;
 import com.dandian.pocketmoodle.entity.AchievementItem.Achievement;
 import com.dandian.pocketmoodle.util.AppUtility;
 import com.dandian.pocketmoodle.util.MyImageGetter;
+import com.dandian.pocketmoodle.util.MyTagHandler;
 import com.dandian.pocketmoodle.util.PrefUtility;
 
 /**
@@ -59,9 +61,10 @@ public class SchoolAchievementFragment extends Fragment {
 	private LinearLayout failedLayout;
 	private LinearLayout emptyLayout;
 	private AchievementItem achievementItem;
-	private String interfaceName,title,display;
+	private String interfaceName,title;
 	private LayoutInflater inflater;
 	private AchieveAdapter adapter;
+
 	private List<Achievement> achievements = new ArrayList<Achievement>();
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -88,17 +91,25 @@ public class SchoolAchievementFragment extends Fragment {
 						if(achievementItem.getSummary()!=null && achievementItem.getSummary().length()>0)
 						{
 							TextView tv_summary=new TextView(getActivity());
-							LayoutParams params=new LayoutParams(LayoutParams.WRAP_CONTENT,
+							LinearLayout layout=new LinearLayout(getActivity());
+							layout.setOrientation(LinearLayout.VERTICAL);
+							LayoutParams params=new LayoutParams(LayoutParams.MATCH_PARENT,
 									LayoutParams.WRAP_CONTENT);
-							tv_summary.setLayoutParams(params);
-							
+							layout.setBackgroundColor(Color.WHITE);
+							layout.setLayoutParams(params);
+							LinearLayout.LayoutParams params1=new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+									LayoutParams.WRAP_CONTENT);
+							params1.setMargins(20,20,20,20);
+							tv_summary.setLayoutParams(params1);
+							layout.addView(tv_summary);
 							tv_summary.setBackgroundColor(Color.WHITE);
-							Spanned spanned = Html.fromHtml(achievementItem.getSummary(), new MyImageGetter(getActivity(),tv_summary), null);
+							Spanned spanned = Html.fromHtml(achievementItem.getSummary(), new MyImageGetter(getActivity(),tv_summary), new MyTagHandler(getActivity()));
 							tv_summary.setText(spanned);
+							tv_summary.setMovementMethod(LinkMovementMethod.getInstance());
 							myListview.setAdapter(null);
-							myListview.addHeaderView(tv_summary);
-							tv_summary.setPadding(10, 10, 10, 10);
+							myListview.addHeaderView(layout);
 							myListview.setAdapter(adapter);
+							
 						}
 						achievements = achievementItem.getAchievements();
 						adapter.notifyDataSetChanged();
@@ -153,10 +164,9 @@ public class SchoolAchievementFragment extends Fragment {
 	public SchoolAchievementFragment() {
 		
 	}
-	public SchoolAchievementFragment(String title,String iunterfaceName,String display) {
+	public SchoolAchievementFragment(String title,String iunterfaceName) {
 		this.interfaceName = iunterfaceName;
 		this.title = title;
-		this.display=display;
 	}
 
 	@Override
@@ -180,11 +190,12 @@ public class SchoolAchievementFragment extends Fragment {
 		contentLayout = (LinearLayout) view.findViewById(R.id.content_layout);
 		failedLayout = (LinearLayout) view.findViewById(R.id.empty_error);
 		emptyLayout = (LinearLayout) view.findViewById(R.id.empty);
+	
 		myListview.setEmptyView(emptyLayout);
 		btnLeft.setVisibility(View.VISIBLE);
 		btnLeft.setCompoundDrawablesWithIntrinsicBounds(
 				R.drawable.bg_btn_left_nor, 0, 0, 0);
-		tvTitle.setText(display);
+		tvTitle.setText(title);
 		adapter = new AchieveAdapter();
 		myListview.setAdapter(adapter);
 		lyLeft.setOnClickListener(new OnClickListener() {
@@ -319,7 +330,11 @@ public class SchoolAchievementFragment extends Fragment {
 	
 			holder.title.setText(achievement.getTitle());
 			if(achievement.getTotal().length()==0 && achievement.getRank().length()==0)
+			{
 				holder.ll_bottom.setVisibility(View.GONE);
+				LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(50, 50);
+				holder.icon.setLayoutParams(params);
+			}
 			else
 				holder.ll_bottom.setVisibility(View.VISIBLE);
 			if(achievement.getTotal().length()==0)
@@ -360,7 +375,7 @@ public class SchoolAchievementFragment extends Fragment {
 							DetailUrl=DetailUrl.replace("\\", "/");
 							String[] loginUrl=DetailUrl.split("/");
 							contractIntent.putExtra("loginUrl", "http://"+loginUrl[2]+"/login/index.php");
-							contractIntent.putExtra("title", display);
+							contractIntent.putExtra("title", title);
 							startActivity(contractIntent);
 						}
 						else if(DetailUrl.equals("·¢ËÍÏûÏ¢"))
@@ -372,7 +387,7 @@ public class SchoolAchievementFragment extends Fragment {
 							intent.putExtra("userImage", achievement.getIcon());
 							getActivity().startActivity(intent);
 						}
-						else if(DetailUrl.toLowerCase().indexOf(".php")>=0)
+						else if(DetailUrl.length()>0)
 						{
 							Intent intent =null;
 							if(achievement.getTemplateName()==null || achievement.getTemplateName().length()==0)
@@ -388,13 +403,8 @@ public class SchoolAchievementFragment extends Fragment {
 									intent=new Intent(getActivity(),SchoolDetailActivity.class);
 								intent.putExtra("templateName", achievement.getTemplateName());
 							}
-							int pos=interfaceName.indexOf("?");
-							String preUrl=interfaceName;
-							if(pos>-1)
-								preUrl=interfaceName.substring(0, pos);
-							intent.putExtra("interfaceName", preUrl+DetailUrl+"&newFlag=1");
-							intent.putExtra("title", display);
-							intent.putExtra("display", display);
+							intent.putExtra("interfaceName", DetailUrl);
+							intent.putExtra("title", achievement.getDetailTitle());
 							startActivityForResult(intent,101);
 						}
 						

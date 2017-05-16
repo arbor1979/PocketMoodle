@@ -85,7 +85,7 @@ public class SchoolDetailActivity extends FragmentActivity {
 			fragment = new SubjectFragment(title,interfaceName);
 			break;
 		case 5:
-			fragment = SchoolBlogDetailFragment.newInstance(title, interfaceName,display);
+			fragment = SchoolBlogDetailFragment.newInstance(title, interfaceName);
 			break;
 		}
 		getSupportFragmentManager().beginTransaction()
