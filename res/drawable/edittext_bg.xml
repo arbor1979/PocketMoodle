@@ -6,10 +6,10 @@
         android:color="@color/gray" />
     <!-- 描边 ：边框宽度与颜色 -->
     <padding
-        android:bottom="0dip"
+        android:bottom="8dip"
         android:left="8dip"
         android:right="8dip"
-        android:top="0dip" />
+        android:top="8dip" />
     <!-- 主要内容的padding 文字距离上下左右的距离 -->
     <corners
         android:bottomLeftRadius="6dip"

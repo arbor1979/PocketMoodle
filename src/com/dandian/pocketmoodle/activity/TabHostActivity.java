@@ -80,7 +80,6 @@ public class TabHostActivity extends TabActivity   {
 	private final String ACTION_NAME_REMIND = "remindSubject";
 	private final String ACTION_CHATINTERACT =  "ChatInteract";
 	private final String ACTION_CHANGEHEAD =  "ChangeHead";
-	public static SchoolService schoolService;
 	public final String STitle = "showmsg_title";
 	public final String SMessage = "showmsg_message";
 	public final String BAThumbData = "showmsg_thumb_data";
@@ -133,18 +132,6 @@ public class TabHostActivity extends TabActivity   {
 			}
 		}
 	};
-	private ServiceConnection connection = new ServiceConnection() {
-		public void onServiceDisconnected(ComponentName name) {
-			schoolService = null;
-			Log.d(TAG, "Client ->Disconnected the LocalService");
-		}
-
-		public void onServiceConnected(ComponentName name, IBinder binder) {
-			// 获取连接的服务对象
-			schoolService = ((MyIBinder) binder).getService();
-			Log.d(TAG, "Client ->Connected the Service");
-		}
-	};
 	
     
 	@Override
@@ -185,9 +172,6 @@ public class TabHostActivity extends TabActivity   {
 		
 		prepareIntent();
 		setupIntent();
-		
-		Intent intent = new Intent(TabHostActivity.this,SchoolService.class);
-		bindService(intent, connection, Context.BIND_AUTO_CREATE);
 		
 		showUnreadCnt();
 		
@@ -408,9 +392,7 @@ public class TabHostActivity extends TabActivity   {
 		{
 			
 		}
-		if(schoolService != null){
-			unbindService(connection);
-		}
+		
 		Log.d(TAG,"生命周期:onDestroy");
 	};
 
@@ -508,7 +490,8 @@ public class TabHostActivity extends TabActivity   {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						Log.d(TAG, "-------------downLoadPath:" + downLoadPath);
-						schoolService.downLoadUpdate(downLoadPath, 1001);
+						//schoolService.downLoadUpdate(downLoadPath, 1001);
+						AppUtility.downloadUrl(downLoadPath, null, TabHostActivity.this);
 						dialog.dismiss();
 					}
 				})

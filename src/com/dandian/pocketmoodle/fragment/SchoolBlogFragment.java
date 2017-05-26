@@ -75,7 +75,7 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 	private LayoutInflater inflater;
 	private NoticeAdapter adapter;
 	private List<Blog> noticesList=new ArrayList<Blog>();
-
+	private LinearLayout headlayout;
 	private int pagesize=10;
 	private int page=0;
 	AQuery aq;
@@ -108,21 +108,29 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 						List<Blog> notices = noticesItem.getNotices();
 						if(noticesItem.getTopLine1()!=null && noticesItem.getTopLine1().length()>0)
 						{
+							if(headlayout!=null)
+								headlayout.removeAllViews();
+							else
+							{
+								headlayout=new LinearLayout(getActivity());
+								headlayout.setOrientation(LinearLayout.VERTICAL);
+								LayoutParams params=new LayoutParams(LayoutParams.MATCH_PARENT,
+										LayoutParams.WRAP_CONTENT);
+								headlayout.setBackgroundColor(Color.WHITE);
+								headlayout.setLayoutParams(params);
+								myListview.setAdapter(null);
+								myListview.addHeaderView(headlayout);
+								myListview.setAdapter(adapter);
+							}
 							TextView tv_summary1=new TextView(getActivity());
 							TextView tv_summary2=new TextView(getActivity());
-							LinearLayout layout=new LinearLayout(getActivity());
-							layout.setOrientation(LinearLayout.VERTICAL);
-							LayoutParams params=new LayoutParams(LayoutParams.MATCH_PARENT,
-									LayoutParams.WRAP_CONTENT);
-							layout.setBackgroundColor(Color.WHITE);
-							layout.setLayoutParams(params);
 							LinearLayout.LayoutParams params1=new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
 									LayoutParams.WRAP_CONTENT);
 							params1.setMargins(20,20,20,0);
 							tv_summary1.setLayoutParams(params1);
-							layout.addView(tv_summary1);
+							headlayout.addView(tv_summary1);
 							tv_summary2.setLayoutParams(params1);
-							layout.addView(tv_summary2);
+							headlayout.addView(tv_summary2);
 							tv_summary1.setBackgroundColor(Color.WHITE);
 							tv_summary2.setBackgroundColor(Color.WHITE);
 							tv_summary2.setTextColor(Color.GRAY);
@@ -133,9 +141,8 @@ public class SchoolBlogFragment extends Fragment implements IXListViewListener {
 							tv_summary1.setMovementMethod(LinkMovementMethod.getInstance());
 							if(noticesItem.getTopLine2()!=null && noticesItem.getTopLine2().length()>0)
 								tv_summary2.setText(noticesItem.getTopLine2());
-							myListview.setAdapter(null);
-							myListview.addHeaderView(layout);
-							myListview.setAdapter(adapter);
+							
+							
 							
 						}
 						myListview.stopLoadMore();

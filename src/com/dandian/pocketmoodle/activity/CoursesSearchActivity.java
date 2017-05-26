@@ -273,7 +273,7 @@ public class CoursesSearchActivity extends FragmentActivity {
 				public void onClick(View v) {
 					Intent intent=new Intent(CoursesSearchActivity.this,SchoolDetailActivity.class);
 					intent.putExtra("templateName", "²©¿Í");
-					intent.putExtra("interfaceName","?function=getUserInfo&action=courseSummary&courseId="+cateObj.optString("¿Î³Ì±àºÅ"));
+					intent.putExtra("interfaceName",cateObj.optString("DetailUrl"));
 					intent.putExtra("title", cateObj.optString("name"));
 					intent.putExtra("display", getString(R.string.course_summary));
 					startActivity(intent);

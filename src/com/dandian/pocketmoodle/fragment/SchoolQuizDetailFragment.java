@@ -37,6 +37,8 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.Html;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
@@ -83,6 +85,7 @@ import com.dandian.pocketmoodle.util.Base64;
 import com.dandian.pocketmoodle.util.DateHelper;
 import com.dandian.pocketmoodle.util.FileUtility;
 import com.dandian.pocketmoodle.util.ImageUtility;
+import com.dandian.pocketmoodle.util.MyImageGetter;
 import com.dandian.pocketmoodle.util.PrefUtility;
 import com.dandian.pocketmoodle.widget.NonScrollableGridView;
 import com.dandian.pocketmoodle.widget.NonScrollableListView;
@@ -91,8 +94,8 @@ import com.dandian.pocketmoodle.widget.NonScrollableListView;
 
 
 @SuppressLint("ValidFragment")
-public class SchoolQuestionnaireDetailFragment extends Fragment {
-	private final String TAG = "SchoolQuestionnaireDetailFragment";
+public class SchoolQuizDetailFragment extends Fragment {
+	private final String TAG = "SchoolQuizDetailFragment";
 	private ListView myListview;
 	private Button btnLeft;
 	private TextView tvTitle, tvRight;
@@ -140,8 +143,8 @@ public class SchoolQuestionnaireDetailFragment extends Fragment {
 							AppUtility.showToastMsg(getActivity(), res);
 						} else {
 							questionnaireList = new QuestionnaireList(jo);
-							
-							tvTitle.setText(questionnaireList.getTitle());
+							if(questionnaireList.getTitle()!=null && questionnaireList.getTitle().length()>0)
+								tvTitle.setText(questionnaireList.getTitle());
 							questions = questionnaireList.getQuestions();
 							status=questionnaireList.getStatus();
 							autoClose=questionnaireList.getAutoClose();
@@ -305,10 +308,10 @@ public class SchoolQuestionnaireDetailFragment extends Fragment {
 			}
 		}
 	};
-	public SchoolQuestionnaireDetailFragment() {
+	public SchoolQuizDetailFragment() {
 
 	}
-	public SchoolQuestionnaireDetailFragment(String title,String status,
+	public SchoolQuizDetailFragment(String title,String status,
 			String iunterfaceName,String autoClose) {
 		if (status==null || status.equals("已结束") || status.equals("未开始")) {
 			isEnable = false;
@@ -992,9 +995,12 @@ public class SchoolQuestionnaireDetailFragment extends Fragment {
 				ViewGroup parent) {
 						
 			final Question question = (Question) getItem(position);
-			convertView = inflater.inflate(R.layout.school_questionnaire_item, parent, false);
+			convertView = inflater.inflate(R.layout.school_quiz_question_item, parent, false);
 			ViewHolder holder = new ViewHolder();
+			holder.tv_qno=(TextView) convertView.findViewById(R.id.tv_qno);
+			holder.tv_qstate=(TextView) convertView.findViewById(R.id.tv_qstate);
 			holder.title = (TextView) convertView.findViewById(R.id.tv_questionnaire_name);
+			holder.prompt = (TextView) convertView.findViewById(R.id.tv_prompt);
 			holder.radioGroup = (RadioGroup) convertView.findViewById(R.id.rg_choose);
 			holder.multipleChoice = (NonScrollableListView) convertView.findViewById(R.id.lv_choose);
 			holder.etAnswer = (EditText) convertView.findViewById(R.id.et_answer);
@@ -1008,8 +1014,11 @@ public class SchoolQuestionnaireDetailFragment extends Fragment {
 			holder.etAnswer.setTag(position);
 			
 			String mStatus = question.getStatus();
-			
-			holder.title.setText(position+1+"."+question.getTitle());
+			holder.tv_qno.setText(getString(R.string.question)+question.getSlot());
+			holder.tv_qstate.setText(question.getState()+'\n'+question.getGrade());
+			Spanned spanned = Html.fromHtml(question.getTitle(), new MyImageGetter(getActivity(),holder.title), null);
+			holder.title.setText(spanned);
+			holder.prompt.setText(question.getPrompt());
 			if(!isEnable){
 				String remark = question.getRemark();
 				Log.d(TAG, "-----------remark:"+remark);
@@ -1029,6 +1038,7 @@ public class SchoolQuestionnaireDetailFragment extends Fragment {
 				}
 			}
 			if (mStatus.equals("单选")) {
+				holder.prompt.setVisibility(View.GONE);
 				holder.imageGridView.setVisibility(View.GONE);
 				holder.radioGroup.setVisibility(View.VISIBLE);
 				holder.multipleChoice.setVisibility(View.GONE);
@@ -1072,6 +1082,7 @@ public class SchoolQuestionnaireDetailFragment extends Fragment {
 							}
 						});
 			} else if (mStatus.equals("多选")) {
+				holder.prompt.setVisibility(View.GONE);
 				holder.imageGridView.setVisibility(View.GONE);
 				holder.radioGroup.setVisibility(View.GONE);
 				holder.multipleChoice.setVisibility(View.VISIBLE);
@@ -1325,7 +1336,10 @@ public class SchoolQuestionnaireDetailFragment extends Fragment {
 		}
 
 		class ViewHolder {
+			TextView tv_qno;
+			TextView tv_qstate;
 			TextView title;
+			TextView prompt;
 			EditText etAnswer;
 			TextView remark;
 			TextView tvAnswer;

@@ -228,7 +228,7 @@ public class FileUtility {
         	extName=filename.substring(index+1);
         else
         	extName="";
-        return  extName;
+        return  extName.toLowerCase();
     }
     public static String getFileDir(String path)
     {
@@ -241,7 +241,18 @@ public class FileUtility {
         	extName=path;
         return  extName;
     }
-
+    public static String getUrlMd5Name(String url)
+    {
+    	String extName=getFileExtName(url);
+        String filename=null;
+        try {
+			filename=Dm5.dm5(url);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return  filename+"."+extName;
+    }
 	/**
 	 * 功能描述: 用当前时间给取得的图�?,视频命名
 	 * 

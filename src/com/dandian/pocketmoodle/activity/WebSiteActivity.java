@@ -405,7 +405,7 @@ public class WebSiteActivity extends Activity {
 			
 			if(needLoadHtml.length()>0)
 			{
-				needLoadHtml=needLoadHtml.replaceAll("pluginfile.php","pluginfile_dandian.php?");
+				//needLoadHtml=needLoadHtml.replaceAll("pluginfile.php","pluginfile_dandian.php?");
 				needLoadHtml="<head><meta name='viewport' content='width=device-width, initial-scale=1.0'></head>"+needLoadHtml;
 				
 				/*
@@ -504,8 +504,8 @@ public class WebSiteActivity extends Activity {
 	@SuppressLint("DefaultLocale")
 	private void openUrlFile(WebView view,String url)
 	{
-		url=url.replace("pluginfile.php", "pluginfile_dandian.php?");
-		url=url.replace("draftfile.php", "pluginfile_dandian.php?");
+		//url=url.replace("pluginfile.php", "pluginfile_dandian.php?");
+		//url=url.replace("draftfile.php", "pluginfile_dandian.php?");
     	String[] tempArray=url.split("\\?");
     	if(tempArray.length>2)
     		url=tempArray[0]+"?"+tempArray[1];
@@ -528,19 +528,13 @@ public class WebSiteActivity extends Activity {
         else
         {
         	intent=IntentUtility.openUrl(url);
-        	if(intent==null && !url.contains("pluginfile_dandian.php?"))
+        	if(intent==null)
         	{
         		view.loadUrl(url);
         	}
         	else
         	{
-        		/*
-        		if(!IntentUtility.openIntent(WebSiteActivity.this, intent,false))
-        		{
-        			TabHostActivity.schoolService.downLoadUpdate(url, 1003);
-        			AppUtility.showToastMsg(WebSiteActivity.this, getString(R.string.startdownloadbackground));
-        		}
-        		*/
+        	
         		ArrayList<String> tempList =new ArrayList<String>();
         		tempList.add("audio/*");
         		tempList.add("video/*");
@@ -549,7 +543,7 @@ public class WebSiteActivity extends Activity {
         		{
         			if(!IntentUtility.openIntent(WebSiteActivity.this, intent,false))
         			{
-        			//TabHostActivity.schoolService.downLoadUpdate(url, 1003);
+        	
         				downloadFile(url,file);
         			}
         		}
@@ -568,7 +562,7 @@ public class WebSiteActivity extends Activity {
 	   	 request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE|DownloadManager.Request.NETWORK_WIFI);
 	   	 //request.setDestinationInExternalFilesDir(WebSiteActivity.this, null, "PacketCampus");
 	   	 downloadManager.enqueue(request);  
-	   	 AppUtility.showToastMsg(WebSiteActivity.this, "已开始后台下载..");
+	   	 AppUtility.showToastMsg(WebSiteActivity.this, getString(R.string.startdownloadbackground));
 	}
 	private class MyWebViewDownLoadListener implements DownloadListener {
 

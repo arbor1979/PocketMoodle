@@ -21,6 +21,7 @@ import com.androidquery.AQuery;
 import com.dandian.pocketmoodle.R;
 import com.dandian.pocketmoodle.activity.ImagesActivity;
 import com.dandian.pocketmoodle.base.Constants;
+import com.dandian.pocketmoodle.entity.ImageItem;
 import com.dandian.pocketmoodle.util.AppUtility;
 import com.dandian.pocketmoodle.util.FileUtility;
 
@@ -34,13 +35,20 @@ public class MyPictureAdapter extends BaseAdapter implements Serializable{
 	private List<String> picPaths;
 	private LayoutInflater inflater;
 	private boolean isCanAdd = true;
-	private int size = 9;
+	private int size;//最大图片数量
 	private String from;
-	public MyPictureAdapter(Context context,boolean flag, List<String> picPaths,int size) {
+	private String imagetype;
+	private int curIndex;
+	
+	public MyPictureAdapter(Context context,boolean flag, List<String> picPaths,int size,String imagetype) {
 		this.mContext = context;
 		this.picPaths = picPaths;
 		this.isCanAdd= flag;
 		this.size = size;
+		if(this.size<1)
+			this.size=5;
+		this.imagetype=imagetype;
+		
 		inflater = LayoutInflater.from(context);
 		Log.d(TAG, "isCanAdd"+isCanAdd);
 		if(isCanAdd){
@@ -48,14 +56,19 @@ public class MyPictureAdapter extends BaseAdapter implements Serializable{
 		}
 	}
 
+	public int getCurIndex() {
+		return curIndex;
+	}
+
+	public void setCurIndex(int curIndex) {
+		this.curIndex = curIndex;
+	}
+
 	private void initData() {
 		if(picPaths != null && picPaths.size() < size && !picPaths.contains("loading")){
 			picPaths.remove("");
 			picPaths.add("");
-			Log.d(TAG, "isCanAdd"+picPaths.size());
-			for (int i = 0; i < picPaths.size(); i++) {
-				Log.d(TAG, "----picPath:"+picPaths.get(i));
-			}
+			
 		}
 	}
 
@@ -65,8 +78,24 @@ public class MyPictureAdapter extends BaseAdapter implements Serializable{
 		if(isCanAdd){
 			initData();
 		}
+		notifyDataSetChanged();
 	}
-
+	
+	public void setPicPathsByImages(List<ImageItem> images) {
+		List<String> picturePaths = new ArrayList<String>();// 选中的图片路径
+		if(images != null)
+		{
+			for (int i = 0; i < images.size(); i++) {
+				picturePaths.add(images.get(i).getDownAddress());
+			}
+		}
+		this.picPaths = picturePaths;
+		if(isCanAdd){
+			initData();
+		}
+		notifyDataSetChanged();
+	}
+	
 	public String getFrom() {
 		return from;
 	}
@@ -133,7 +162,7 @@ public class MyPictureAdapter extends BaseAdapter implements Serializable{
 				if(imgCache.exists())
 					imageView.setImageURI(Uri.fromFile(imgCache));
 				else
-					aq.id(imageView).progress(R.id.progressBar1).image(imgPath,true,true);
+					aq.id(imageView).progress(R.id.progressBar1).image(imgPath,false,true);
 			}
 		} else {
 			aq.id(imageView).image(R.drawable.pic_add_more);
@@ -148,6 +177,8 @@ public class MyPictureAdapter extends BaseAdapter implements Serializable{
 				if (imgPath.equals("")) {
 					Intent intent=new Intent(Constants.GET_PICTURE);
 					intent.putExtra("TAG", from);
+					intent.putExtra("imagetype", imagetype);
+					intent.putExtra("position",curIndex);
 					mContext.sendBroadcast(intent);
 				} else {
 					Log.d(TAG, "---------------------------------");
@@ -156,6 +187,8 @@ public class MyPictureAdapter extends BaseAdapter implements Serializable{
 						Intent intent=new Intent(Constants.DEL_OR_LOOK_PICTURE);
 						intent.putExtra("imagePath", imgPath);
 						intent.putExtra("TAG", from);
+						intent.putExtra("imagetype", imagetype);
+						intent.putExtra("position",curIndex);
 						mContext.sendBroadcast(intent);
 					}
 					else

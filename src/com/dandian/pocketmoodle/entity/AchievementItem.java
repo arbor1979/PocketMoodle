@@ -26,6 +26,10 @@ public class AchievementItem {
 	private String rightButton;
 	private String rightButtonURL;
 	private String summary;
+	private String rules;
+	private String grade;
+	private String bottomButton;
+	private String bottomButtonURL;
 	public AchievementItem(JSONObject jo) {
 		templateName = jo.optString("适用模板");
 		title = jo.optString("标题显示");
@@ -41,6 +45,42 @@ public class AchievementItem {
 		rightButton=jo.optString("右上按钮");
 		rightButtonURL=jo.optString("右上按钮URL");
 		summary=jo.optString("简介");
+		rules=jo.optString("规则").replaceAll("<br>", "\n");
+		grade=jo.optString("评分").replaceAll("<br>", "\n");
+		bottomButton=jo.optString("底部按钮");
+		bottomButtonURL=jo.optString("底部按钮URL");
+	}
+
+	public String getRules() {
+		return rules;
+	}
+
+	public void setRules(String rules) {
+		this.rules = rules.replaceAll("<br>", "\n");;
+	}
+
+	public String getGrade() {
+		return grade;
+	}
+
+	public void setGrade(String grade) {
+		this.grade = grade.replaceAll("<br>", "\n");
+	}
+
+	public String getBottomButton() {
+		return bottomButton;
+	}
+
+	public void setBottomButton(String bottomButton) {
+		this.bottomButton = bottomButton;
+	}
+
+	public String getBottomButtonURL() {
+		return bottomButtonURL;
+	}
+
+	public void setBottomButtonURL(String bottomButtonURL) {
+		this.bottomButtonURL = bottomButtonURL;
 	}
 
 	public String getSummary() {
@@ -79,6 +119,7 @@ public class AchievementItem {
 	    private String templateGrade;
 	    private String theColor;
 	    private String detailTitle;
+	    private String left,center,right;
 		public Achievement(JSONObject jo) {
 			id = jo.optString("编号");
 			icon = jo.optString("图标");
@@ -91,6 +132,33 @@ public class AchievementItem {
 			templateGrade = jo.optString("模板级别");
 			theColor= jo.optString("颜色");
 			detailTitle=jo.optString("目标标题");
+			left=jo.optString("左边");
+			center=jo.optString("中间").replaceAll("<br>", "\n");
+			right=jo.optString("右边");
+		}
+
+		public String getLeft() {
+			return left;
+		}
+
+		public void setLeft(String left) {
+			this.left = left;
+		}
+
+		public String getCenter() {
+			return center;
+		}
+
+		public void setCenter(String center) {
+			this.center = center.replaceAll("<br>", "\n");
+		}
+
+		public String getRight() {
+			return right;
+		}
+
+		public void setRight(String right) {
+			this.right = right;
 		}
 
 		public String getDetailTitle() {

@@ -39,6 +39,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -75,7 +76,7 @@ import com.dandian.pocketmoodle.widget.NonScrollableListView;
  * 通知
  */
 public class SchoolBlogDetailFragment extends Fragment {
-	private String TAG = "SchoolNoticeDetailFragment";
+	private String TAG = "SchoolBlogDetailFragment";
 	private Button btnLeft,btnDel;
 	private String title,interfaceName;
 	private LinearLayout loadingLayout;
@@ -90,7 +91,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 	private NonScrollableListView listview1;
 	private TextView contentView;
 	private Dialog dialog;
-	private int courseId=0;
+	
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
@@ -425,11 +426,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 	{
 		Intent intent =new Intent(getActivity(),SchoolDetailActivity.class);
 		intent.putExtra("templateName", "调查问卷");
-		int pos=interfaceName.indexOf("?");
-		String preUrl=interfaceName;
-		if(pos>-1)
-			preUrl=interfaceName.substring(0, pos);
-		intent.putExtra("interfaceName", preUrl+url);
+		intent.putExtra("interfaceName", url);
 		intent.putExtra("title", title);
 		intent.putExtra("status", "进行中");
 		intent.putExtra("autoClose", "是");
@@ -532,7 +529,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 		    	}
 		    	else
 		    	{
-		    		//TabHostActivity.schoolService.downLoadUpdate(mUrl, 1003);
+		    		
 		    		AppUtility.downloadUrl(mUrl, file, getActivity());
 		    		
 		    	}
@@ -597,6 +594,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 				vh.tv_title=(TextView)convertView.findViewById(R.id.tv_title);
 				vh.tv_left=(TextView)convertView.findViewById(R.id.thieDescription);
 				vh.tv_content=(TextView)convertView.findViewById(R.id.tv_content);
+				vh.tv_margin=(TextView)convertView.findViewById(R.id.tv_margin);
 				convertView.setTag(vh);
 
 			}
@@ -641,21 +639,24 @@ public class SchoolBlogDetailFragment extends Fragment {
 							ShowPersonInfo.class);
 					Comment cm=(Comment)v.getTag();
 					intent.putExtra("studentId", String.valueOf(cm.getUsercode()));
-					if(courseId>0)
-						intent.putExtra("courseId", courseId);
+					if(blog.getCourseId()>0)
+						intent.putExtra("courseId", blog.getCourseId());
 					startActivity(intent);
 				}
 				
 			});
 			vh.tv_title.setText(comment.getUsername());
 			if(comment.getReply()!=null && comment.getReply().length()>0)
-				vh.tv_title.append(" "+comment.getReply());
+				vh.tv_margin.setVisibility(View.VISIBLE);
+			else
+				vh.tv_margin.setVisibility(View.GONE);
+			
 			if(comment.getContent()!=null && comment.getContent().length()>0)
 			{
 				Spanned spanned = Html.fromHtml(comment.getContent(), new MyImageGetter(getActivity(),contentView), new MyTagHandler(getActivity()));		
 				vh.tv_content.setText(spanned);	
 				vh.tv_content.setVisibility(View.VISIBLE);
-				vh.tv_content.setMovementMethod(LinkMovementMethod.getInstance());
+				//vh.tv_content.setMovementMethod(LinkMovementMethod.getInstance());
 			}
 			else
 				vh.tv_content.setVisibility(View.GONE);
@@ -668,32 +669,35 @@ public class SchoolBlogDetailFragment extends Fragment {
 					// TODO Auto-generated method stub
 					ImageView iv=(ImageView) v.findViewById(R.id.iv_icon);
 					final Comment cm=(Comment) iv.getTag();
-					String hostId=PrefUtility.get(Constants.PREF_CHECK_HOSTID, "");
+					String hostId=PrefUtility.get(Constants.PREF_CHECK_USERID, "");
 					final String[] moreAction;
 					if(hostId.equals(cm.getUsercode()))
 					{
-						moreAction=new String[]{getString(R.string.delete),getString(R.string.cancel)};
-						Builder builder = new AlertDialog.Builder(getActivity());  
-						builder.setCancelable(true);
-				        builder.setTitle("");  
-				        //builder.setIcon(R.drawable.dialog);  
-				        DialogInterface.OnClickListener listener =   
-				            new DialogInterface.OnClickListener() {  
-				                  
-				                @Override  
-				                public void onClick(DialogInterface dialogInterface,   
-				                        int which) {  
-				                	if(moreAction[which].equals(getString(R.string.delete)))
-				                	{
-				                		sendCommentAction(cm,"删除评论");
-				                	}
-				                	dialogInterface.dismiss();
-				                		
-				                }  
-				            };  
-				        builder.setItems(moreAction, listener);  
-				        AlertDialog dialog = builder.create();  
-				        dialog.show();
+						if(cm.getDeleteUrl()!=null && cm.getDeleteUrl().length()>0)
+						{
+							moreAction=new String[]{getString(R.string.delete),getString(R.string.cancel)};
+							Builder builder = new AlertDialog.Builder(getActivity());  
+							builder.setCancelable(true);
+					        builder.setTitle("");  
+					        //builder.setIcon(R.drawable.dialog);  
+					        DialogInterface.OnClickListener listener =   
+					            new DialogInterface.OnClickListener() {  
+					                  
+					                @Override  
+					                public void onClick(DialogInterface dialogInterface,   
+					                        int which) {  
+					                	if(moreAction[which].equals(getString(R.string.delete)))
+					                	{
+					                		sendCommentAction(cm,"删除评论");
+					                	}
+					                	dialogInterface.dismiss();
+					                		
+					                }  
+					            };  
+					        builder.setItems(moreAction, listener);  
+					        AlertDialog dialog = builder.create();  
+					        dialog.show();
+						}
 					}
 					else
 					{
@@ -735,7 +739,7 @@ public class SchoolBlogDetailFragment extends Fragment {
 			public TextView tv_content;
 			public ImageView iv_icon;
 			public TextView tv_left;
-			
+			public TextView tv_margin;
 			
 		}
 		

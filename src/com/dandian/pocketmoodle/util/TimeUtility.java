@@ -203,10 +203,13 @@ public class TimeUtility {
 			 long intervalMilli = dt.getTime() -StrToDate(DateToStr(new Date(),"yyyy-MM-dd")+" 0:00:00").getTime(); 
 			 int xcts = (int) (intervalMilli / (24 * 60 * 60 * 1000));
 			 if(xcts==0)
-				 timeStr=ct.getString(R.string.today)+TimeUtility.DateToStr(dt, "HH:mm");
+			 {
+				 if(intervalMilli>0)
+					 timeStr=ct.getString(R.string.today)+TimeUtility.DateToStr(dt, "HH:mm");
+				 else
+					 timeStr=ct.getString(R.string.yestoday)+TimeUtility.DateToStr(dt, "HH:mm");
+			 }	 
 			 else if(xcts==-1)
-				 timeStr=ct.getString(R.string.yestoday)+TimeUtility.DateToStr(dt, "HH:mm");
-			 else if(xcts==-2)
 				 timeStr=ct.getString(R.string.beforeyestoday)+TimeUtility.DateToStr(dt, "HH:mm");
 			 else
 				 timeStr=TimeUtility.DateToStr(dt, "yyyy-MM-dd HH:mm");

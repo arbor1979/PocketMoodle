@@ -1,26 +1,26 @@
 package com.dandian.pocketmoodle.fragment;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -32,38 +32,33 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.dandian.pocketmoodle.R;
 import com.dandian.pocketmoodle.activity.ChatMsgActivity;
-import com.dandian.pocketmoodle.activity.MyCourseActivity;
 import com.dandian.pocketmoodle.activity.SchoolActivity;
 import com.dandian.pocketmoodle.activity.SchoolDetailActivity;
 import com.dandian.pocketmoodle.activity.ShowPersonInfo;
 import com.dandian.pocketmoodle.activity.WebSiteActivity;
 import com.dandian.pocketmoodle.api.CampusAPI;
-import com.dandian.pocketmoodle.api.CampusException;
-import com.dandian.pocketmoodle.api.CampusParameters;
-import com.dandian.pocketmoodle.api.RequestListener;
 import com.dandian.pocketmoodle.base.Constants;
 import com.dandian.pocketmoodle.entity.AchievementItem;
 import com.dandian.pocketmoodle.entity.AchievementItem.Achievement;
 import com.dandian.pocketmoodle.util.AppUtility;
-import com.dandian.pocketmoodle.util.Base64;
+import com.dandian.pocketmoodle.util.MyImageGetter;
 import com.dandian.pocketmoodle.util.PrefUtility;
-import com.dandian.pocketmoodle.fragment.SchoolSectionFragment.AchieveAdapter;
-import com.dandian.pocketmoodle.fragment.SchoolSectionFragment.AchieveAdapter.ViewHolder;
 
 /**
  * 成绩
  */
 @SuppressLint("ValidFragment")
-public class SchoolSectionFragment extends Fragment {
+public class SchoolQuizFragment extends Fragment {
 	private String TAG = "SchoolAchievementFragment";
 	private ListView myListview;
-	private Button btnLeft;
-	private TextView tvTitle,tvRight,tv_summary;
+	private Button btnLeft,bt_bottom;
+	private TextView tvTitle,tvRight,tv_summary,tv_rules,tv_grade;
 	private LinearLayout lyLeft,lyRight;
 	private LinearLayout loadingLayout;
 	private LinearLayout contentLayout;
 	private LinearLayout failedLayout;
 	private LinearLayout emptyLayout;
+	private LinearLayout ll_summary,ll_bottom;
 	private AchievementItem achievementItem;
 	private String interfaceName,title;
 	private LayoutInflater inflater;
@@ -91,10 +86,58 @@ public class SchoolSectionFragment extends Fragment {
 						achievementItem = new AchievementItem(jo);
 						Log.d(TAG, "--------noticesItem.getNotices().size():"
 								+ achievementItem.getAchievements().size());
+						ll_summary.setVisibility(View.GONE);
+						if(achievementItem.getSummary()!=null && achievementItem.getSummary().length()>0)
+						{
+							ll_summary.setVisibility(View.VISIBLE);
+							Spanned spanned = Html.fromHtml(achievementItem.getSummary(), new MyImageGetter(getActivity(),tv_summary), null);
+							tv_summary.setText(spanned);
+						}
+						if(achievementItem.getRules()!=null && achievementItem.getRules().length()>0)
+						{
+							ll_summary.setVisibility(View.VISIBLE);
+							tv_rules.setText(achievementItem.getRules());
+						}
+						if(achievementItem.getGrade()!=null && achievementItem.getGrade().length()>0)
+						{
+							ll_summary.setVisibility(View.VISIBLE);
+							tv_grade.setText(achievementItem.getGrade());
+						}
+						ll_bottom.setVisibility(View.GONE);
+						if(achievementItem.getBottomButton()!=null && achievementItem.getBottomButton().length()>0)
+						{
+							ll_bottom.setVisibility(View.VISIBLE);
+							bt_bottom.setText(achievementItem.getBottomButton());
+							if(achievementItem.getBottomButtonURL()!=null && achievementItem.getBottomButtonURL().length()>0)
+							{
+								bt_bottom.setEnabled(true);
+								bt_bottom.setBackgroundResource(R.drawable.button_round_corner_green);
+								bt_bottom.setOnClickListener(new OnClickListener(){
+
+									@Override
+									public void onClick(View v) {
+										Intent intent =new Intent(getActivity(),SchoolDetailActivity.class);
+										intent.putExtra("templateName", "测验");
+										intent.putExtra("interfaceName", achievementItem.getBottomButtonURL());
+										intent.putExtra("title", title);
+										intent.putExtra("status", "进行中");
+										intent.putExtra("autoClose", "是");
+										startActivityForResult(intent,101);
+									}
+									
+								});
+							}
+							else
+							{
+								bt_bottom.setEnabled(false);
+								bt_bottom.setBackgroundResource(R.drawable.button_round_corner_gray);
+							}
+						}
 						
 						achievements = achievementItem.getAchievements();
 						adapter.notifyDataSetChanged();
-						tvTitle.setText(achievementItem.getTitle());
+						if(achievementItem.getTitle()!=null && achievementItem.getTitle().length()>0)
+							tvTitle.setText(achievementItem.getTitle());
 						if(achievementItem.getRightButton()!=null && achievementItem.getRightButton().length()>0)
 						{
 							tvRight.setText(achievementItem.getRightButton());
@@ -104,8 +147,8 @@ public class SchoolSectionFragment extends Fragment {
 								@Override
 								public void onClick(View v) {
 									Intent intent =new Intent(getActivity(),SchoolDetailActivity.class);
-									intent.putExtra("templateName", "调查问卷");
-									intent.putExtra("interfaceName", interfaceName+achievementItem.getRightButtonURL());
+									intent.putExtra("templateName", "测验");
+									intent.putExtra("interfaceName", achievementItem.getRightButtonURL());
 									intent.putExtra("title", title);
 									intent.putExtra("status", "进行中");
 									intent.putExtra("autoClose", "是");
@@ -141,10 +184,10 @@ public class SchoolSectionFragment extends Fragment {
 		    break;
 		}
 	}
-	public SchoolSectionFragment() {
+	public SchoolQuizFragment() {
 		
 	}
-	public SchoolSectionFragment(String title,String iunterfaceName) {
+	public SchoolQuizFragment(String title,String iunterfaceName) {
 		this.interfaceName = iunterfaceName;
 		this.title = title;
 	}
@@ -153,7 +196,7 @@ public class SchoolSectionFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		this.inflater = inflater;
-		View view = inflater.inflate(R.layout.school_section_listview,
+		View view = inflater.inflate(R.layout.school_quiz_listview,
 				container, false);
 		
 		RelativeLayout nav_bar=(RelativeLayout) view.findViewById(R.id.nav_bar);
@@ -161,8 +204,6 @@ public class SchoolSectionFragment extends Fragment {
 		if(color!=0)
 			nav_bar.setBackgroundColor(color);
 		myListview = (ListView) view.findViewById(R.id.my_listview);
-		tv_summary=(TextView)view.findViewById(R.id.tv_summary);
-		myListview.addHeaderView(tv_summary);
 		btnLeft = (Button) view.findViewById(R.id.btn_left);
 		tvTitle = (TextView) view.findViewById(R.id.tv_title);
 		tvRight = (TextView) view.findViewById(R.id.tv_right);
@@ -172,6 +213,14 @@ public class SchoolSectionFragment extends Fragment {
 		contentLayout = (LinearLayout) view.findViewById(R.id.content_layout);
 		failedLayout = (LinearLayout) view.findViewById(R.id.empty_error);
 		emptyLayout = (LinearLayout) view.findViewById(R.id.empty);
+		ll_summary= (LinearLayout) view.findViewById(R.id.ll_summary);
+		ll_bottom= (LinearLayout) view.findViewById(R.id.ll_bottom);
+		ll_summary.setVisibility(View.GONE);
+		ll_bottom.setVisibility(View.GONE);
+		tv_summary =(TextView) view.findViewById(R.id.tv_summary);
+		tv_rules =(TextView) view.findViewById(R.id.tv_rules);
+		tv_grade =(TextView) view.findViewById(R.id.tv_grade);
+		bt_bottom = (Button) view.findViewById(R.id.bt_bottom);
 		myListview.setEmptyView(emptyLayout);
 		btnLeft.setVisibility(View.VISIBLE);
 		btnLeft.setCompoundDrawablesWithIntrinsicBounds(
@@ -263,62 +312,38 @@ public class SchoolSectionFragment extends Fragment {
 
 			if (null == convertView) {
 				convertView = inflater.inflate(
-						R.layout.school_section_list_item, parent,
+						R.layout.school_quiz_list_item, parent,
 						false);
 				holder = new ViewHolder();
 
-				holder.icon = (ImageView) convertView
-						.findViewById(R.id.iv_icon);
-				holder.title = (TextView) convertView
-						.findViewById(R.id.tv_title);
-				holder.total = (TextView) convertView
-						.findViewById(R.id.thieDescription);
-				holder.rank = (TextView) convertView
+				holder.left = (TextView) convertView
+						.findViewById(R.id.tv_left);
+				holder.center = (TextView) convertView
+						.findViewById(R.id.tv_center);
+				holder.right = (TextView) convertView
 						.findViewById(R.id.tv_right);
+				
+				holder.iv_right = (ImageView) convertView
+						.findViewById(R.id.iv_right);
 				
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
 			final Achievement achievement = (Achievement) getItem(position);
-			AQuery aq = new AQuery(convertView);
-			String imagurl = achievement.getIcon();
-			Log.d(TAG, "----imagurl:" + imagurl);
-			if (imagurl != null && !imagurl.equals("")) {
-				aq.id(holder.icon).image(imagurl);
-				if(achievement.getIcon_link().equals("个人资料"))
-				{
-					holder.icon.setOnClickListener(new OnClickListener(){
-						@Override
-						public void onClick(View v) {
-							Intent intent = new Intent(getActivity(),
-									ShowPersonInfo.class);
-							intent.putExtra("studentId", achievement.getId());
-							intent.putExtra("userImage", achievement.getIcon());
-							startActivity(intent);
-						}
-						
-					});
-				}
-			}
-	
-			holder.title.setText(achievement.getTitle());
-			holder.total.setText(achievement.getTotal());
-			holder.rank.setText(achievement.getRank());
-			
-			if(achievement.getTheColor()!=null && achievement.getTheColor().length()>0)
+			if((achievement.getDetailUrl()==null || achievement.getDetailUrl().length()==0) && position==0)
 			{
-				if(achievement.getTheColor().toLowerCase().equals("red"))
-					holder.total.setBackground(getResources().getDrawable(R.drawable.school_achievement_red));
-				else if(achievement.getTheColor().toLowerCase().equals("blue"))
-					holder.total.setBackground(getResources().getDrawable(R.drawable.school_achievement_blue));
-				else if(achievement.getTheColor().toLowerCase().equals("brown"))
-					holder.total.setBackground(getResources().getDrawable(R.drawable.school_achievement_brown));
-				else if(achievement.getTheColor().toLowerCase().equals("pink"))
-					holder.total.setBackground(getResources().getDrawable(R.drawable.school_achievement_pink));
-				else
-					holder.total.setBackground(getResources().getDrawable(R.drawable.school_achievement_bg));
+				convertView.setBackgroundColor(Color.LTGRAY);
+				holder.iv_right.setVisibility(View.GONE);
 			}
+			else
+			{
+				convertView.setBackgroundColor(Color.WHITE);
+				holder.iv_right.setVisibility(View.VISIBLE);
+			}
+			holder.left.setText(achievement.getLeft());
+			holder.center.setText(achievement.getCenter());
+			holder.right.setText(achievement.getRight());
 			
 			convertView.setOnClickListener(new OnClickListener() {
 
@@ -330,23 +355,12 @@ public class SchoolSectionFragment extends Fragment {
 						if(DetailUrl.toLowerCase().startsWith("http"))
 						{
 							Intent contractIntent = new Intent(getActivity(),WebSiteActivity.class);
-							contractIntent.putExtra("htmlText","<script>location.href='"+DetailUrl+"';</script>");
-							DetailUrl=DetailUrl.replace("\\", "/");
-							String[] loginUrl=DetailUrl.split("/");
-							contractIntent.putExtra("loginUrl", "http://"+loginUrl[2]+"/login/index.php");
+							contractIntent.putExtra("url", DetailUrl);
 							contractIntent.putExtra("title", title);
 							startActivity(contractIntent);
 						}
-						else if(DetailUrl.equals("发送消息"))
-						{
-							Intent intent = new Intent(getActivity(),ChatMsgActivity.class);
-							intent.putExtra("toid", achievement.getId());
-							intent.putExtra("type", "消息");
-							intent.putExtra("toname", achievement.getTitle());
-							intent.putExtra("userImage", achievement.getIcon());
-							getActivity().startActivity(intent);
-						}
-						else if(DetailUrl.toLowerCase().indexOf(".php")>=0)
+						
+						else
 						{
 							Intent intent =null;
 							if(achievement.getTemplateName()==null || achievement.getTemplateName().length()==0)
@@ -362,13 +376,8 @@ public class SchoolSectionFragment extends Fragment {
 									intent=new Intent(getActivity(),SchoolDetailActivity.class);
 								intent.putExtra("templateName", achievement.getTemplateName());
 							}
-							int pos=interfaceName.indexOf("?");
-							String preUrl=interfaceName;
-							if(pos>-1)
-								preUrl=interfaceName.substring(0, pos);
-							intent.putExtra("interfaceName", preUrl+DetailUrl+"&newFlag=1");
+							intent.putExtra("interfaceName", DetailUrl);
 							intent.putExtra("title", title);
-							intent.putExtra("display", title);
 							startActivityForResult(intent,101);
 						}
 						
@@ -380,10 +389,11 @@ public class SchoolSectionFragment extends Fragment {
 		}
 
 		class ViewHolder {
-			ImageView icon;
-			TextView title;
-			TextView total;
-			TextView rank;
+			
+			TextView left;
+			TextView center;
+			TextView right;
+			ImageView iv_right;
 		}
 		
 	}

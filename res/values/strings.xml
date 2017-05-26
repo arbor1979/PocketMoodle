@@ -326,4 +326,7 @@
        <string name="grades">Grades</string>
       <string name="notes">Notes</string>
       <string name="backgrounddownload">Background download。。。</string>
+      <string name="downloaded">Downloaded</string>
+      <string name="not_downloaded">Not downloaded</string>
+      <string name="question">Question</string>
 </resources>

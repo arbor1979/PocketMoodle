@@ -341,4 +341,7 @@
        <string name="grades">成绩</string>
         <string name="notes">笔记</string>
         <string name="backgrounddownload">后台下载中。。。</string>
+        <string name="downloaded">已下载</string>
+        <string name="not_downloaded">未下载</string>
+        <string name="question">题目</string>
 </resources>

@@ -6,6 +6,7 @@ import java.util.List;
 import com.dandian.pocketmoodle.R;
 import com.dandian.pocketmoodle.activity.TabHostActivity;
 import com.dandian.pocketmoodle.activity.TabSchoolActivity;
+import com.dandian.pocketmoodle.activity.WebSiteActivity;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -319,13 +320,14 @@ public class IntentUtility {
 		intent.setDataAndType(uri, "application/x-shockwave-flash");
 		return intent;
 	}
-	
+
 	public static boolean openIntent(Context context,Intent intent,boolean iftip)
 	{
 		if(intent==null)
 			return false;
 		if(hasApplication(context,intent))
 		{
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
 			context.startActivity(intent);
 			return true;
 		}
@@ -335,6 +337,19 @@ public class IntentUtility {
 				AppUtility.showToastMsg(context, context.getString(R.string.noappcanopenthis));
 			return false;
 		}
+	}
+	public static void openWebIntent(Context context,String url)
+	{
+		if(!url.startsWith("file://"))
+			url="file://"+url;
+		String extName=FileUtility.getFileExtName(url);
+    	if(extName.equals("html") || extName.equals("htm"))
+    	{
+    		Intent contractIntent = new Intent(context,WebSiteActivity.class);
+			contractIntent.putExtra("url", url);
+			contractIntent.putExtra("title","");
+			context.startActivity(contractIntent);
+    	}
 	}
 	private static boolean hasApplication(Context context,Intent intent){    
         android.content.pm.PackageManager packageManager = context.getPackageManager();    
@@ -365,7 +380,7 @@ public class IntentUtility {
         	       .setCancelable(false)
         	       .setPositiveButton("安装", new DialogInterface.OnClickListener() {
         	           public void onClick(DialogInterface dialog, int id) {
-        	        	   TabHostActivity.schoolService.downLoadUpdate(url, 1002);
+        	        	   AppUtility.downloadUrl(url, null, context);
         	        	   dialog.dismiss();
         	           }
         	       })

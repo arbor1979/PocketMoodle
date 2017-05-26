@@ -380,10 +380,10 @@ public class ShowPersonInfo extends Activity {
         					
         					JSONObject itemObj=courseArray.getJSONObject(i);
         					String courseName=itemObj.optString("fullname");
-        					String courseId=itemObj.optString("id");
+        					String detailUrl=itemObj.optString("DetailUrl");
         					SpannableString ss = new SpannableString(courseName);
         			        //ss.setSpan(new StyleSpan(Typeface.NORMAL), 0, ss.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        			        ss.setSpan(new MyURLSpan(courseId), 0, ss.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        			        ss.setSpan(new MyURLSpan(detailUrl), 0, ss.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         			        
         			        holder.info.append(ss);
         			        if(i<courseArray.length()-1)
@@ -433,14 +433,8 @@ public class ShowPersonInfo extends Activity {
 			String mUrl=getURL();
 			Intent intent=new Intent(ShowPersonInfo.this,SchoolDetailActivity.class);
 			intent.putExtra("templateName", "²©¿Í");
-			try {
-				intent.putExtra("interfaceName","?function=getUserInfo&action=courseSummary&courseId="+URLEncoder.encode(mUrl,"utf-8"));
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			intent.putExtra("title", mUrl);
-			intent.putExtra("display", getString(R.string.course_summary));
+			intent.putExtra("interfaceName",mUrl);
+			intent.putExtra("title", getString(R.string.course_summary));
 			startActivity(intent);
 	    }
 		

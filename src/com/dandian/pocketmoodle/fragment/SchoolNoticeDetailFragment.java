@@ -351,7 +351,7 @@ public class SchoolNoticeDetailFragment extends Fragment {
 		    	}
 		    	else
 		    	{
-		    		TabHostActivity.schoolService.downLoadUpdate(mUrl, 1003);
+		    		AppUtility.downloadUrl(mUrl, file, getActivity());
 		    		
 		    	}
 	        }

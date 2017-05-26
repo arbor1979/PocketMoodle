@@ -21,6 +21,7 @@ public class Comment implements Serializable{
 	private String usercode;
 	private String reply;
 	private String replyUrl;
+	
 	public Comment()
 	{
 		
@@ -38,6 +39,7 @@ public class Comment implements Serializable{
 		this.replyUrl=jo.optString("»Ø¸´URL");
 		
 	}
+	
 	public String getReply() {
 		return reply;
 	}

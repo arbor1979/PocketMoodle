@@ -1,7 +1,10 @@
 package com.dandian.pocketmoodle.service;
 
 
+import com.dandian.pocketmoodle.R;
+import com.dandian.pocketmoodle.activity.WebSiteActivity;
 import com.dandian.pocketmoodle.util.AppUtility;
+import com.dandian.pocketmoodle.util.FileUtility;
 import com.dandian.pocketmoodle.util.IntentUtility;
 
 import android.app.DownloadManager;
@@ -19,7 +22,7 @@ public class CompleteReceiver extends BroadcastReceiver {
 		// TODO Auto-generated method stub
 		String action = intent.getAction();  
         if(action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {  
-        	AppUtility.showToastMsg(context, "�������");
+        	AppUtility.showToastMsg(context, context.getString(R.string.downloadcomplete));
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);                                                                                      //TODO 判断这个id与之前的id是否相等，如果相等说明是之前的那个要下载的文�?  
             Query query = new Query();  
             query.setFilterById(id);  
@@ -68,6 +71,10 @@ public class CompleteReceiver extends BroadcastReceiver {
 	            Intent aintent=IntentUtility.openUrl(Uri.decode(path).replace("file://", ""));
 	            if(aintent!=null)
 	            	IntentUtility.openIntent(context, aintent,true);
+	            else 
+	            {
+	            	IntentUtility.openWebIntent(context,Uri.decode(path));
+	            }
             }
               
         }else if(action.equals(DownloadManager.ACTION_NOTIFICATION_CLICKED)) {  

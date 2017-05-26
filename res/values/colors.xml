@@ -88,4 +88,5 @@
      <color name="moban_color_red_light">#AF2874</color>
      <color name="moban_color_brown_light">#AFA628</color>
      <color name="moban_color_pink_light">#DF72B0</color> 
+     <color name="holo_blue_light">#ff33b5e5</color>
 </resources>

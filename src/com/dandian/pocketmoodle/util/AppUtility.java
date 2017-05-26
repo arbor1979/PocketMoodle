@@ -1,6 +1,7 @@
 package com.dandian.pocketmoodle.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
@@ -530,6 +531,9 @@ public class AppUtility {
 		}
 		
 		AppUtility.showToastMsg(context, string,1);
+		if (exception.equals("无效令牌——找不到令牌")) {
+			reLogin();
+		}
 	}
 	private static void reLogin()
 	{
@@ -760,7 +764,7 @@ public class AppUtility {
 		if(file==null)
 		{
 			String path=FileUtility.creatFileDir("download");
-			String fileName=FileUtility.getUrlRealName(url);
+			String fileName=FileUtility.getUrlMd5Name(url);
 			String filePath=path+fileName;
 			file = new File(filePath);  
 		}
@@ -773,5 +777,39 @@ public class AppUtility {
 	   	 //request.setDestinationInExternalFilesDir(WebSiteActivity.this, null, "PacketCampus");
 	   	 downloadManager.enqueue(request);  
 	   	 AppUtility.showToastMsg(context, context.getString(R.string.backgrounddownload));
+	}
+	public static void openOrdownloadRes(String url,Context context)
+	{
+		//String fileName=FileUtility.getFileRealName(url);
+		String fileName=FileUtility.getUrlMd5Name(url);
+		String path=FileUtility.creatFileDir("download");
+		String filePath=path+fileName;
+		//FileUtility.deleteFile(filePath);
+		File file = new File(filePath);  
+		Intent intent;
+	    if(file.exists())
+	    {
+	    	intent=IntentUtility.openUrl(filePath);
+	    	if(intent!=null)
+	    		IntentUtility.openIntent(context, intent,true);
+	    	else
+	    		IntentUtility.openWebIntent(context,filePath);
+	    }
+	    else
+	    {
+	    	downloadUrl(url,file,context);
+	    }
+	}
+	public static boolean resIfHasExist(String url)
+	{
+		String fileName=FileUtility.getUrlMd5Name(url);
+		String path=FileUtility.creatFileDir("download");
+		String filePath=path+fileName;
+		//FileUtility.deleteFile(filePath);
+		File file = new File(filePath);  
+	    if(file.exists())
+	    	return true;
+	    else
+	    	return false;
 	}
 }

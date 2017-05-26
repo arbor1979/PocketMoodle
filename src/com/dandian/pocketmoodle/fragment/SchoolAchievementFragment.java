@@ -1,5 +1,6 @@
 package com.dandian.pocketmoodle.fragment;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +8,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.app.DownloadManager.Request;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -42,6 +46,8 @@ import com.dandian.pocketmoodle.base.Constants;
 import com.dandian.pocketmoodle.entity.AchievementItem;
 import com.dandian.pocketmoodle.entity.AchievementItem.Achievement;
 import com.dandian.pocketmoodle.util.AppUtility;
+import com.dandian.pocketmoodle.util.FileUtility;
+import com.dandian.pocketmoodle.util.IntentUtility;
 import com.dandian.pocketmoodle.util.MyImageGetter;
 import com.dandian.pocketmoodle.util.MyTagHandler;
 import com.dandian.pocketmoodle.util.PrefUtility;
@@ -64,7 +70,7 @@ public class SchoolAchievementFragment extends Fragment {
 	private String interfaceName,title;
 	private LayoutInflater inflater;
 	private AchieveAdapter adapter;
-
+	private LinearLayout headlayout;
 	private List<Achievement> achievements = new ArrayList<Achievement>();
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -90,25 +96,31 @@ public class SchoolAchievementFragment extends Fragment {
 								+ achievementItem.getAchievements().size());
 						if(achievementItem.getSummary()!=null && achievementItem.getSummary().length()>0)
 						{
+							if(headlayout!=null)
+								headlayout.removeAllViews();
+							else
+							{
+								headlayout=new LinearLayout(getActivity());
+								headlayout.setOrientation(LinearLayout.VERTICAL);
+								LayoutParams params=new LayoutParams(LayoutParams.MATCH_PARENT,
+										LayoutParams.WRAP_CONTENT);
+								headlayout.setBackgroundColor(Color.WHITE);
+								headlayout.setLayoutParams(params);
+								myListview.setAdapter(null);
+								myListview.addHeaderView(headlayout);
+								myListview.setAdapter(adapter);
+							}
 							TextView tv_summary=new TextView(getActivity());
-							LinearLayout layout=new LinearLayout(getActivity());
-							layout.setOrientation(LinearLayout.VERTICAL);
-							LayoutParams params=new LayoutParams(LayoutParams.MATCH_PARENT,
-									LayoutParams.WRAP_CONTENT);
-							layout.setBackgroundColor(Color.WHITE);
-							layout.setLayoutParams(params);
 							LinearLayout.LayoutParams params1=new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
 									LayoutParams.WRAP_CONTENT);
 							params1.setMargins(20,20,20,20);
 							tv_summary.setLayoutParams(params1);
-							layout.addView(tv_summary);
+							headlayout.addView(tv_summary);
 							tv_summary.setBackgroundColor(Color.WHITE);
 							Spanned spanned = Html.fromHtml(achievementItem.getSummary(), new MyImageGetter(getActivity(),tv_summary), new MyTagHandler(getActivity()));
 							tv_summary.setText(spanned);
 							tv_summary.setMovementMethod(LinkMovementMethod.getInstance());
-							myListview.setAdapter(null);
-							myListview.addHeaderView(layout);
-							myListview.setAdapter(adapter);
+							
 							
 						}
 						achievements = achievementItem.getAchievements();
@@ -310,19 +322,32 @@ public class SchoolAchievementFragment extends Fragment {
 			if (imagurl != null && !imagurl.equals("")) {
 				holder.icon.setVisibility(View.VISIBLE);
 				aq.id(holder.icon).image(imagurl);
-				if(achievement.getIcon_link().equals("个人资料"))
+				if(achievement.getIcon_link()!=null)
 				{
+					
 					holder.icon.setOnClickListener(new OnClickListener(){
 						@Override
 						public void onClick(View v) {
-							Intent intent = new Intent(getActivity(),
-									ShowPersonInfo.class);
-							intent.putExtra("studentId", achievement.getId());
-							intent.putExtra("userImage", achievement.getIcon());
-							startActivity(intent);
+							
+							JSONObject obj=null;
+							try {
+								obj=new JSONObject(achievement.getIcon_link());
+							} catch (JSONException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							if(obj!=null)
+							{
+								Intent intent = new Intent(getActivity(),
+										ShowPersonInfo.class);
+								intent.putExtra("studentId", obj.optString("studentId"));
+								intent.putExtra("courseId", obj.optInt("courseId"));
+								startActivity(intent);
+							}
 						}
 						
 					});
+				
 				}
 			}
 			else
@@ -360,7 +385,21 @@ public class SchoolAchievementFragment extends Fragment {
 				else
 					holder.total.setBackground(getResources().getDrawable(R.drawable.school_achievement_bg));
 			}
-			
+			if(achievement.getDetailUrl().equals("资源下载"))
+			{
+				holder.total.setVisibility(View.VISIBLE);
+				if(AppUtility.resIfHasExist(achievement.getDetailTitle()))
+				{
+					holder.total.setText(R.string.downloaded);
+					holder.total.setBackground(getResources().getDrawable(R.drawable.school_achievement_bg));
+				}
+				else
+				{
+					holder.total.setText(R.string.not_downloaded);
+					holder.total.setBackground(getResources().getDrawable(R.drawable.school_achievement_blue));
+				}
+				
+			}
 			convertView.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -371,10 +410,20 @@ public class SchoolAchievementFragment extends Fragment {
 						if(DetailUrl.toLowerCase().startsWith("http"))
 						{
 							Intent contractIntent = new Intent(getActivity(),WebSiteActivity.class);
-							contractIntent.putExtra("htmlText","<script>location.href='"+DetailUrl+"';</script>");
+							/*
 							DetailUrl=DetailUrl.replace("\\", "/");
 							String[] loginUrl=DetailUrl.split("/");
-							contractIntent.putExtra("loginUrl", "http://"+loginUrl[2]+"/login/index.php");
+							String domain=PrefUtility.get(Constants.PREF_SCHOOL_DOMAIN,"");
+							domain=domain.replace("http://", "");
+							
+							if(loginUrl[2].equals(domain))
+							{
+								contractIntent.putExtra("loginUrl", "http://"+loginUrl[2]+"/login/index.php");
+								contractIntent.putExtra("htmlText","<script>location.href='"+DetailUrl+"';</script>");
+							}
+							else
+							*/
+								contractIntent.putExtra("url", DetailUrl);
 							contractIntent.putExtra("title", title);
 							startActivity(contractIntent);
 						}
@@ -386,6 +435,10 @@ public class SchoolAchievementFragment extends Fragment {
 							intent.putExtra("toname", achievement.getTitle());
 							intent.putExtra("userImage", achievement.getIcon());
 							getActivity().startActivity(intent);
+						}
+						else if(DetailUrl.equals("资源下载"))
+						{
+							AppUtility.openOrdownloadRes(achievement.getDetailTitle(),getActivity());
 						}
 						else if(DetailUrl.length()>0)
 						{

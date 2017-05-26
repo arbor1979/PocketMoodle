@@ -31,12 +31,14 @@ public class QuestionnaireList implements Serializable {
 	private String title;
 	private String submitTo;
 	private String status;
+	private String autoClose;
 	private ArrayList<Question> questions;
 
 	public QuestionnaireList(JSONObject jo) {
 		title = jo.optString("标题显示");
 		submitTo = jo.optString("提交地址");
 		status = jo.optString("调查问卷状态");
+		autoClose=jo.optString("自动关闭");
 		questions = new ArrayList<Question>();
 		JSONArray joq = jo.optJSONArray("调查问卷数值");
 		for (int i = 0; i < joq.length(); i++) {
@@ -45,6 +47,16 @@ public class QuestionnaireList implements Serializable {
 		}
 	}
 	
+
+	public String getAutoClose() {
+		return autoClose;
+	}
+
+
+	public void setAutoClose(String autoClose) {
+		this.autoClose = autoClose;
+	}
+
 
 	public String getTitle() {
 		return title;
@@ -95,10 +107,28 @@ public class QuestionnaireList implements Serializable {
 		private String status;
 		private String usersAnswer;
 		private String remark;
+		private String state;
+		private String grade;
+		private String prompt;
+		private String slot;
+		private int lines;
+		public int getLines() {
+			return lines;
+		}
+
+		public void setLines(int lines) {
+			this.lines = lines;
+		}
+
 		private String options[];
 		private List<ImageItem> images; 
 		private String isRequired;
+		private JSONArray fujianArray;
 		public Question(JSONObject jo) {
+			slot=jo.optString("编号");
+			state=jo.optString("状态");
+			grade=jo.optString("满分");
+			prompt=jo.optString("提示");
 			title = jo.optString("题目");
 			status = jo.optString("类型");
 			remark = jo.optString("备注");
@@ -111,6 +141,7 @@ public class QuestionnaireList implements Serializable {
 				}
 			}
 			isRequired = jo.optString("是否必填");
+			lines=jo.optInt("行数");
 			if(status.equals("图片")){
 				JSONArray jaimages = jo.optJSONArray("用户答案");
 				if(jaimages!=null){
@@ -118,9 +149,55 @@ public class QuestionnaireList implements Serializable {
 				}else{
 					setImages(new ArrayList<ImageItem>());
 				}
-			}else{
+			}
+			else if(status.equals("附件"))
+			{
+				fujianArray=jo.optJSONArray("用户答案");
+			}
+			else
+			{
 				usersAnswer = jo.optString("用户答案");
 			}
+		}
+
+		public String getState() {
+			return state;
+		}
+
+		public void setState(String state) {
+			this.state = state;
+		}
+
+		public String getGrade() {
+			return grade;
+		}
+
+		public void setGrade(String grade) {
+			this.grade = grade;
+		}
+
+		public String getPrompt() {
+			return prompt;
+		}
+
+		public void setPrompt(String prompt) {
+			this.prompt = prompt;
+		}
+
+		public String getSlot() {
+			return slot;
+		}
+
+		public void setSlot(String slot) {
+			this.slot = slot;
+		}
+
+		public JSONArray getFujianArray() {
+			return fujianArray;
+		}
+
+		public void setFujianArray(JSONArray fujianArray) {
+			this.fujianArray = fujianArray;
 		}
 
 		public String getTitle() {

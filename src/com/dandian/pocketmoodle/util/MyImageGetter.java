@@ -177,10 +177,15 @@ public class MyImageGetter implements ImageGetter {
 
 		private void setDrawable(Drawable nDrawable) {
 			drawable = nDrawable;
-			drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
-					drawable.getIntrinsicHeight());
-			setBounds(0, 0, drawable.getIntrinsicWidth(),
-					drawable.getIntrinsicHeight());
+			float rate=((float)width)/drawable.getIntrinsicWidth();
+			int showWidth=width;
+			int showHeight= (int)(drawable.getIntrinsicHeight()*rate);
+			if(drawable!=null){
+				drawable.setBounds(0, 0, showWidth,
+						showHeight);
+			}
+			//drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
+			setBounds(0, 0, showWidth,showHeight);
 		}
 		 @Override  
 	    public void draw(Canvas canvas) {  
